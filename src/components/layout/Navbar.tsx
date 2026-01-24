@@ -29,18 +29,15 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+    <nav className="sticky top-0 z-50 bg-accent border-b border-accent">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-lg">AC</span>
+              <span className="text-primary-foreground font-display font-bold text-lg">AU</span>
             </div>
-            <div className="hidden sm:block">
-              <span className="font-display font-bold text-xl text-foreground">AutoChina</span>
-              <span className="font-display font-bold text-xl text-primary"> Argentina</span>
-            </div>
+            <span className="font-display font-bold text-xl text-accent-foreground">AUCHAR</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -56,8 +53,8 @@ export const Navbar = () => {
                   to={item.href}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-1 ${
                     isActive(item.href)
-                      ? "text-primary bg-primary/10"
-                      : "text-foreground hover:text-primary hover:bg-primary/5"
+                      ? "text-primary bg-primary/20"
+                      : "text-accent-foreground hover:text-primary hover:bg-primary/10"
                   }`}
                 >
                   {item.label}
@@ -92,7 +89,7 @@ export const Navbar = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Button variant="accent" size="sm">
+            <Button variant="default" size="sm">
               Publicar Vehículo
             </Button>
           </div>
@@ -100,7 +97,7 @@ export const Navbar = () => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+            className="md:hidden p-2 rounded-lg text-accent-foreground hover:bg-primary/10 transition-colors"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -114,7 +111,7 @@ export const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-border bg-background"
+            className="md:hidden border-t border-accent-foreground/10 bg-accent"
           >
             <div className="container mx-auto px-4 py-4 space-y-2">
               {navItems.map((item) => (
@@ -124,8 +121,8 @@ export const Navbar = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
                       isActive(item.href)
-                        ? "text-primary bg-primary/10"
-                        : "text-foreground hover:text-primary hover:bg-primary/5"
+                        ? "text-primary bg-primary/20"
+                        : "text-accent-foreground hover:text-primary hover:bg-primary/10"
                     }`}
                   >
                     {item.label}
@@ -137,7 +134,7 @@ export const Navbar = () => {
                           key={subItem.label}
                           to={subItem.href}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="block px-4 py-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                          className="block px-4 py-2 text-sm text-accent-foreground/70 hover:text-primary transition-colors"
                         >
                           {subItem.label}
                         </Link>
@@ -147,7 +144,7 @@ export const Navbar = () => {
                 </div>
               ))}
               <div className="pt-2">
-                <Button variant="accent" className="w-full">
+                <Button variant="default" className="w-full">
                   Publicar Vehículo
                 </Button>
               </div>

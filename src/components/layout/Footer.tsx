@@ -31,21 +31,18 @@ const socialLinks = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-foreground text-background">
+    <footer className="bg-accent text-accent-foreground">
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-lg">AC</span>
+                <span className="text-primary-foreground font-display font-bold text-lg">AU</span>
               </div>
-              <div>
-                <span className="font-display font-bold text-xl text-background">AutoChina</span>
-                <span className="font-display font-bold text-xl text-primary"> Argentina</span>
-              </div>
+              <span className="font-display font-bold text-xl text-accent-foreground">AUCHAR</span>
             </Link>
-            <p className="text-background/70 text-sm mb-6">
+            <p className="text-accent-foreground/70 text-sm mb-6">
               Tu portal de noticias, reseñas y clasificados de vehículos chinos en Argentina.
             </p>
             <div className="flex gap-3">
@@ -54,7 +51,7 @@ export const Footer = () => {
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-10 h-10 rounded-full bg-background/10 hover:bg-primary flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full bg-accent-foreground/10 hover:bg-primary flex items-center justify-center transition-colors"
                 >
                   <Icon className="w-5 h-5" />
                 </a>
@@ -70,7 +67,7 @@ export const Footer = () => {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-background/70 hover:text-primary transition-colors text-sm"
+                    className="text-accent-foreground/70 hover:text-primary transition-colors text-sm"
                   >
                     {link.label}
                   </Link>
@@ -87,7 +84,7 @@ export const Footer = () => {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-background/70 hover:text-primary transition-colors text-sm"
+                    className="text-accent-foreground/70 hover:text-primary transition-colors text-sm"
                   >
                     {link.label}
                   </Link>
@@ -99,16 +96,16 @@ export const Footer = () => {
           {/* Newsletter & Legal */}
           <div>
             <h4 className="font-display font-semibold text-lg mb-4">Suscribite</h4>
-            <p className="text-background/70 text-sm mb-4">
+            <p className="text-accent-foreground/70 text-sm mb-4">
               Recibí las últimas noticias en tu correo.
             </p>
             <div className="flex gap-2 mb-6">
               <input
                 type="email"
                 placeholder="Tu email"
-                className="flex-1 px-4 py-2 rounded-lg bg-background/10 border border-background/20 text-background placeholder:text-background/50 text-sm focus:outline-none focus:border-primary"
+                className="flex-1 px-4 py-2 rounded-lg bg-accent-foreground/10 border border-accent-foreground/20 text-accent-foreground placeholder:text-accent-foreground/50 text-sm focus:outline-none focus:border-primary"
               />
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 rounded-lg transition-colors">
+              <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors">
                 <Mail className="w-5 h-5" />
               </button>
             </div>
@@ -117,7 +114,7 @@ export const Footer = () => {
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-background/70 hover:text-primary transition-colors text-sm"
+                    className="text-accent-foreground/70 hover:text-primary transition-colors text-sm"
                   >
                     {link.label}
                   </Link>
@@ -128,9 +125,9 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-background/20 mt-12 pt-8 text-center">
-          <p className="text-background/50 text-sm">
-            © {new Date().getFullYear()} AutoChina Argentina. Todos los derechos reservados.
+        <div className="border-t border-accent-foreground/20 mt-12 pt-8 text-center">
+          <p className="text-accent-foreground/50 text-sm">
+            © {new Date().getFullYear()} AUCHAR. Todos los derechos reservados.
           </p>
         </div>
       </div>
