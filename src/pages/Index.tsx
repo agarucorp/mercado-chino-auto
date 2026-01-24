@@ -1,6 +1,4 @@
 import { Layout } from "@/components/layout/Layout";
-import { HeroSection } from "@/components/home/HeroSection";
-import { SourcesBar } from "@/components/home/SourcesBar";
 import { NewsGrid } from "@/components/news/NewsGrid";
 import { NewsCardProps } from "@/components/news/NewsCard";
 
@@ -75,10 +73,7 @@ const newsData: NewsCardProps[] = [
 const Index = () => {
   return (
     <Layout>
-      <HeroSection />
-      <SourcesBar />
-      
-      <section className="py-12 md:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
