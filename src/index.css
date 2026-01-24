@@ -17,7 +17,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 20% 10%;
 
-    --primary: 207 56% 66%;
+    --primary: 0 72% 51%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 20% 96%;
@@ -26,25 +26,25 @@
     --muted: 210 20% 96%;
     --muted-foreground: 220 10% 45%;
 
-    --accent: 41 97% 64%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 210 20% 90%;
     --input: 210 20% 90%;
-    --ring: 207 56% 66%;
+    --ring: 0 72% 51%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --hero-gradient: linear-gradient(135deg, hsl(207 56% 66% / 0.1) 0%, hsl(41 97% 64% / 0.1) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(0 72% 51% / 0.05) 0%, hsl(0 0% 10% / 0.05) 100%);
     --card-shadow: 0 4px 20px -4px hsl(220 20% 10% / 0.08);
     --card-shadow-hover: 0 12px 40px -8px hsl(220 20% 10% / 0.15);
     --news-card-border: hsl(210 20% 90%);
-    --badge-bg: hsl(41 97% 64% / 0.15);
-    --badge-text: hsl(35 80% 35%);
+    --badge-bg: hsl(0 72% 51% / 0.1);
+    --badge-text: hsl(0 72% 40%);
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -66,7 +66,7 @@
     --popover: 220 20% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 207 56% 66%;
+    --primary: 0 72% 51%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 20% 18%;
@@ -75,15 +75,15 @@
     --muted: 220 20% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 41 97% 64%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 220 20% 20%;
     --input: 220 20% 20%;
-    --ring: 207 56% 66%;
+    --ring: 0 72% 51%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
