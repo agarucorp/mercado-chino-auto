@@ -14,8 +14,20 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
+        display: ["DM Serif Display", "Georgia", "serif"],
+        sans: ["Outfit", "system-ui", "sans-serif"],
+        body: ["Source Serif 4", "Georgia", "serif"],
+      },
+      fontSize: {
+        hero: ["var(--text-hero)", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
+        h1: ["var(--text-h1)", { lineHeight: "var(--leading-tight)", letterSpacing: "var(--tracking-tight)" }],
+        h2: ["var(--text-h2)", { lineHeight: "var(--leading-snug)" }],
+        h3: ["var(--text-h3)", { lineHeight: "var(--leading-snug)" }],
+        "ui-sm": ["var(--text-sm)", { lineHeight: "var(--leading-snug)" }],
+        "ui-xs": ["var(--text-xs)", { lineHeight: "1.4" }],
+      },
+      letterSpacing: {
+        badge: "0.04em",
       },
       colors: {
         border: "hsl(var(--border))",

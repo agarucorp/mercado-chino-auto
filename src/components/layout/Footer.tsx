@@ -1,11 +1,12 @@
+import { SiteLogo } from "@/components/layout/SiteLogo";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube, Mail } from "lucide-react";
 
 const footerLinks = {
   secciones: [
-    { label: "Noticias", href: "/" },
-    { label: "Marcas", href: "/marcas" },
-    { label: "Reseñas", href: "/resenas" },
+    { label: "Vender", href: "/vender" },
+    { label: "Agencias", href: "/agencias" },
+    { label: "Noticias", href: "/noticias" },
     { label: "Clasificados", href: "/clasificados" },
   ],
   marcas: [
@@ -36,13 +37,8 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-lg">AU</span>
-              </div>
-              <span className="font-display font-bold text-xl text-accent-foreground">AUCHAR</span>
-            </Link>
-            <p className="text-accent-foreground/70 text-sm mb-6">
+            <SiteLogo linkToHome className="mb-4" />
+            <p className="text-accent-foreground/70 type-body text-sm mb-6 max-w-prose">
               Tu portal de noticias, reseñas y clasificados de vehículos chinos en Argentina.
             </p>
             <div className="flex gap-3">
@@ -61,7 +57,7 @@ export const Footer = () => {
 
           {/* Secciones */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Secciones</h4>
+            <h4 className="type-h3 mb-4">Secciones</h4>
             <ul className="space-y-2">
               {footerLinks.secciones.map((link) => (
                 <li key={link.label}>
@@ -78,7 +74,7 @@ export const Footer = () => {
 
           {/* Marcas */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Marcas Populares</h4>
+            <h4 className="type-h3 mb-4">Marcas populares</h4>
             <ul className="space-y-2">
               {footerLinks.marcas.map((link) => (
                 <li key={link.label}>
@@ -95,7 +91,7 @@ export const Footer = () => {
 
           {/* Newsletter & Legal */}
           <div>
-            <h4 className="font-display font-semibold text-lg mb-4">Suscribite</h4>
+            <h4 className="type-h3 mb-4">Suscribite</h4>
             <p className="text-accent-foreground/70 text-sm mb-4">
               Recibí las últimas noticias en tu correo.
             </p>
@@ -125,10 +121,17 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-accent-foreground/20 mt-12 pt-8 text-center">
-          <p className="text-accent-foreground/50 text-sm">
-            © {new Date().getFullYear()} AUCHAR. Todos los derechos reservados.
-          </p>
+        <div className="border-t border-accent-foreground/20 mt-12 pt-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+            <span className="type-meta text-accent-foreground/50">Powered by</span>
+            <img
+              src="/logos/typo.svg"
+              alt="AUCHAR"
+              className="h-[0.7rem] sm:h-[0.875rem] w-auto"
+              width={871}
+              height={72}
+            />
+          </div>
         </div>
       </div>
     </footer>

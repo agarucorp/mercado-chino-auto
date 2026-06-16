@@ -111,7 +111,7 @@ const Clasificados = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-2xl mx-auto mb-12"
           >
-            <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4">
+            <h1 className="type-h1 text-foreground mb-4">
               Clasificados
             </h1>
             <p className="text-muted-foreground">
@@ -257,11 +257,11 @@ const Clasificados = () => {
                 </div>
 
                 <div className="p-5">
-                  <h3 className="font-display font-semibold text-lg text-foreground group-hover:text-primary transition-colors mb-2">
+                  <h3 className="type-h3 text-foreground group-hover:text-primary transition-colors mb-2">
                     {listing.title}
                   </h3>
 
-                  <p className="font-display font-bold text-xl text-primary mb-4">
+                  <p className="type-numeric font-semibold text-xl text-primary mb-4">
                     {formatPrice(listing.price)}
                   </p>
 

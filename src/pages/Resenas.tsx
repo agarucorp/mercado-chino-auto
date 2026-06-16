@@ -93,8 +93,8 @@ const Resenas = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-2xl mx-auto mb-12"
           >
-            <h1 className="font-display font-bold text-3xl md:text-4xl text-foreground mb-4">
-              Reseñas de Propietarios
+            <h1 className="type-h1 text-foreground mb-4">
+              Reseñas de propietarios
             </h1>
             <p className="text-muted-foreground">
               Experiencias reales de dueños de vehículos chinos en Argentina. Compartí tu opinión y ayudá a otros compradores.
@@ -128,7 +128,7 @@ const Resenas = () => {
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                  <DialogTitle className="font-display">Nueva Reseña</DialogTitle>
+                  <DialogTitle className="type-h2">Nueva reseña</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 pt-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -209,7 +209,7 @@ const Resenas = () => {
                       <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
                         {review.brand}
                       </span>
-                      <h3 className="font-display font-semibold text-lg text-foreground">
+                      <h3 className="type-h3 text-foreground">
                         {review.model} ({review.year})
                       </h3>
                     </div>

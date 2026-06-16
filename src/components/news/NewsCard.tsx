@@ -11,6 +11,8 @@ export interface NewsCardProps {
   source: string;
   date: string;
   featured?: boolean;
+  marcaId?: string;
+  modeloId?: string;
 }
 
 export const NewsCard = ({
@@ -40,17 +42,17 @@ export const NewsCard = ({
         
         <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
           <div className="flex items-center gap-3 mb-3">
-            <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full uppercase tracking-wide">
+            <span className="type-badge px-3 py-1 bg-accent text-accent-foreground rounded-full">
               {category}
             </span>
-            <span className="text-background/80 text-sm">{source}</span>
+            <span className="type-meta text-background/80">{source}</span>
           </div>
           
-          <h2 className="font-display font-bold text-2xl md:text-3xl lg:text-4xl text-background mb-3 leading-tight">
+          <h2 className="type-hero text-background mb-3">
             {title}
           </h2>
           
-          <p className="text-background/80 text-sm md:text-base mb-4 line-clamp-2 max-w-2xl">
+          <p className="font-body text-background/80 text-sm md:text-base mb-4 line-clamp-2 max-w-2xl leading-relaxed">
             {excerpt}
           </p>
           
@@ -86,7 +88,7 @@ export const NewsCard = ({
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <span className="absolute top-3 left-3 px-3 py-1 bg-accent text-accent-foreground text-xs font-semibold rounded-full uppercase tracking-wide">
+        <span className="type-badge absolute top-3 left-3 px-3 py-1 bg-accent text-accent-foreground rounded-full">
           {category}
         </span>
       </div>
@@ -98,11 +100,11 @@ export const NewsCard = ({
           <span>{date}</span>
         </div>
         
-        <h3 className="font-display font-semibold text-lg text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+        <h3 className="type-h3 text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
           {title}
         </h3>
         
-        <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+        <p className="type-body text-muted-foreground text-sm line-clamp-2 mb-4">
           {excerpt}
         </p>
         
