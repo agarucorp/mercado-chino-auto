@@ -1,5 +1,5 @@
 import { NewsCard } from "@/components/news/NewsCard";
-import { NEWS_DATA } from "@/data/news";
+import { getFilteredNews } from "@/data/news";
 import {
   Carousel,
   CarouselContent,
@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const PREVIEW_NEWS = NEWS_DATA.filter((n) => !n.featured).slice(0, 3);
+const PREVIEW_NEWS = getFilteredNews(null).slice(1, 4);
 
 export function NewsPreview() {
   const [api, setApi] = useState<CarouselApi>();
@@ -34,10 +34,10 @@ export function NewsPreview() {
 
   return (
     <section className="py-8 md:py-12">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="type-h2 text-foreground">Últimas noticias</h2>
+            <h2 className="type-h2 text-foreground">Las principales noticias</h2>
             <p className="type-body text-muted-foreground mt-1">
               Las novedades más recientes del mercado automotriz chino en Argentina
             </p>
@@ -78,7 +78,7 @@ export function NewsPreview() {
             disabled={!canScrollPrev}
             aria-label="Noticia anterior"
             className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-card border border-border shadow-md flex items-center justify-center disabled:opacity-0",
+              "absolute left-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-muted flex items-center justify-center disabled:opacity-0",
             )}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -89,7 +89,7 @@ export function NewsPreview() {
             disabled={!canScrollNext}
             aria-label="Noticia siguiente"
             className={cn(
-              "absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-card border border-border shadow-md flex items-center justify-center disabled:opacity-0",
+              "absolute right-0 top-1/2 -translate-y-1/2 z-10 h-9 w-9 rounded-full bg-muted flex items-center justify-center disabled:opacity-0",
             )}
           >
             <ChevronRight className="h-5 w-5" />

@@ -7,23 +7,32 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1.25rem",
+        sm: "1.5rem",
+        md: "3rem",
+        lg: "4rem",
+        xl: "5rem",
+        "2xl": "6rem",
+      },
       screens: {
         "2xl": "1400px",
       },
     },
     extend: {
       fontFamily: {
-        display: ["DM Serif Display", "Georgia", "serif"],
-        sans: ["Outfit", "system-ui", "sans-serif"],
-        body: ["Source Serif 4", "Georgia", "serif"],
+        display: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        body: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       },
       fontSize: {
         hero: ["var(--text-hero)", { lineHeight: "1.2", letterSpacing: "-0.01em" }],
         h1: ["var(--text-h1)", { lineHeight: "var(--leading-tight)", letterSpacing: "var(--tracking-tight)" }],
         h2: ["var(--text-h2)", { lineHeight: "var(--leading-snug)" }],
         h3: ["var(--text-h3)", { lineHeight: "var(--leading-snug)" }],
-        "ui-sm": ["var(--text-sm)", { lineHeight: "var(--leading-snug)" }],
+        "ui-sm": ["var(--text-sm)", { lineHeight: "var(--leading-snug)", letterSpacing: "-0.006em" }],
+        body: ["var(--text-base)", { lineHeight: "var(--leading-normal)", letterSpacing: "-0.011em" }],
+        "body-sm": ["var(--text-sm)", { lineHeight: "var(--leading-snug)", letterSpacing: "-0.006em" }],
         "ui-xs": ["var(--text-xs)", { lineHeight: "1.4" }],
       },
       letterSpacing: {
@@ -78,6 +87,8 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "var(--radius)",
+        "2xl": "calc(var(--radius) + 2px)",
       },
       keyframes: {
         "accordion-down": {

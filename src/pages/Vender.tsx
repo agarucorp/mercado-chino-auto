@@ -8,7 +8,7 @@ const Vender = () => {
   return (
     <Layout>
       <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4 max-w-2xl text-center">
+        <div className="container mx-auto max-w-2xl text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
               <Upload className="w-8 h-8" />

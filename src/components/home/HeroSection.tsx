@@ -115,7 +115,7 @@ export function HeroSection() {
         aria-hidden
       />
 
-      <div className="container relative z-10 mx-auto px-4 h-full min-h-[inherit] flex items-center py-16 md:py-20 lg:py-24">
+      <div className="container relative z-10 mx-auto h-full min-h-[inherit] flex items-center py-16 md:py-20 lg:py-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,15 +123,14 @@ export function HeroSection() {
           className="max-w-xl space-y-5"
         >
           <h1 className="type-hero text-white max-w-xl drop-shadow-sm">
-            Todo sobre el mercado automotriz chino en Argentina
+            Comprá, vendé e informate sobre autos chinos en Argentina
           </h1>
           <p className="type-lead text-white/85 max-w-lg">
-            Últimas noticias, marcas y representantes, fichas técnicas, reseñas y
-            clasificados.
+            Marcas, fichas técnicas, reseñas, clasificados y comparativas del mercado local.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-2">
-            <Button asChild size="lg" className="font-sans">
-              <Link to="/vender">Publicar vehículo</Link>
+            <Button asChild size="lg" className="font-sans bg-white text-foreground hover:bg-white/90">
+              <Link to="/marcas">Explorar marcas</Link>
             </Button>
             <Button
               asChild

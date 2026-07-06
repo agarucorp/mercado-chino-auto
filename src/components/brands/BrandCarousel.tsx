@@ -40,9 +40,9 @@ export function BrandCarousel() {
 
   return (
     <section className="py-8 md:py-10 border-b border-border">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="flex items-end justify-between gap-4 mb-6">
-          <h2 className="type-h2 text-foreground">Todas las marcas</h2>
+          <h2 className="type-h2 text-foreground">Todas las marcas vendidas en Argentina</h2>
           <Link
             to="/marcas"
             className="type-meta text-foreground underline underline-offset-4 hover:text-primary transition-colors shrink-0"
@@ -73,7 +73,7 @@ export function BrandCarousel() {
                     className="flex flex-col items-center gap-2.5 group/card"
                     title={marca.nombre}
                   >
-                    <div className="w-full aspect-square rounded-xl border border-border bg-card flex items-center justify-center p-3 sm:p-4 transition-all group-hover/card:border-primary/30 group-hover/card:shadow-sm">
+                    <div className="w-full aspect-square rounded-lg bg-muted/40 flex items-center justify-center p-3 sm:p-4 transition-colors">
                       <MarcaLogo
                         marcaId={marca.id}
                         nombre={marca.nombre}
@@ -97,7 +97,7 @@ export function BrandCarousel() {
             aria-label="Marcas anteriores"
             className={cn(
               "absolute left-1 sm:left-2 top-[38%] -translate-y-1/2 z-10",
-              "h-9 w-9 rounded-full bg-card border border-border shadow-md",
+              "h-9 w-9 rounded-full bg-muted",
               "flex items-center justify-center text-foreground/70",
               "hover:bg-background hover:text-foreground transition-all",
               "disabled:opacity-0 disabled:pointer-events-none",
@@ -113,7 +113,7 @@ export function BrandCarousel() {
             aria-label="Marcas siguientes"
             className={cn(
               "absolute right-1 sm:right-2 top-[38%] -translate-y-1/2 z-10",
-              "h-9 w-9 rounded-full bg-card border border-border shadow-md",
+              "h-9 w-9 rounded-full bg-muted",
               "flex items-center justify-center text-foreground/70",
               "hover:bg-background hover:text-foreground transition-all",
               "disabled:opacity-0 disabled:pointer-events-none",

@@ -87,7 +87,7 @@ const Resenas = () => {
   return (
     <Layout>
       <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -201,7 +201,7 @@ const Resenas = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-card rounded-xl p-6 card-shadow"
+                className="p-2"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -219,7 +219,7 @@ const Resenas = () => {
                   </div>
                 </div>
 
-                <p className="text-foreground/80 leading-relaxed mb-4">
+                <p className="type-body text-foreground/80 mb-4">
                   {review.content}
                 </p>
 

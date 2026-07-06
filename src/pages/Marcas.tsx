@@ -1,56 +1,38 @@
-import { MarcaLogo } from "@/components/brands/MarcaLogo";
+import { MarcaCard } from "@/components/brands/MarcaCard";
 import { Layout } from "@/components/layout/Layout";
 import { MARCAS } from "@/data/marcas";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { getCategoriaActivaBySlug } from "@/lib/categorias";
+import { Navigate, useSearchParams } from "react-router-dom";
 
 const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) =>
   a.nombre.localeCompare(b.nombre, "es"),
 );
 
 const Marcas = () => {
+  const [searchParams] = useSearchParams();
+  const categoriaParam = searchParams.get("categoria");
+  if (categoriaParam && getCategoriaActivaBySlug(categoriaParam)) {
+    return <Navigate to={`/categorias/${categoriaParam}`} replace />;
+  }
+
   return (
     <Layout>
-      <section className="py-10 md:py-14">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-10"
-          >
-            <h1 className="type-h1 text-foreground mb-2">Todas las marcas</h1>
-            <p className="type-body text-muted-foreground">
-              {MARCAS.length} marcas con presencia oficial en Argentina
+      <section className="py-10 md:py-14 min-h-screen">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-10">
+            <h1 className="type-h1 text-foreground">Marcas</h1>
+            <p className="type-meta text-muted-foreground mt-2">
+              {MARCAS_ORDENADAS.length} marcas chinas en el catálogo argentino
             </p>
-          </motion.div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-            {MARCAS_ORDENADAS.map((marca, index) => (
-              <motion.div
-                key={marca.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(index * 0.02, 0.3) }}
-              >
-                <Link
-                  to={`/marcas/${marca.slug}`}
-                  className="flex flex-col items-center gap-2.5 group"
-                >
-                  <div className="w-full aspect-square rounded-xl border border-border bg-card flex items-center justify-center p-4 transition-all group-hover:border-primary/30 group-hover:shadow-sm">
-                    <MarcaLogo
-                      marcaId={marca.id}
-                      nombre={marca.nombre}
-                      className="w-full h-full"
-                      imageClassName="max-h-12"
-                    />
-                  </div>
-                  <span className="type-meta text-center text-foreground/80 group-hover:text-primary transition-colors">
-                    {marca.nombre}
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
           </div>
+
+          <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">
+            {MARCAS_ORDENADAS.map((marca) => (
+              <li key={marca.id}>
+                <MarcaCard marca={marca} />
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </Layout>

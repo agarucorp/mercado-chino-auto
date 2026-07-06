@@ -5,7 +5,6 @@ import { Facebook, Instagram, Twitter, Youtube, Mail } from "lucide-react";
 const footerLinks = {
   secciones: [
     { label: "Vender", href: "/vender" },
-    { label: "Agencias", href: "/agencias" },
     { label: "Noticias", href: "/noticias" },
     { label: "Clasificados", href: "/clasificados" },
   ],
@@ -33,12 +32,12 @@ const socialLinks = [
 export const Footer = () => {
   return (
     <footer className="bg-accent text-accent-foreground">
-      <div className="container mx-auto px-4 py-12 md:py-16">
+      <div className="container mx-auto py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <SiteLogo linkToHome className="mb-4" />
-            <p className="text-accent-foreground/70 type-body text-sm mb-6 max-w-prose">
+            <p className="type-body-sm text-accent-foreground/70 mb-6 max-w-prose">
               Tu portal de noticias, reseñas y clasificados de vehículos chinos en Argentina.
             </p>
             <div className="flex gap-3">

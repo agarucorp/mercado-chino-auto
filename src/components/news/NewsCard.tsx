@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Calendar, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export interface NewsCardProps {
+export interface NewsArticle {
   id: string;
   title: string;
   excerpt: string;
@@ -10,10 +10,15 @@ export interface NewsCardProps {
   category: string;
   source: string;
   date: string;
+  year: number;
+  sortDate: string;
   featured?: boolean;
   marcaId?: string;
   modeloId?: string;
 }
+
+/** @deprecated Use NewsArticle */
+export type NewsCardProps = NewsArticle;
 
 export const NewsCard = ({
   id,
@@ -31,7 +36,7 @@ export const NewsCard = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="group relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300"
+        className="group relative h-[400px] md:h-[500px] rounded-lg overflow-hidden"
       >
         <img
           src={image}
@@ -52,7 +57,7 @@ export const NewsCard = ({
             {title}
           </h2>
           
-          <p className="font-body text-background/80 text-sm md:text-base mb-4 line-clamp-2 max-w-2xl leading-relaxed">
+          <p className="type-body text-background/80 mb-4 line-clamp-2 max-w-2xl">
             {excerpt}
           </p>
           
@@ -80,9 +85,9 @@ export const NewsCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="group bg-card rounded-xl overflow-hidden card-shadow hover:card-shadow-hover transition-all duration-300"
+      className="group overflow-hidden"
     >
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden rounded-lg">
         <img
           src={image}
           alt={title}
@@ -93,7 +98,7 @@ export const NewsCard = ({
         </span>
       </div>
       
-      <div className="p-5">
+      <div className="pt-4">
         <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
           <span>{source}</span>
           <span>•</span>
@@ -104,7 +109,7 @@ export const NewsCard = ({
           {title}
         </h3>
         
-        <p className="type-body text-muted-foreground text-sm line-clamp-2 mb-4">
+        <p className="type-body text-muted-foreground line-clamp-2 mb-4">
           {excerpt}
         </p>
         

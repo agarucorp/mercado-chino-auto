@@ -16,7 +16,7 @@ const Contacto = () => {
   return (
     <Layout>
       <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4 max-w-2xl">
+        <div className="container mx-auto max-w-2xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <h1 className="type-h1 text-foreground mb-3">Contacto</h1>
             <p className="type-body text-muted-foreground prose-content mb-8">
@@ -34,7 +34,7 @@ const Contacto = () => {
               </span>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 bg-card rounded-xl p-6 card-shadow border border-border">
+            <form onSubmit={handleSubmit} className="space-y-4 p-2">
               <div className="space-y-2">
                 <Label htmlFor="nombre">Nombre</Label>
                 <Input id="nombre" required />

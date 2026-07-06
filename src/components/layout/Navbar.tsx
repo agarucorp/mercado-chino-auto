@@ -3,11 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { NavbarSearch } from "@/components/layout/NavbarSearch";
 import { SiteLogo } from "@/components/layout/SiteLogo";
+import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Vender", href: "/vender" },
-  { label: "Agencias", href: "/agencias" },
   { label: "Noticias", href: "/noticias" },
   { label: "Clasificados", href: "/clasificados" },
 ];
@@ -19,34 +19,34 @@ export const Navbar = () => {
 
   const isActive = (href: string) => location.pathname.startsWith(href);
 
+  const linkClass = (href: string) =>
+    cn(
+      "nav-link px-4 py-2 transition-colors",
+      isActive(href) ? "nav-link-active" : "nav-link-idle",
+    );
+
   return (
     <>
       <nav className="sticky top-0 z-50 navbar-glass">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <SiteLogo linkToHome className="h-[2.4rem] md:h-12" />
+        <div className="container mx-auto">
+          <div className="flex items-center gap-3 md:gap-4 h-16 md:h-20">
+            <SiteLogo linkToHome className="h-[2.4rem] md:h-12 shrink-0" />
 
-            <div className="hidden md:flex items-center gap-1">
+            <NavbarSearch className="flex-1 max-w-xl mx-auto hidden sm:block" />
+
+            <div className="hidden md:flex items-center gap-1 shrink-0">
               {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.href}
-                  className={`nav-link px-4 py-2 rounded-lg transition-colors ${
-                    isActive(item.href)
-                      ? "text-primary bg-primary/20"
-                      : "text-accent-foreground hover:text-primary hover:bg-primary/10"
-                  }`}
-                >
+                <Link key={item.label} to={item.href} className={linkClass(item.href)}>
                   {item.label}
                 </Link>
               ))}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0 ml-auto sm:ml-0">
               <button
                 type="button"
                 onClick={() => setAuthOpen(true)}
-                className="p-2.5 rounded-lg text-accent-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                className="p-2.5 rounded-lg text-white/80 hover:text-white hover:underline underline-offset-4 transition-colors"
                 aria-label="Iniciar sesión"
               >
                 <User className="w-5 h-5" />
@@ -55,12 +55,16 @@ export const Navbar = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg text-accent-foreground hover:bg-primary/10 transition-colors"
+                className="md:hidden p-2 rounded-lg text-white/80 hover:text-white transition-colors"
                 aria-label="Menú"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
+          </div>
+
+          <div className="sm:hidden pb-3">
+            <NavbarSearch onNavigate={() => setIsMobileMenuOpen(false)} />
           </div>
         </div>
 
@@ -70,19 +74,15 @@ export const Navbar = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-accent-foreground/10 navbar-glass"
+              className="md:hidden border-t border-white/10 navbar-glass"
             >
-              <div className="container mx-auto px-4 py-4 space-y-2">
+              <div className="container mx-auto py-4 space-y-2">
                 {navItems.map((item) => (
                   <Link
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`nav-link block px-4 py-3 rounded-lg transition-colors ${
-                      isActive(item.href)
-                        ? "text-primary bg-primary/20"
-                        : "text-accent-foreground hover:text-primary hover:bg-primary/10"
-                    }`}
+                    className={cn(linkClass(item.href), "block px-4 py-3")}
                   >
                     {item.label}
                   </Link>
