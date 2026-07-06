@@ -158,7 +158,7 @@ export function ReviewCard({ review, liked, onLike, onReply }: ReviewCardProps) 
             <Button type="submit" size="sm">
               Publicar respuesta
             </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setShowReplyForm(false)}>
+            <Button type="button" size="sm" onClick={() => setShowReplyForm(false)}>
               Cancelar
             </Button>
           </div>

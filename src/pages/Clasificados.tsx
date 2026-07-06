@@ -52,18 +52,14 @@ const Clasificados = () => {
                   className="w-full pl-10 pr-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="gap-2"
-              >
+              <Button onClick={() => setShowFilters(!showFilters)} className="gap-2">
                 <Filter className="w-4 h-4" />
                 Filtros
                 <ChevronDown
                   className={`w-4 h-4 transition-transform ${showFilters ? "rotate-180" : ""}`}
                 />
               </Button>
-              <Button variant="accent">Buscar</Button>
+              <Button>Buscar</Button>
             </div>
 
             {showFilters && (
@@ -213,7 +209,7 @@ const Clasificados = () => {
           </div>
 
           <div className="text-center mt-10">
-            <Button variant="outline" size="lg">
+            <Button size="lg">
               Cargar más vehículos
             </Button>
           </div>

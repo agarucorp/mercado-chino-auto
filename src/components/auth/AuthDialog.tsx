@@ -36,12 +36,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleGoogle}
-        >
+        <Button type="button" variant="default" className="w-full" onClick={handleGoogle}>
           <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" aria-hidden>
             <path
               fill="currentColor"

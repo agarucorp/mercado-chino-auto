@@ -1,6 +1,6 @@
 import { SiteLogo } from "@/components/layout/SiteLogo";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail } from "lucide-react";
+import { Facebook, Instagram } from "lucide-react";
 
 const footerLinks = {
   secciones: [
@@ -18,15 +18,13 @@ const footerLinks = {
   legal: [
     { label: "Términos y Condiciones", href: "/terminos" },
     { label: "Política de Privacidad", href: "/privacidad" },
-    { label: "Contacto", href: "/contacto" },
+    { label: "Contacto", href: "#contacto", isAnchor: true },
   ],
 };
 
 const socialLinks = [
   { icon: Facebook, href: "#", label: "Facebook" },
   { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Youtube, href: "#", label: "Youtube" },
 ];
 
 export const Footer = () => {
@@ -34,35 +32,54 @@ export const Footer = () => {
     <footer className="bg-accent text-accent-foreground">
       <div className="container mx-auto py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* Brand */}
           <div className="lg:col-span-1">
             <SiteLogo linkToHome className="mb-4" />
-            <p className="type-body-sm text-accent-foreground/70 mb-6 max-w-prose">
+            <p className="type-body text-accent-foreground/70 mb-6 max-w-prose">
               Tu portal de noticias, reseñas y clasificados de vehículos chinos en Argentina.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-3 mb-8">
               {socialLinks.map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
                   href={href}
                   aria-label={label}
-                  className="w-10 h-10 rounded-full bg-accent-foreground/10 hover:bg-primary flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 flex items-center justify-center transition-colors"
                 >
                   <Icon className="w-5 h-5" />
                 </a>
               ))}
             </div>
+            <ul className="space-y-2">
+              {footerLinks.legal.map((link) => (
+                <li key={link.label}>
+                  {"isAnchor" in link && link.isAnchor ? (
+                    <a
+                      href={link.href}
+                      className="type-body-sm text-accent-foreground/70 hover:text-accent-foreground transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="type-body-sm text-accent-foreground/70 hover:text-accent-foreground transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Secciones */}
           <div>
-            <h4 className="type-h3 mb-4">Secciones</h4>
+            <h2 className="type-h2 text-accent-foreground mb-4">Secciones</h2>
             <ul className="space-y-2">
               {footerLinks.secciones.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-accent-foreground/70 hover:text-primary transition-colors text-sm"
+                    className="type-body-sm text-accent-foreground/70 hover:text-accent-foreground transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -71,45 +88,14 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Marcas */}
-          <div>
-            <h4 className="type-h3 mb-4">Marcas populares</h4>
-            <ul className="space-y-2">
+          <div className="lg:col-span-2">
+            <h2 className="type-h2 text-accent-foreground mb-4">Marcas populares</h2>
+            <ul className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2">
               {footerLinks.marcas.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
-                    className="text-accent-foreground/70 hover:text-primary transition-colors text-sm"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Newsletter & Legal */}
-          <div>
-            <h4 className="type-h3 mb-4">Suscribite</h4>
-            <p className="text-accent-foreground/70 text-sm mb-4">
-              Recibí las últimas noticias en tu correo.
-            </p>
-            <div className="flex gap-2 mb-6">
-              <input
-                type="email"
-                placeholder="Tu email"
-                className="flex-1 px-4 py-2 rounded-lg bg-accent-foreground/10 border border-accent-foreground/20 text-accent-foreground placeholder:text-accent-foreground/50 text-sm focus:outline-none focus:border-primary"
-              />
-              <button className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors">
-                <Mail className="w-5 h-5" />
-              </button>
-            </div>
-            <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-accent-foreground/70 hover:text-primary transition-colors text-sm"
+                    className="type-body-sm text-accent-foreground/70 hover:text-accent-foreground transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -119,14 +105,13 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="border-t border-accent-foreground/20 mt-12 pt-8">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
             <span className="type-meta text-accent-foreground/50">Powered by</span>
             <img
               src="/logos/typo.svg"
               alt="AUCHAR"
-              className="h-[0.7rem] sm:h-[0.875rem] w-auto"
+              className="h-[0.525rem] sm:h-[0.656rem] w-auto"
               width={871}
               height={72}
             />

@@ -121,7 +121,7 @@ const Resenas = () => {
 
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
               <DialogTrigger asChild>
-                <Button variant="accent" className="gap-2">
+                <Button className="gap-2">
                   <Plus className="w-4 h-4" />
                   Escribir Reseña
                 </Button>
@@ -185,7 +185,7 @@ const Resenas = () => {
                       className="w-full px-4 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                     />
                   </div>
-                  <Button variant="accent" className="w-full">
+                  <Button className="w-full">
                     Publicar Reseña
                   </Button>
                 </div>

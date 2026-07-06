@@ -4,7 +4,7 @@ import type { Modelo } from "@/types/marcas";
 export function EstadoModeloBadge({ estado }: { estado: Modelo["estado"] }) {
   if (estado === "Vigente") {
     return (
-      <Badge className="bg-emerald-600/90 hover:bg-emerald-600/90 border-0">
+      <Badge variant="outline" className="text-foreground border-border">
         Vigente
       </Badge>
     );

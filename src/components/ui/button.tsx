@@ -5,25 +5,41 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-sans font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  [
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
+    "ring-offset-background",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "disabled:pointer-events-none disabled:opacity-40",
+    "[&_svg]:pointer-events-none [&_svg]:size-3.5 [&_svg]:shrink-0",
+  ].join(" "),
   {
     variants: {
       variant: {
-        default: "bg-accent text-accent-foreground hover:bg-accent/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        accent: "bg-accent text-accent-foreground hover:bg-accent/90 font-semibold",
+        default: "btn btn-on-light",
+        onDark: "btn btn-on-dark",
+        onDarkSolid: "btn btn-on-dark-solid",
+        outline: "btn btn-on-light",
+        secondary: "btn btn-on-light",
+        accent: "btn btn-on-light",
+        destructive:
+          "btn btn-on-light border-destructive/40 text-destructive hover:bg-destructive hover:border-destructive hover:text-destructive-foreground",
+        ghost: "btn btn-on-light border-transparent hover:border-[var(--btn-border-light)]",
+        link: "h-auto border-0 bg-transparent p-0 font-sans text-sm font-medium normal-case tracking-normal text-foreground underline-offset-4 hover:underline hover:bg-transparent",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-lg px-8",
-        icon: "h-10 w-10",
+        default: "h-10 px-5",
+        sm: "h-9 px-4",
+        lg: "h-11 px-7",
+        icon: "h-10 w-10 p-0",
       },
     },
+    compoundVariants: [
+      {
+        variant: "link",
+        size: ["default", "sm", "lg", "icon"],
+        className: "h-auto px-0",
+      },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",

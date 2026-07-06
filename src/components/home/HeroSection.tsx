@@ -1,170 +1,105 @@
 import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const AUTOPLAY_MS = 5000;
+const TRANSITION_S = 1.4;
 
 const HERO_SLIDES = [
   {
-    id: "byd",
-    image:
-      "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=1920&h=1080&fit=crop&q=85",
-    alt: "BYD — referencia del mercado eléctrico chino en Argentina",
+    src: "/thumb-1920-1272450.jpg",
+    alt: "Autos chinos en Argentina — mercado local",
   },
   {
-    id: "chery",
-    image:
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1920&h=1080&fit=crop&q=85",
-    alt: "Chery Tiggo — SUV chino con fuerte presencia local",
-  },
-  {
-    id: "gwm",
-    image:
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1920&h=1080&fit=crop&q=85",
-    alt: "GWM Haval — pick-ups y SUVs en crecimiento",
-  },
-  {
-    id: "jac",
-    image:
-      "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1920&h=1080&fit=crop&q=85",
-    alt: "JAC pickup — utilitarios chinos en Argentina",
-  },
-  {
-    id: "ev",
-    image:
-      "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=1920&h=1080&fit=crop&q=85",
-    alt: "Vehículo eléctrico chino — nueva generación",
+    src: "/thumb-1920-1237964.jpg",
+    alt: "Vehículos chinos — referencia del mercado automotriz",
   },
 ];
 
-export function HeroSection() {
-  const [api, setApi] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+const premiumEase = [0.22, 1, 0.36, 1] as const;
 
-  const onSelect = useCallback((carouselApi: CarouselApi) => {
-    if (!carouselApi) return;
-    setCurrent(carouselApi.selectedScrollSnap());
+export function HeroSection() {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    HERO_SLIDES.slice(1).forEach((slide) => {
+      const img = new Image();
+      img.src = slide.src;
+    });
   }, []);
 
   useEffect(() => {
-    if (!api) return;
-    onSelect(api);
-    api.on("select", onSelect);
-    return () => {
-      api.off("select", onSelect);
-    };
-  }, [api, onSelect]);
-
-  useEffect(() => {
-    if (!api || isPaused) return;
-
     const timer = window.setInterval(() => {
-      if (api.canScrollNext()) {
-        api.scrollNext();
-      } else {
-        api.scrollTo(0);
-      }
+      setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
     }, AUTOPLAY_MS);
 
     return () => window.clearInterval(timer);
-  }, [api, isPaused]);
+  }, []);
 
   return (
-    <section
-      className="relative min-h-[32rem] md:min-h-[36rem] lg:min-h-[40rem] overflow-hidden border-b border-border"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={() => setIsPaused(false)}
-    >
-      <Carousel
-        setApi={setApi}
-        opts={{ loop: true }}
-        className="absolute inset-0 h-full w-full [&>div]:h-full [&>div>div]:h-full"
-      >
-        <CarouselContent className="h-full ml-0">
-          {HERO_SLIDES.map((slide) => (
-            <CarouselItem key={slide.id} className="pl-0 basis-full h-full">
-              <img
-                src={slide.image}
-                alt={slide.alt}
-                className="h-full w-full object-cover"
-                loading={slide.id === "byd" ? "eager" : "lazy"}
-                fetchPriority={slide.id === "byd" ? "high" : "auto"}
-              />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <section className="relative min-h-[32rem] md:min-h-[36rem] lg:min-h-[40rem] overflow-hidden border-b border-border">
+      <div className="absolute inset-0">
+        {HERO_SLIDES.map((slide, index) => {
+          const isActive = current === index;
 
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/25 pointer-events-none"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none"
-        aria-hidden
-      />
-
-      <div className="container relative z-10 mx-auto h-full min-h-[inherit] flex items-center py-16 md:py-20 lg:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-xl space-y-5"
-        >
-          <h1 className="type-hero text-white max-w-xl drop-shadow-sm">
-            Comprá, vendé e informate sobre autos chinos en Argentina
-          </h1>
-          <p className="type-lead text-white/85 max-w-lg">
-            Marcas, fichas técnicas, reseñas, clasificados y comparativas del mercado local.
-          </p>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-2">
-            <Button asChild size="lg" className="font-sans bg-white text-foreground hover:bg-white/90">
-              <Link to="/marcas">Explorar marcas</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="font-sans border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white backdrop-blur-sm"
-            >
-              <Link to="/contacto">Contacto</Link>
-            </Button>
-          </div>
-        </motion.div>
+          return (
+            <motion.img
+              key={slide.src}
+              src={slide.src}
+              alt={slide.alt}
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "auto"}
+              animate={{
+                opacity: isActive ? 1 : 0,
+                scale: isActive ? [1, 1.06] : 1,
+              }}
+              transition={{
+                opacity: { duration: TRANSITION_S, ease: premiumEase },
+                scale: {
+                  duration: AUTOPLAY_MS / 1000,
+                  ease: "linear",
+                  times: [0, 1],
+                },
+              }}
+              className="absolute inset-0 h-full w-full object-cover will-change-transform"
+              style={{ zIndex: isActive ? 1 : 0 }}
+              aria-hidden={!isActive}
+            />
+          );
+        })}
       </div>
 
-      <div
-        className="absolute bottom-6 left-0 right-0 z-10 flex justify-center gap-2"
-        role="tablist"
-        aria-label="Slides del hero"
-      >
-        {HERO_SLIDES.map((slide, index) => (
-          <button
-            key={slide.id}
-            type="button"
-            role="tab"
-            aria-selected={current === index}
-            aria-label={`Ir a slide ${index + 1}`}
-            onClick={() => api?.scrollTo(index)}
-            className={cn(
-              "h-1.5 rounded-full transition-all duration-300",
-              current === index
-                ? "w-8 bg-primary"
-                : "w-2 bg-white/40 hover:bg-white/60",
-            )}
-          />
-        ))}
+      <div className="absolute inset-0 z-10">
+        <div className="container relative mx-auto h-full min-h-[32rem] md:min-h-[36rem] lg:min-h-[40rem]">
+          <motion.h1
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="type-hero-headline text-white max-w-2xl mx-auto text-center absolute top-10 md:top-12 lg:top-14 inset-x-0"
+          >
+            El mayor portal de autos chinos en Argentina
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="absolute bottom-10 md:bottom-12 lg:bottom-14 inset-x-0 flex flex-col items-center gap-4 text-center px-4"
+          >
+            <p className="type-hero-tagline text-white max-w-2xl">
+              Comprá, vendé e informate sobre el mercado automotriz chino en nuestro país
+            </p>
+            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
+              <Button asChild variant="onDarkSolid">
+                <Link to="/marcas">Explorar marcas</Link>
+              </Button>
+              <Button asChild variant="onDark">
+                <a href="#contacto">Contacto</a>
+              </Button>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

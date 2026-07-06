@@ -131,10 +131,10 @@ function CompareTable({
           )}
         </p>
         <div className="flex flex-wrap justify-center gap-3 mt-4">
-          <Button asChild variant="outline" size="sm">
+          <Button asChild size="sm">
             <Link to={getModeloPath(optionA.marca, optionA.modelo)}>Ver {optionA.modelo.nombre}</Link>
           </Button>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild size="sm">
             <Link to={getModeloPath(optionB.marca, optionB.modelo)}>Ver {optionB.modelo.nombre}</Link>
           </Button>
         </div>
@@ -181,7 +181,7 @@ export function ModelCompareSection() {
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar modelo" />
                 </SelectTrigger>
-                <SelectContent className="max-h-64">
+                <SelectContent side="bottom" sideOffset={6} collisionPadding={16} className="max-h-72">
                   {options.map((o) => (
                     <SelectItem key={o.id} value={o.id} disabled={o.id === idB}>
                       {o.label}
@@ -201,7 +201,7 @@ export function ModelCompareSection() {
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar modelo" />
                 </SelectTrigger>
-                <SelectContent className="max-h-64">
+                <SelectContent side="bottom" sideOffset={6} collisionPadding={16} className="max-h-72">
                   {options.map((o) => (
                     <SelectItem key={o.id} value={o.id} disabled={o.id === idA}>
                       {o.label}
@@ -212,12 +212,18 @@ export function ModelCompareSection() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-            <Button onClick={handleCompare} disabled={!canCompare} className="w-full sm:w-auto min-w-[140px]">
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Button
+              onClick={handleCompare}
+              disabled={!canCompare}
+              className="w-full sm:w-auto min-w-[140px]"
+            >
               Comparar
             </Button>
             {optionA && optionB && optionA.id === optionB.id && (
-              <p className="type-meta text-destructive">Seleccioná dos modelos distintos</p>
+              <p className="type-meta text-destructive text-center">
+                Seleccioná dos modelos distintos
+              </p>
             )}
           </div>
 

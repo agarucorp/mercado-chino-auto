@@ -47,7 +47,7 @@ const MarcaDetail = () => {
               <MarcaHeader marca={marca} />
 
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className="bg-emerald-600/90 hover:bg-emerald-600/90 border-0">
+                <Badge variant="outline" className="text-foreground border-border">
                   {vigentes} vigente{vigentes !== 1 ? "s" : ""}
                 </Badge>
                 {discontinuados > 0 && (

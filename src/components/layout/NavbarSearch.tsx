@@ -2,8 +2,9 @@ import { EstadoModeloBadge } from "@/components/brands/EstadoModeloBadge";
 import { MarcaLogo } from "@/components/brands/MarcaLogo";
 import { getMarcaForResult, searchCatalog, type SearchResult } from "@/lib/search";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 
 function SearchResultItem({
@@ -55,8 +56,9 @@ interface NavbarSearchProps {
 
 export function NavbarSearch({ className, onNavigate }: NavbarSearchProps) {
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState(false);
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -67,9 +69,14 @@ export function NavbarSearch({ className, onNavigate }: NavbarSearchProps) {
   const marcas = results.filter((r) => r.type === "marca");
   const modelos = results.filter((r) => r.type === "modelo");
 
-  const handleSelect = () => {
-    setQuery("");
+  const closeSearch = () => {
+    setExpanded(false);
     setOpen(false);
+    setQuery("");
+  };
+
+  const handleSelect = () => {
+    closeSearch();
     onNavigate?.();
   };
 
@@ -82,87 +89,151 @@ export function NavbarSearch({ className, onNavigate }: NavbarSearchProps) {
   };
 
   useEffect(() => {
+    if (!expanded) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [expanded]);
+
+  useEffect(() => {
+    if (!expanded) return;
+
     const onPointerDown = (e: MouseEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) {
-        setOpen(false);
+      if (!panelRef.current?.contains(e.target as Node)) {
+        closeSearch();
       }
     };
+
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
-  }, []);
+  }, [expanded]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        if (expanded) closeSearch();
+        else setOpen(false);
+      }
     };
+
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [expanded]);
+
+  useEffect(() => {
+    if (!expanded) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [expanded]);
 
   return (
-    <div ref={containerRef} className={cn("relative w-full", className)}>
-      <form onSubmit={handleSubmit} role="search">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
-          <input
-            ref={inputRef}
-            type="search"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setOpen(true);
-            }}
-            onFocus={() => setOpen(true)}
-            placeholder="Buscar marca o modelo..."
-            aria-label="Buscar marca o modelo"
-            aria-expanded={showDropdown}
-            aria-controls="navbar-search-results"
-            autoComplete="off"
-            className={cn(
-              "w-full h-10 pl-9 pr-4 rounded-lg text-sm",
-              "bg-white/10 border border-white/15 text-white placeholder:text-white/45",
-              "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/40",
-            )}
-          />
-        </div>
-      </form>
+    <>
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className={cn(
+          "p-2 rounded-lg text-white/80 hover:text-white transition-colors",
+          className,
+        )}
+        aria-label="Buscar marca o modelo"
+      >
+        <Search className="w-4 h-4" />
+      </button>
 
-      {showDropdown && (
-        <div
-          id="navbar-search-results"
-          role="listbox"
-          className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-border bg-card z-[60] overflow-hidden"
-        >
-          {results.length > 0 ? (
-            <div className="max-h-[min(24rem,70vh)] overflow-y-auto p-2">
-              {marcas.length > 0 && (
-                <div className="mb-2">
-                  <p className="type-meta text-xs text-muted-foreground px-3 py-1.5 uppercase tracking-wide">
-                    Marcas
-                  </p>
-                  {marcas.map((result) => (
-                    <SearchResultItem key={result.id} result={result} onSelect={handleSelect} />
-                  ))}
-                </div>
-              )}
-              {modelos.length > 0 && (
-                <div>
-                  <p className="type-meta text-xs text-muted-foreground px-3 py-1.5 uppercase tracking-wide">
-                    Modelos
-                  </p>
-                  {modelos.map((result) => (
-                    <SearchResultItem key={result.id} result={result} onSelect={handleSelect} />
-                  ))}
-                </div>
-              )}
+      {expanded &&
+        createPortal(
+          <>
+            <div className="fixed inset-0 z-[55] bg-black/70" aria-hidden />
+            <div
+              ref={panelRef}
+              className="fixed inset-x-0 top-0 z-[60] navbar-glass border-b border-white/10 shadow-lg"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Búsqueda"
+            >
+              <div className="container mx-auto py-4">
+                <form onSubmit={handleSubmit} role="search" className="flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                    <input
+                      ref={inputRef}
+                      type="search"
+                      value={query}
+                      onChange={(e) => {
+                        setQuery(e.target.value);
+                        setOpen(true);
+                      }}
+                      onFocus={() => setOpen(true)}
+                      placeholder="Buscar marca o modelo..."
+                      aria-label="Buscar marca o modelo"
+                      aria-expanded={showDropdown}
+                      aria-controls="navbar-search-results"
+                      autoComplete="off"
+                      className={cn(
+                        "w-full h-11 pl-9 pr-4 rounded-lg text-sm",
+                        "bg-white/10 border border-white/15 text-white placeholder:text-white/45",
+                        "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/40",
+                      )}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeSearch}
+                    className="p-2 rounded-lg text-white/80 hover:text-white transition-colors shrink-0"
+                    aria-label="Cerrar búsqueda"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </form>
+
+                {showDropdown && (
+                  <div
+                    id="navbar-search-results"
+                    role="listbox"
+                    className="mt-3 rounded-xl border border-border bg-card overflow-hidden"
+                  >
+                    {results.length > 0 ? (
+                      <div className="max-h-[min(24rem,60vh)] overflow-y-auto p-2">
+                        {marcas.length > 0 && (
+                          <div className="mb-2">
+                            <p className="type-meta text-xs text-muted-foreground px-3 py-1.5 uppercase tracking-wide">
+                              Marcas
+                            </p>
+                            {marcas.map((result) => (
+                              <SearchResultItem key={result.id} result={result} onSelect={handleSelect} />
+                            ))}
+                          </div>
+                        )}
+                        {modelos.length > 0 && (
+                          <div>
+                            <p className="type-meta text-xs text-muted-foreground px-3 py-1.5 uppercase tracking-wide">
+                              Modelos
+                            </p>
+                            {modelos.map((result) => (
+                              <SearchResultItem key={result.id} result={result} onSelect={handleSelect} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="type-body text-sm text-muted-foreground px-4 py-6 text-center">
+                        No encontramos resultados para &quot;{query.trim()}&quot;
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          ) : (
-            <p className="type-body text-sm text-muted-foreground px-4 py-6 text-center">
-              No encontramos resultados para &quot;{query.trim()}&quot;
-            </p>
-          )}
-        </div>
-      )}
-    </div>
+          </>,
+          document.body,
+        )}
+    </>
   );
 }

@@ -1,9 +1,11 @@
 import { BrandCarousel } from "@/components/brands/BrandCarousel";
 import { CategoryCarousel } from "@/components/home/CategoryCarousel";
+import { HeroSearchSection } from "@/components/home/HeroSearchSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { LatestListingsPreview } from "@/components/home/LatestListingsPreview";
 import { ModelCompareSection } from "@/components/home/ModelCompareSection";
 import { MostReviewedPreview } from "@/components/home/MostReviewedPreview";
+import { VehicleOfTheWeekSection } from "@/components/home/VehicleOfTheWeekSection";
 import { Layout } from "@/components/layout/Layout";
 import { NewsPreview } from "@/components/news/NewsPreview";
 
@@ -11,7 +13,9 @@ const Index = () => {
   return (
     <Layout>
       <HeroSection />
+      <HeroSearchSection />
       <BrandCarousel />
+      <VehicleOfTheWeekSection />
       <CategoryCarousel />
       <LatestListingsPreview />
       <MostReviewedPreview />

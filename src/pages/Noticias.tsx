@@ -106,11 +106,7 @@ const Noticias = () => {
               {(hasMore || gridCount > INITIAL_GRID) && (
                 <div className="flex justify-center pt-4">
                   {hasMore ? (
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => setGridCount((c) => c + LOAD_MORE_STEP)}
-                    >
+                    <Button size="lg" onClick={() => setGridCount((c) => c + LOAD_MORE_STEP)}>
                       Ver más
                     </Button>
                   ) : (

@@ -25,7 +25,7 @@ const Vender = () => {
                   Ver clasificados
                 </Link>
               </Button>
-              <Button variant="outline" disabled>
+              <Button disabled>
                 Publicar aviso (próximamente)
               </Button>
             </div>

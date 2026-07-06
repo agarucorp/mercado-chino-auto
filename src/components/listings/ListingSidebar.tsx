@@ -51,11 +51,11 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
       />
 
       <div className={cn("space-y-3")}>
-        <Button className="w-full h-11 text-base" size="lg">
+        <Button className="w-full" size="lg">
           <MessageCircle className="w-4 h-4" />
           Contactar al vendedor
         </Button>
-        <Button variant="outline" className="w-full h-11 text-base" size="lg">
+        <Button className="w-full" size="lg">
           Cotizar que me contacten
         </Button>
       </div>

@@ -428,6 +428,10 @@ export function getLatestListings(limit = 3): Listing[] {
   return [...LISTINGS_DATA].slice(0, limit);
 }
 
+export function getVehicleOfTheWeek(): Listing {
+  return LISTINGS_DATA.find((l) => l.featured) ?? LISTINGS_DATA[0];
+}
+
 export function getListingsByModelo(marcaId: string, modeloId: string) {
   return LISTINGS_DATA.filter(
     (l) => l.marcaId === marcaId && l.modeloId === modeloId,

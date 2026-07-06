@@ -36,7 +36,7 @@ export function MarcaCtas({ marca, stacked }: MarcaCtasProps) {
       )}
 
       {sitioMarca && (
-        <Button asChild variant="outline" className={stacked ? "w-full" : undefined}>
+        <Button asChild variant="default" className={stacked ? "w-full" : undefined}>
           <a href={sitioMarca} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="w-4 h-4" />
             Sitio oficial de la marca

@@ -7,9 +7,10 @@ import { Link } from "react-router-dom";
 interface ModeloCardProps {
   marca: Marca;
   modelo: Modelo;
+  showEstado?: boolean;
 }
 
-export function ModeloCard({ marca, modelo }: ModeloCardProps) {
+export function ModeloCard({ marca, modelo, showEstado = true }: ModeloCardProps) {
   const discontinuado = modelo.estado === "Discontinuado";
 
   return (
@@ -26,9 +27,11 @@ export function ModeloCard({ marca, modelo }: ModeloCardProps) {
             discontinuado ? "grayscale-[30%]" : ""
           }`}
         />
-        <div className="absolute top-3 right-3">
-          <EstadoModeloBadge estado={modelo.estado} />
-        </div>
+        {showEstado && (
+          <div className="absolute top-3 right-3">
+            <EstadoModeloBadge estado={modelo.estado} />
+          </div>
+        )}
       </div>
       <div className="pt-3">
         <h3
