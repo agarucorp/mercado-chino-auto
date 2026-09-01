@@ -7,7 +7,7 @@ import { SiteLogo } from "@/components/layout/SiteLogo";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Modelos", href: "/marcas" },
+  { label: "Marcas", href: "/marcas" },
   { label: "Noticias", href: "/noticias" },
   { label: "Clasificados", href: "/clasificados" },
   { label: "Vender", href: "/vender" },

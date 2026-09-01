@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { LatestListingsPreview } from "@/components/home/LatestListingsPreview";
 import { ModelCompareSection } from "@/components/home/ModelCompareSection";
 import { MostReviewedPreview } from "@/components/home/MostReviewedPreview";
+import { PatentamientosSection } from "@/components/home/PatentamientosSection";
 import { VehicleOfTheWeekSection } from "@/components/home/VehicleOfTheWeekSection";
 import { Layout } from "@/components/layout/Layout";
 import { NewsPreview } from "@/components/news/NewsPreview";
@@ -15,6 +16,7 @@ const Index = () => {
       <HeroSection />
       <HeroSearchSection />
       <BrandCarousel />
+      <PatentamientosSection />
       <VehicleOfTheWeekSection />
       <CategoryCarousel />
       <LatestListingsPreview />

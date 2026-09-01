@@ -4,12 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
 import { getNewsByMarca } from "@/data/news";
 import { MARCAS } from "@/data/marcas";
-import {
-  countModelosDiscontinuados,
-  countModelosVigentes,
-  getMarcaBySlug,
-  tieneModelosVigentes,
-} from "@/lib/marcas";
+import { getMarcaBySlug } from "@/lib/marcas";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
@@ -22,8 +17,6 @@ const MarcaDetail = () => {
     return <Navigate to="/marcas" replace />;
   }
 
-  const vigentes = countModelosVigentes(marca);
-  const discontinuados = countModelosDiscontinuados(marca);
   const noticiasMarca = getNewsByMarca(marca.id);
 
   return (
@@ -48,18 +41,12 @@ const MarcaDetail = () => {
 
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="text-foreground border-border">
-                  {vigentes} vigente{vigentes !== 1 ? "s" : ""}
+                  {marca.modelos.length} modelo{marca.modelos.length !== 1 ? "s" : ""}
                 </Badge>
-                {discontinuados > 0 && (
-                  <Badge variant="secondary">{discontinuados} histórico{discontinuados !== 1 ? "s" : ""}</Badge>
-                )}
                 {marca.anioLanzamiento >= 2025 && (
-                  <Badge variant="outline" className="border-primary/40 text-primary">
+                  <Badge variant="outline" className="border-border text-foreground">
                     Novedad
                   </Badge>
-                )}
-                {!tieneModelosVigentes(marca) && (
-                  <Badge variant="secondary">Solo histórica</Badge>
                 )}
               </div>
 

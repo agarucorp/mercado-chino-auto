@@ -1,4 +1,3 @@
-import { EstadoModeloBadge } from "@/components/brands/EstadoModeloBadge";
 import { MarcaLogo } from "@/components/brands/MarcaLogo";
 import { getMarcaForResult, searchCatalog, type SearchResult } from "@/lib/search";
 import { cn } from "@/lib/utils";
@@ -39,9 +38,6 @@ function SearchResultItem({
         </p>
         <p className="type-meta text-xs text-muted-foreground truncate">{result.subtitle}</p>
       </div>
-      {result.type === "modelo" && result.estado && (
-        <EstadoModeloBadge estado={result.estado} />
-      )}
       {result.type === "marca" && (
         <span className="type-meta text-xs text-muted-foreground shrink-0">Marca</span>
       )}

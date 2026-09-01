@@ -1,35 +1,34 @@
 import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Car, Upload } from "lucide-react";
+import { PublishWizard } from "@/components/seller/PublishWizard";
 import { Link } from "react-router-dom";
 
 const Vender = () => {
   return (
     <Layout>
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto max-w-2xl text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
-              <Upload className="w-8 h-8" />
-            </div>
-            <h1 className="type-h1 text-foreground mb-4">Vendé tu vehículo</h1>
-            <p className="type-body text-muted-foreground prose-content mx-auto mb-8">
-              Publicá tu auto chino en AUCHAR y llegá a compradores interesados en el mercado
-              argentino. Próximamente podrás crear tu aviso desde aquí.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild>
-                <Link to="/clasificados">
-                  <Car className="w-4 h-4 mr-2" />
-                  Ver clasificados
-                </Link>
-              </Button>
-              <Button disabled>
-                Publicar aviso (próximamente)
-              </Button>
-            </div>
-          </motion.div>
+      <section className="py-10 md:py-14 border-b border-border">
+        <div className="container mx-auto max-w-5xl">
+          <p className="type-meta text-muted-foreground">Clasificados</p>
+          <h1 className="type-h1 text-foreground mt-2">Publicá tu vehículo</h1>
+          <p className="type-body text-muted-foreground mt-3 max-w-2xl">
+            Completá el recorrido en una sola página. Podés subir y bajar entre etapas, y cada
+            paso se guarda en borrador. Al final enviás la solicitud: el aviso queda{" "}
+            <span className="text-foreground">pendiente de revisión</span>.
+          </p>
+          <p className="type-meta text-muted-foreground mt-4">
+            ¿Solo querés mirar avisos?{" "}
+            <Link
+              to="/clasificados"
+              className="underline underline-offset-4 text-foreground hover:text-primary"
+            >
+              Ir a clasificados
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      <section className="py-10 md:py-14">
+        <div className="container mx-auto max-w-5xl">
+          <PublishWizard />
         </div>
       </section>
     </Layout>

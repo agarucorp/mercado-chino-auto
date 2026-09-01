@@ -27,14 +27,14 @@ export function ListingSpecTable({ title, rows }: ListingSpecTableProps) {
         {rows.map((row) => (
           <div
             key={row.label}
-            className="flex items-baseline justify-between gap-4 py-3 type-body-sm"
+            className="flex items-start justify-between gap-4 py-3 type-body-sm"
           >
-            <dt className="type-meta text-muted-foreground shrink-0">{row.label}</dt>
+            <dt className="type-meta text-muted-foreground shrink-0 w-28 sm:w-36">{row.label}</dt>
             <dd
               className={
                 row.highlight
-                  ? "font-medium text-emerald-600 dark:text-emerald-400 text-right"
-                  : "text-foreground text-right"
+                  ? "font-medium text-emerald-600 dark:text-emerald-400 text-right min-w-0"
+                  : "text-foreground text-right min-w-0"
               }
             >
               {row.value}

@@ -35,9 +35,14 @@ const Clasificados = () => {
             className="text-center max-w-2xl mx-auto mb-12"
           >
             <h1 className="type-h1 text-foreground mb-4">Clasificados</h1>
-            <p className="text-muted-foreground">
+            <p className="type-body text-muted-foreground">
               Comprá y vendé vehículos chinos. Miles de ofertas verificadas en todo el país.
             </p>
+            <div className="mt-6">
+              <Button asChild>
+                <Link to="/vender">Publicar aviso</Link>
+              </Button>
+            </div>
           </motion.div>
 
           <div className="rounded-xl p-4 md:p-6 mb-8">

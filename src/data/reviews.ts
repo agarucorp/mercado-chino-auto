@@ -30,7 +30,7 @@ export const REVIEWS_DATA: Review[] = [
   {
     id: "1",
     marcaId: "byd",
-    modeloId: "byd-song-pro-dm-i",
+    modeloId: "byd-song-pro",
     brand: "BYD",
     model: "Song Pro",
     year: 2024,
@@ -102,7 +102,7 @@ export const REVIEWS_DATA: Review[] = [
   {
     id: "5",
     marcaId: "byd",
-    modeloId: "byd-song-pro-dm-i",
+    modeloId: "byd-song-pro",
     brand: "BYD",
     model: "Song Pro",
     year: 2024,

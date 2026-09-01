@@ -1,5 +1,4 @@
 import { MarcaCtas } from "@/components/brands/MarcaCtas";
-import { EstadoModeloBadge } from "@/components/brands/EstadoModeloBadge";
 import { SpecHighlightGrid, SummaryCardShell } from "@/components/detail/SummaryCardShell";
 import type { FichaTecnicaRow } from "@/data/modelo-media";
 import type { Marca, Modelo } from "@/types/marcas";
@@ -18,21 +17,29 @@ interface ModeloSidebarProps {
 export function ModeloSidebar({ marca, modelo, ficha }: ModeloSidebarProps) {
   const title = `${marca.nombre} ${modelo.nombre}`;
 
+  const motor =
+    fichaVal(ficha, "Tipo de motor") !== "—"
+      ? fichaVal(ficha, "Tipo de motor")
+      : fichaVal(ficha, "Motor");
+  const transmision = fichaVal(ficha, "Transmisión");
+  const precio = fichaVal(ficha, "Precio");
+  const vigencia = fichaVal(ficha, "Vigencia");
+
   const specs = [
     {
       icon: <CarFront className="w-5 h-5" />,
-      label: "Segmento",
-      value: fichaVal(ficha, "Segmento"),
+      label: "Precio",
+      value: precio,
     },
     {
       icon: <Fuel className="w-5 h-5" />,
-      label: "Combustible",
-      value: fichaVal(ficha, "Combustible"),
+      label: "Tipo de motor",
+      value: motor,
     },
     {
       icon: <Settings2 className="w-5 h-5" />,
-      label: "Transmisión",
-      value: fichaVal(ficha, "Transmisión"),
+      label: transmision !== "—" ? "Transmisión" : "Vigencia",
+      value: transmision !== "—" ? transmision : vigencia,
     },
   ];
 
@@ -42,7 +49,6 @@ export function ModeloSidebar({ marca, modelo, ficha }: ModeloSidebarProps) {
       footer={`Representado por ${marca.representante}`}
     >
       <div className="space-y-3">
-        <EstadoModeloBadge estado={modelo.estado} />
         <p className="type-meta text-muted-foreground flex items-center gap-1.5">
           <Building2 className="w-3.5 h-3.5 shrink-0" />
           {marca.representante} · Argentina desde {marca.anioLanzamiento}

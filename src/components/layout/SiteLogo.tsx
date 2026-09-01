@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
-const LOGO_SRC = "/logos/logotypo.svg";
+const LOGO_SRC = "/newLogo.svg";
 
 interface SiteLogoProps {
   className?: string;
@@ -14,8 +14,8 @@ export function SiteLogo({ className, linkToHome = false }: SiteLogoProps) {
       src={LOGO_SRC}
       alt="AUCHAR"
       className={cn("h-8 md:h-10 w-auto", className)}
-      width={1635}
-      height={504}
+      width={1391}
+      height={379}
     />
   );
 

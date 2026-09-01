@@ -1,6 +1,5 @@
 import { MarcaLogo } from "@/components/brands/MarcaLogo";
 import { ModeloCard } from "@/components/brands/ModeloCard";
-import { tieneModelosVigentes } from "@/lib/marcas";
 import type { Marca } from "@/types/marcas";
 
 interface MarcaModelosListProps {
@@ -8,33 +7,14 @@ interface MarcaModelosListProps {
 }
 
 export function MarcaModelosList({ marca }: MarcaModelosListProps) {
-  const vigentes = marca.modelos.filter((m) => m.estado === "Vigente");
-  const discontinuados = marca.modelos.filter((m) => m.estado === "Discontinuado");
-
   return (
-    <div className="space-y-6">
-      {!tieneModelosVigentes(marca) && (
-        <p className="type-body text-sm text-amber-700 dark:text-amber-400 bg-amber-500/10 rounded-lg px-3 py-2">
-          Esta marca ya no comercializa modelos vigentes en Argentina. Los modelos listados son
-          históricos y pueden no estar disponibles en concesionarios.
-        </p>
-      )}
-
-      <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {marca.modelos.map((modelo) => (
-          <li key={modelo.id}>
-            <ModeloCard marca={marca} modelo={modelo} />
-          </li>
-        ))}
-      </ul>
-
-      {discontinuados.length > 0 && vigentes.length > 0 && (
-        <p className="type-meta text-muted-foreground">
-          {discontinuados.length} modelo{discontinuados.length !== 1 ? "s" : ""} discontinuado
-          {discontinuados.length !== 1 ? "s" : ""} en el catálogo histórico.
-        </p>
-      )}
-    </div>
+    <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {marca.modelos.map((modelo) => (
+        <li key={modelo.id}>
+          <ModeloCard marca={marca} modelo={modelo} />
+        </li>
+      ))}
+    </ul>
   );
 }
 

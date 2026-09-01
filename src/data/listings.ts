@@ -66,7 +66,7 @@ export const LISTINGS_DATA: Listing[] = [
     images: [IMG.byd1, IMG.byd2, IMG.byd3, IMG.interior],
     featured: true,
     marcaId: "byd",
-    modeloId: "byd-song-pro-dm-i",
+    modeloId: "byd-song-pro",
     description:
       "BYD Song Pro DM-i en excelente estado, único dueño. SUV híbrido enchufable con bajo consumo y gran equipamiento de serie. Service oficial al día. Entrega inmediata.",
     general: [
@@ -307,7 +307,7 @@ export const LISTINGS_DATA: Listing[] = [
     images: [IMG.geely1, IMG.dolphin1, IMG.interior, IMG.byd2],
     featured: false,
     marcaId: "geely",
-    modeloId: "geely-geometry-ex5",
+    modeloId: "geely-ex5",
     description:
       "Geely EX5 eléctrico, autonomía real superior a 400 km. Carga rápida compatible. Garantía de batería vigente. Excelente estado general.",
     general: [

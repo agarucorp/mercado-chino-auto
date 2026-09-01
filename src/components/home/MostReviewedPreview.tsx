@@ -24,7 +24,7 @@ export function MostReviewedPreview() {
 
             return (
               <div key={item.modeloId} className="relative">
-                <ModeloCard marca={marca} modelo={modelo} showEstado={false} />
+                <ModeloCard marca={marca} modelo={modelo} />
                 <div className="absolute top-3 left-3 flex items-center gap-1 rounded-full bg-background/90 px-2 py-1 type-meta text-xs">
                   <Star className="w-3 h-3 fill-accent text-accent" />
                   {item.avgRating.toFixed(1)} · {item.count} reseña
