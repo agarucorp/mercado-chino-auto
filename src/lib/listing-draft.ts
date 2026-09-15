@@ -1,3 +1,5 @@
+import type { DraftImage } from "@/lib/listing-images";
+
 export type PublishPlanId = "basico" | "destacado" | "premium";
 
 export type PublishStatus = "draft" | "pendiente_revision";
@@ -8,8 +10,12 @@ export interface PublishPlan {
   priceLabel: string;
   description: string;
   features: string[];
+  /** Tope de fotos del plan, el mismo número que anuncia `features`. */
+  maxPhotos: number;
   recommended?: boolean;
 }
+
+export const MIN_PHOTOS = 3;
 
 export const PUBLISH_PLANS: PublishPlan[] = [
   {
@@ -23,6 +29,7 @@ export const PUBLISH_PLANS: PublishPlan[] = [
       "Duración 30 días",
       "Contacto por el anuncio",
     ],
+    maxPhotos: 8,
   },
   {
     id: "destacado",
@@ -36,6 +43,7 @@ export const PUBLISH_PLANS: PublishPlan[] = [
       "Prioridad en búsquedas",
       "Duración 45 días",
     ],
+    maxPhotos: 15,
     recommended: true,
   },
   {
@@ -50,6 +58,7 @@ export const PUBLISH_PLANS: PublishPlan[] = [
       "Enlace directo a redes (opcional)",
       "Duración 60 días",
     ],
+    maxPhotos: 25,
   },
 ];
 
@@ -77,7 +86,7 @@ export interface ListingDraft {
   province: string;
   title: string;
   description: string;
-  imageNames: string[];
+  images: DraftImage[];
   sellerName: string;
   sellerEmail: string;
   sellerPhone: string;
@@ -103,7 +112,7 @@ export const EMPTY_DRAFT: ListingDraft = {
   province: "",
   title: "",
   description: "",
-  imageNames: [],
+  images: [],
   sellerName: "",
   sellerEmail: "",
   sellerPhone: "",
@@ -124,7 +133,7 @@ export function loadListingDraft(): ListingDraft {
       ...EMPTY_DRAFT,
       ...parsed,
       completedSteps: parsed.completedSteps ?? [],
-      imageNames: parsed.imageNames ?? [],
+      images: parsed.images ?? [],
       status: parsed.status === "pendiente_revision" ? "pendiente_revision" : "draft",
     };
   } catch {
@@ -156,36 +165,104 @@ export function isStepComplete(draft: ListingDraft, step: PublishStepId): boolea
   return draft.completedSteps.includes(step);
 }
 
-export function validatePlan(draft: ListingDraft): boolean {
-  return Boolean(draft.planId);
+export const MIN_TITLE_LENGTH = 8;
+export const MIN_DESCRIPTION_LENGTH = 40;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Tope de fotos del plan elegido; sin plan usamos el mínimo de la grilla. */
+export function maxPhotosFor(draft: ListingDraft): number {
+  const plan = PUBLISH_PLANS.find((p) => p.id === draft.planId);
+  return plan?.maxPhotos ?? PUBLISH_PLANS[0].maxPhotos;
 }
 
-export function validateVehicle(draft: ListingDraft): boolean {
-  return Boolean(
-    draft.marcaId &&
-      draft.modeloId &&
-      draft.year &&
-      draft.km &&
-      draft.price &&
-      draft.fuel &&
-      draft.transmission &&
-      draft.location &&
-      draft.province,
+/** Qué falta para dar la etapa por terminada. Lista vacía = etapa válida. */
+export function getStepIssues(draft: ListingDraft, step: PublishStepId): string[] {
+  const missing: string[] = [];
+
+  switch (step) {
+    case "plan":
+      if (!draft.planId) missing.push("Elegí un plan de publicación");
+      return missing;
+
+    case "vehiculo":
+      if (!draft.marcaId) missing.push("Marca");
+      if (!draft.modeloId) missing.push("Modelo");
+      if (!draft.year) missing.push("Año");
+      if (!draft.km) missing.push("Kilometraje");
+      if (!draft.price) missing.push("Precio");
+      if (!draft.fuel) missing.push("Combustible");
+      if (!draft.transmission) missing.push("Transmisión");
+      if (!draft.location.trim()) missing.push("Ciudad o localidad");
+      if (!draft.province) missing.push("Provincia");
+      return missing;
+
+    case "fotos":
+      if (draft.images.length < MIN_PHOTOS) {
+        missing.push(
+          `Al menos ${MIN_PHOTOS} fotos (subiste ${draft.images.length})`,
+        );
+      }
+      if (draft.title.trim().length < MIN_TITLE_LENGTH) {
+        missing.push(`Título de ${MIN_TITLE_LENGTH} caracteres o más`);
+      }
+      if (draft.description.trim().length < MIN_DESCRIPTION_LENGTH) {
+        missing.push(`Descripción de ${MIN_DESCRIPTION_LENGTH} caracteres o más`);
+      }
+      return missing;
+
+    case "contacto":
+      if (!draft.sellerName.trim()) missing.push("Nombre y apellido");
+      if (!EMAIL_RE.test(draft.sellerEmail.trim())) missing.push("Email válido");
+      if (draft.sellerPhone.replace(/\D/g, "").length < 8) {
+        missing.push("Teléfono de al menos 8 dígitos");
+      }
+      return missing;
+  }
+}
+
+export function isStepValid(draft: ListingDraft, step: PublishStepId): boolean {
+  return getStepIssues(draft, step).length === 0;
+}
+
+export function isDraftSubmittable(draft: ListingDraft): boolean {
+  return PUBLISH_STEPS.every((step) => isStepValid(draft, step.id));
+}
+
+/**
+ * Una etapa se abre solo cuando todas las anteriores quedaron confirmadas con
+ * "Guardar y seguir". Sin esto se puede saltar a la última etapa desde la
+ * primera, que es lo que el recorrido permitía antes.
+ */
+export function isStepUnlocked(draft: ListingDraft, step: PublishStepId): boolean {
+  const index = PUBLISH_STEPS.findIndex((s) => s.id === step);
+  if (index <= 0) return true;
+  return PUBLISH_STEPS.slice(0, index).every((s) =>
+    draft.completedSteps.includes(s.id),
   );
 }
 
-export function validatePhotos(draft: ListingDraft): boolean {
-  return (
-    draft.imageNames.length >= 3 &&
-    draft.title.trim().length >= 8 &&
-    draft.description.trim().length >= 40
-  );
+/** Primera etapa todavía no confirmada: donde el usuario tiene que estar parado. */
+export function currentStep(draft: ListingDraft): PublishStepId {
+  const pending = PUBLISH_STEPS.find((s) => !draft.completedSteps.includes(s.id));
+  return pending?.id ?? PUBLISH_STEPS[PUBLISH_STEPS.length - 1].id;
 }
 
-export function validateContact(draft: ListingDraft): boolean {
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.sellerEmail.trim());
-  const phoneOk = draft.sellerPhone.replace(/\D/g, "").length >= 8;
-  return Boolean(draft.sellerName.trim() && emailOk && phoneOk);
+/**
+ * Reabre las etapas que dejaron de ser válidas. Si el usuario vuelve atrás y
+ * vacía un campo, esa etapa y todas las siguientes vuelven a quedar pendientes.
+ */
+export function syncCompletedSteps(draft: ListingDraft): ListingDraft {
+  const stillValid: PublishStepId[] = [];
+
+  for (const step of PUBLISH_STEPS) {
+    if (!draft.completedSteps.includes(step.id)) break;
+    if (!isStepValid(draft, step.id)) break;
+    stillValid.push(step.id);
+  }
+
+  if (stillValid.length === draft.completedSteps.length) return draft;
+  return { ...draft, completedSteps: stillValid };
 }
 
 export const FUEL_OPTIONS = [

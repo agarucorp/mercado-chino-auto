@@ -24,3 +24,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Variables de entorno (las claves nunca van al repo)
+.env
+.env.*
+!.env.example

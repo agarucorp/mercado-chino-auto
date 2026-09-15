@@ -1,9 +1,13 @@
-import { formatKm, formatPrice, getLatestListings } from "@/data/listings";
+import { formatKm, formatPrice } from "@/data/listings";
+import { useApprovedListings } from "@/hooks/useListings";
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
 
 export function LatestListingsPreview() {
-  const listings = getLatestListings(3);
+  const { data: listings = [] } = useApprovedListings();
+  const preview = listings.slice(0, 3);
+
+  if (preview.length === 0) return null;
 
   return (
     <section className="py-8 md:py-10 border-b border-border">
@@ -19,7 +23,7 @@ export function LatestListingsPreview() {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {listings.map((listing) => (
+          {preview.map((listing) => (
             <Link
               key={listing.id}
               to={`/clasificados/${listing.id}`}
@@ -37,7 +41,7 @@ export function LatestListingsPreview() {
                   {listing.year} {listing.title}
                 </h3>
                 <p className="type-numeric font-semibold text-primary mt-1">
-                  {formatPrice(listing.price)}
+                  {formatPrice(listing.price, listing.currency ?? "ARS")}
                 </p>
                 <p className="type-meta text-muted-foreground mt-1">{formatKm(listing.km)}</p>
                 <p className="type-meta text-muted-foreground flex items-center gap-1 mt-0.5">

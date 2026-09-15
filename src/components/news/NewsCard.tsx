@@ -15,6 +15,13 @@ export interface NewsArticle {
   featured?: boolean;
   marcaId?: string;
   modeloId?: string;
+  /** URL de la nota original, cuando la noticia se importó de otro medio. */
+  sourceUrl?: string;
+  /** Orden manual definido por el admin. Menor = primero. */
+  position?: number;
+  body?: string;
+  published?: boolean;
+  imageAlt?: string;
 }
 
 /** @deprecated Use NewsArticle */

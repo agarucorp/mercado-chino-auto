@@ -7,9 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatKm, formatPrice, LISTINGS_DATA } from "@/data/listings";
+import { formatKm, formatPrice } from "@/data/listings";
+import { useApprovedListings } from "@/hooks/useListings";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Filter,
@@ -24,6 +25,18 @@ import { Link } from "react-router-dom";
 const Clasificados = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const { data: listings = [], isLoading } = useApprovedListings();
+
+  const visible = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return listings;
+    return listings.filter(
+      (l) =>
+        l.title.toLowerCase().includes(q) ||
+        l.location.toLowerCase().includes(q) ||
+        String(l.year).includes(q),
+    );
+  }, [listings, searchQuery]);
 
   return (
     <Layout>
@@ -139,7 +152,7 @@ const Clasificados = () => {
 
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
-              <span className="font-semibold text-foreground">{LISTINGS_DATA.length}</span>{" "}
+              <span className="font-semibold text-foreground">{visible.length}</span>{" "}
               vehículos encontrados
             </p>
             <Select defaultValue="newest">
@@ -155,8 +168,15 @@ const Clasificados = () => {
             </Select>
           </div>
 
+          {isLoading ? (
+            <p className="type-body text-muted-foreground text-center py-12">Cargando avisos…</p>
+          ) : visible.length === 0 ? (
+            <p className="type-body text-muted-foreground text-center py-12">
+              Todavía no hay avisos publicados. Podés enviar una solicitud desde Vender.
+            </p>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {LISTINGS_DATA.map((listing, index) => (
+            {visible.map((listing, index) => (
               <motion.article
                 key={listing.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -186,7 +206,7 @@ const Clasificados = () => {
                     </h3>
 
                     <p className="type-numeric font-semibold text-xl text-primary mb-4">
-                      {formatPrice(listing.price)}
+                      {formatPrice(listing.price, listing.currency ?? "ARS")}
                     </p>
 
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
@@ -212,12 +232,7 @@ const Clasificados = () => {
               </motion.article>
             ))}
           </div>
-
-          <div className="text-center mt-10">
-            <Button size="lg">
-              Cargar más vehículos
-            </Button>
-          </div>
+          )}
         </div>
       </section>
     </Layout>

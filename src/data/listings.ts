@@ -35,6 +35,13 @@ export interface Listing {
   security: ListingSpec[];
   equipment: string[];
   seller: ListingSeller;
+  currency?: "ARS" | "USD";
+  plan?: "basico" | "destacado" | "premium";
+  status?: "pendiente" | "aprobada" | "rechazada" | "archivada";
+  sellerEmail?: string;
+  sellerPhone?: string;
+  adminNotes?: string | null;
+  submittedAt?: string;
 }
 
 const IMG = {
@@ -417,8 +424,12 @@ export function getListingById(id: string): Listing | undefined {
   return LISTINGS_DATA.find((l) => l.id === id);
 }
 
-export function getRelatedListings(listing: Listing, limit = 4): Listing[] {
-  const others = LISTINGS_DATA.filter((l) => l.id !== listing.id);
+export function getRelatedListings(
+  listing: Listing,
+  limit = 4,
+  pool: Listing[] = LISTINGS_DATA,
+): Listing[] {
+  const others = pool.filter((l) => l.id !== listing.id);
   const sameBrand = others.filter((l) => l.marcaId === listing.marcaId);
   const different = others.filter((l) => l.marcaId !== listing.marcaId);
   return [...sameBrand, ...different].slice(0, limit);
@@ -438,10 +449,10 @@ export function getListingsByModelo(marcaId: string, modeloId: string) {
   );
 }
 
-export const formatPrice = (price: number) =>
+export const formatPrice = (price: number, currency: "ARS" | "USD" = "ARS") =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "ARS",
+    currency,
     maximumFractionDigits: 0,
   }).format(price);
 

@@ -4,8 +4,9 @@ import {
   type ListingDraft,
   type PublishStepId,
   isStepComplete,
+  isStepUnlocked,
 } from "@/lib/listing-draft";
-import { Check } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 
 interface PublishStepRailProps {
   activeStep: PublishStepId;
@@ -18,8 +19,13 @@ export function PublishStepRail({ activeStep, draft, onGoTo }: PublishStepRailPr
     <nav aria-label="Progreso de publicación" className="space-y-0">
       {PUBLISH_STEPS.map((step, index) => {
         const done = isStepComplete(draft, step.id);
+        const unlocked = isStepUnlocked(draft, step.id);
         const active = activeStep === step.id;
         const isLast = index === PUBLISH_STEPS.length - 1;
+
+        const label = `${step.title}${
+          done ? " (completado)" : unlocked ? "" : " (bloqueado)"
+        }`;
 
         return (
           <div key={step.id} className="flex gap-3">
@@ -27,16 +33,24 @@ export function PublishStepRail({ activeStep, draft, onGoTo }: PublishStepRailPr
               <button
                 type="button"
                 onClick={() => onGoTo(step.id)}
+                disabled={!unlocked}
                 className={cn(
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border type-meta transition-colors",
                   done && "border-foreground bg-foreground text-background",
                   active && !done && "border-foreground text-foreground",
-                  !active && !done && "border-border text-muted-foreground",
+                  !active && !done && unlocked && "border-border text-muted-foreground",
+                  !unlocked && "border-border text-muted-foreground/50 cursor-not-allowed",
                 )}
                 aria-current={active ? "step" : undefined}
-                aria-label={`${step.title}${done ? " (completado)" : ""}`}
+                aria-label={label}
               >
-                {done ? <Check className="h-4 w-4" /> : index + 1}
+                {done ? (
+                  <Check className="h-4 w-4" />
+                ) : unlocked ? (
+                  index + 1
+                ) : (
+                  <Lock className="h-3.5 w-3.5" />
+                )}
               </button>
               {!isLast && (
                 <div
@@ -51,12 +65,19 @@ export function PublishStepRail({ activeStep, draft, onGoTo }: PublishStepRailPr
             <button
               type="button"
               onClick={() => onGoTo(step.id)}
-              className="pb-8 text-left min-w-0 pt-1"
+              disabled={!unlocked}
+              className={cn(
+                "pb-8 text-left min-w-0 pt-1",
+                !unlocked && "cursor-not-allowed",
+              )}
+              tabIndex={-1}
+              aria-hidden
             >
               <p
                 className={cn(
                   "type-meta",
                   active || done ? "text-foreground" : "text-muted-foreground",
+                  !unlocked && "text-muted-foreground/50",
                 )}
               >
                 {step.short}
@@ -65,6 +86,7 @@ export function PublishStepRail({ activeStep, draft, onGoTo }: PublishStepRailPr
                 className={cn(
                   "type-body-sm mt-0.5",
                   active ? "text-foreground" : "text-muted-foreground",
+                  !unlocked && "text-muted-foreground/50",
                 )}
               >
                 {step.title}

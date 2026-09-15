@@ -30,13 +30,12 @@ describe("categorias", () => {
     const cats = getCategoriasConConteo();
     expect(cats.map((c) => `${c.slug}:${c.count}`)).toMatchInlineSnapshot(`
       [
-        "electrico:18",
-        "hibrido:10",
-        "suv:93",
-        "hatchback:15",
-        "sedan:9",
-        "pickup:19",
-        "comercial:18",
+        "electrico:12",
+        "hibrido:16",
+        "suv:88",
+        "hatchback:10",
+        "sedan:5",
+        "pickup:15",
         "offroad:4",
       ]
     `);

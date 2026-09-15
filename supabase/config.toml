@@ -1,0 +1,8 @@
+project_id = "jsnfdeztgefaeshvottd"
+
+# El vendedor envía el aviso sin sesión; extract-news valida is_admin a mano.
+[functions.extract-news]
+verify_jwt = false
+
+[functions.notify-listing]
+verify_jwt = false

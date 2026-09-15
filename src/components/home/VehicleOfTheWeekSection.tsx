@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
-import {
-  formatKm,
-  formatPrice,
-  getVehicleOfTheWeek,
-} from "@/data/listings";
+import { formatKm, formatPrice } from "@/data/listings";
+import { useApprovedListings } from "@/hooks/useListings";
 import { Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function VehicleOfTheWeekSection() {
-  const listing = getVehicleOfTheWeek();
+  const { data: listings = [] } = useApprovedListings();
+  const listing = listings.find((l) => l.featured) ?? listings[0];
+  if (!listing) return null;
+
   const headline = `${listing.year} ${listing.title} ${listing.version}`;
 
   const highlights = listing.general
@@ -34,7 +34,7 @@ export function VehicleOfTheWeekSection() {
             <div>
               <h3 className="type-h3 text-foreground">{headline}</h3>
               <p className="type-numeric text-xl font-semibold text-foreground mt-2">
-                {formatPrice(listing.price)}
+                {formatPrice(listing.price, listing.currency ?? "ARS")}
               </p>
             </div>
 

@@ -1,5 +1,5 @@
 import { NewsCard } from "@/components/news/NewsCard";
-import { getFilteredNews } from "@/data/news";
+import { useNews } from "@/hooks/useNews";
 import {
   Carousel,
   CarouselContent,
@@ -11,9 +11,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const PREVIEW_NEWS = getFilteredNews(null).slice(1, 4);
-
 export function NewsPreview() {
+  const { data: news = [] } = useNews();
+  const previewNews = news.filter((n) => n.published !== false).slice(0, 3);
+
   const [api, setApi] = useState<CarouselApi>();
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
@@ -29,7 +30,10 @@ export function NewsPreview() {
     onSelect(api);
     api.on("reInit", onSelect);
     api.on("select", onSelect);
-    return () => api.off("select", onSelect);
+    return () => {
+      api.off("reInit", onSelect);
+      api.off("select", onSelect);
+    };
   }, [api, onSelect]);
 
   return (
@@ -52,7 +56,7 @@ export function NewsPreview() {
 
         {/* Desktop: 3 cards */}
         <div className="hidden md:grid md:grid-cols-3 gap-6">
-          {PREVIEW_NEWS.map((article) => (
+          {previewNews.map((article) => (
             <NewsCard key={article.id} {...article} />
           ))}
         </div>
@@ -65,7 +69,7 @@ export function NewsPreview() {
             className="w-full"
           >
             <CarouselContent>
-              {PREVIEW_NEWS.map((article) => (
+              {previewNews.map((article) => (
                 <CarouselItem key={article.id} className="basis-full">
                   <NewsCard {...article} />
                 </CarouselItem>

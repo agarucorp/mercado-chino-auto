@@ -22,7 +22,7 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
     >
       <div>
         <p className="type-numeric text-2xl sm:text-3xl font-bold text-foreground">
-          {formatPrice(listing.price)}
+          {formatPrice(listing.price, listing.currency ?? "ARS")}
         </p>
         <p className="type-meta text-muted-foreground mt-1 flex items-center gap-1">
           <MapPin className="w-3.5 h-3.5 shrink-0" />

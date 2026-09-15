@@ -2,7 +2,7 @@ import { MarcaCtas } from "@/components/brands/MarcaCtas";
 import { MarcaHeader, MarcaModelosList } from "@/components/brands/MarcaModelosList";
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
-import { getNewsByMarca } from "@/data/news";
+import { useNewsByMarca } from "@/hooks/useNews";
 import { MARCAS } from "@/data/marcas";
 import { getMarcaBySlug } from "@/lib/marcas";
 import { motion } from "framer-motion";
@@ -13,11 +13,13 @@ const MarcaDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const marca = slug ? getMarcaBySlug(MARCAS, slug) : undefined;
 
+  // Antes del early return: los hooks tienen que correr en el mismo orden
+  // en todos los renders, incluido el que redirige.
+  const noticiasMarca = useNewsByMarca(marca?.id ?? "");
+
   if (!marca) {
     return <Navigate to="/marcas" replace />;
   }
-
-  const noticiasMarca = getNewsByMarca(marca.id);
 
   return (
     <Layout>
@@ -71,7 +73,12 @@ const MarcaDetail = () => {
                 <ul className="space-y-2">
                   {noticiasMarca.slice(0, 4).map((n) => (
                     <li key={n.id}>
-                      <p className="type-body text-foreground">{n.title}</p>
+                      <Link
+                        to={`/noticias/${n.id}`}
+                        className="type-body text-foreground hover:text-primary transition-colors"
+                      >
+                        {n.title}
+                      </Link>
                       <p className="type-meta text-muted-foreground">
                         {n.source} · {n.date}
                       </p>

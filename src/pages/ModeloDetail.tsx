@@ -9,8 +9,9 @@ import { ListingSpecTable } from "@/components/listings/ListingDetailSections";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { Layout } from "@/components/layout/Layout";
 import { NewsCard } from "@/components/news/NewsCard";
-import { formatKm, formatPrice, getListingsByModelo } from "@/data/listings";
-import { getNewsByModelo } from "@/data/news";
+import { formatKm, formatPrice } from "@/data/listings";
+import { useApprovedListings } from "@/hooks/useListings";
+import { useNewsByModelo } from "@/hooks/useNews";
 import { getFichaTecnica, getModeloImage } from "@/data/modelo-media";
 import { MARCAS } from "@/data/marcas";
 import { getMarcaBySlug, getModeloBySlug } from "@/lib/marcas";
@@ -30,12 +31,20 @@ const ModeloDetail = () => {
   const marca = marcaSlug ? getMarcaBySlug(MARCAS, marcaSlug) : undefined;
   const modelo = marca && modeloSlug ? getModeloBySlug(marca, modeloSlug) : undefined;
 
+  // Antes del early return: los hooks tienen que correr en el mismo orden
+  // en todos los renders, incluido el que redirige.
+  const noticiasModelo = useNewsByModelo(marca?.id ?? "", modelo?.id ?? "");
+  const noticias = noticiasModelo.filter((n) => n.published !== false);
+  const historial = noticiasModelo.filter((n) => n.published === false);
+  const { data: allListings = [] } = useApprovedListings();
+
   if (!marca || !modelo) {
     return <Navigate to="/marcas" replace />;
   }
 
-  const noticias = getNewsByModelo(marca.id, modelo.id);
-  const clasificados = getListingsByModelo(marca.id, modelo.id);
+  const clasificados = allListings.filter(
+    (l) => l.marcaId === marca.id && l.modeloId === modelo.id,
+  );
   const ficha = getFichaTecnica(modelo.id);
   const imagen = getModeloImage(modelo.id);
 
@@ -92,6 +101,17 @@ const ModeloDetail = () => {
                       No hay noticias recientes sobre este modelo.
                     </p>
                   )}
+
+                  {historial.length > 0 && (
+                    <div className="mt-10">
+                      <h3 className="type-h3 text-foreground mb-4">Historial</h3>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {historial.map((n) => (
+                          <NewsCard key={n.id} {...n} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -118,7 +138,7 @@ const ModeloDetail = () => {
                               {l.year} {l.title}
                             </h3>
                             <p className="type-numeric font-semibold text-primary mt-2">
-                              {formatPrice(l.price)}
+                              {formatPrice(l.price, l.currency ?? "ARS")}
                             </p>
                             <p className="type-meta text-muted-foreground mt-2 flex items-center gap-3">
                               <span>{formatKm(l.km)}</span>
