@@ -30,11 +30,17 @@ function esc(value: string): string {
   });
 }
 
-async function sendResend(to: string[], subject: string, html: string) {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) return { skipped: true as const };
+function secret(name: string): string {
+  return (Deno.env.get(name) ?? "").trim().replace(/^["']|["']$/g, "");
+}
 
-  const from = Deno.env.get("RESEND_FROM") ?? "Mercado Chino Auto <onboarding@resend.dev>";
+async function sendResend(to: string[], subject: string, html: string) {
+  const apiKey = secret("RESEND_API_KEY");
+  if (!apiKey) return { skipped: true as const, reason: "no_resend_key" };
+
+  const from = secret("RESEND_FROM");
+  if (!from) return { skipped: true as const, reason: "no_from" };
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -57,7 +63,8 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  if (!supabaseUrl || !anonKey || !serviceKey) return json({ error: "misconfigured" }, 500);
+  // submitted solo necesita service role; anon puede faltar con keys nuevas
+  if (!supabaseUrl || !serviceKey) return json({ error: "misconfigured" }, 500);
 
   let payload: { listingId?: string; event?: string };
   try {
@@ -90,6 +97,7 @@ Deno.serve(async (req) => {
   } else {
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+    if (!anonKey) return json({ error: "misconfigured_anon" }, 500);
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -97,8 +105,14 @@ Deno.serve(async (req) => {
     if (adminError || !isAdmin) return json({ error: "forbidden" }, 403);
   }
 
-  const adminEmail = Deno.env.get("ADMIN_NOTIFY_EMAIL");
-  const siteUrl = Deno.env.get("PUBLIC_SITE_URL") ?? "https://mercadochinoauto.com";
+  console.log("notify-listing", event, listingId, {
+    hasKey: Boolean(secret("RESEND_API_KEY")),
+    hasFrom: Boolean(secret("RESEND_FROM")),
+    hasTo: Boolean(secret("ADMIN_NOTIFY_EMAIL")),
+  });
+
+  const adminEmail = secret("ADMIN_NOTIFY_EMAIL");
+  const siteUrl = secret("PUBLIC_SITE_URL") || "https://www.autosdechina.com.ar";
   const subject =
     event === "submitted"
       ? `Nueva solicitud: ${listing.year} ${listing.title}`

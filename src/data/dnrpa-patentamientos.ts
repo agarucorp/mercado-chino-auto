@@ -462,9 +462,9 @@ export const DNRPA_PATENTAMIENTOS: DnrpaPatentamiento[] = [
   },
   {
     "year": 2026,
-    "marcaId": "lepamotors",
-    "modeloId": "lepamotors-b10",
-    "marcaNombre": "LEPAMOTORS",
+    "marcaId": "leapmotors",
+    "modeloId": "leapmotors-b10",
+    "marcaNombre": "LEAPMOTORS",
     "modeloNombre": "B10",
     "cantidad": 29
   },
@@ -502,9 +502,9 @@ export const DNRPA_PATENTAMIENTOS: DnrpaPatentamiento[] = [
   },
   {
     "year": 2026,
-    "marcaId": "lepamotors",
-    "modeloId": "lepamotors-c10",
-    "marcaNombre": "LEPAMOTORS",
+    "marcaId": "leapmotors",
+    "modeloId": "leapmotors-c10",
+    "marcaNombre": "LEAPMOTORS",
     "modeloNombre": "C10",
     "cantidad": 19
   },

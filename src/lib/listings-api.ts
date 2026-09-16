@@ -125,10 +125,59 @@ export async function fetchAdminListings(): Promise<AdminListing[]> {
   }));
 }
 
+/**
+ * invoke() manda la publishable key en Authorization. Esa key no es un JWT,
+ * el gateway responde 401 y Resend nunca llega a ejecutarse.
+ * Enviamos apikey siempre; Authorization solo si hay sesión de usuario.
+ */
+async function notifyListing(
+  listingId: string,
+  event: "submitted" | "reviewed",
+): Promise<{ mailSent: boolean; mailError?: string }> {
+  const url = import.meta.env.VITE_SUPABASE_URL as string;
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  const { data: sessionData } = await client().auth.getSession();
+  const userJwt = sessionData.session?.access_token;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    apikey: anonKey,
+  };
+  if (userJwt) headers.Authorization = `Bearer ${userJwt}`;
+
+  const res = await fetch(`${url}/functions/v1/notify-listing`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ listingId, event }),
+  });
+
+  const payload = (await res.json().catch(() => ({}))) as {
+    error?: string;
+    skipped?: boolean;
+    reason?: string;
+    ok?: boolean;
+  };
+
+  if (!res.ok) {
+    const mailError =
+      typeof payload.error === "string" ? payload.error : `notify_listing_${res.status}`;
+    console.error("notify-listing", mailError);
+    return { mailSent: false, mailError };
+  }
+
+  if (payload.skipped) {
+    const mailError = payload.reason ?? "skipped";
+    console.warn("notify-listing skipped", mailError);
+    return { mailSent: false, mailError };
+  }
+
+  return { mailSent: true };
+}
+
 export async function submitListing(
   draft: ListingDraft,
   blobs: Map<string, Blob>,
-): Promise<string> {
+): Promise<{ listingId: string; mailSent: boolean; mailError?: string }> {
   const db = client();
   if (!draft.planId) throw new Error("Elegí un plan de publicación.");
 
@@ -183,15 +232,8 @@ export async function submitListing(
     position += 1;
   }
 
-  void db.functions
-    .invoke("notify-listing", {
-      body: { listingId, event: "submitted" },
-    })
-    .catch(() => {
-      // El pedido ya está en la base; el mail es best-effort.
-    });
-
-  return listingId;
+  const mail = await notifyListing(listingId, "submitted");
+  return { listingId, ...mail };
 }
 
 export async function reviewListing(input: {
@@ -216,11 +258,7 @@ export async function reviewListing(input: {
 
   if (error) throw new Error(error.message);
 
-  void client()
-    .functions.invoke("notify-listing", {
-      body: { listingId: input.id, event: "reviewed" },
-    })
-    .catch(() => undefined);
+  await notifyListing(input.id, "reviewed");
 }
 
 export type { PlanId };

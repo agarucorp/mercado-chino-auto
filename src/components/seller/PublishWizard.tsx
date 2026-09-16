@@ -22,6 +22,7 @@ import {
   TRANSMISSION_OPTIONS,
   clearListingDraft,
   currentStep,
+  getStepIssueFields,
   getStepIssues,
   isDraftSubmittable,
   isStepComplete,
@@ -32,6 +33,7 @@ import {
   maxPhotosFor,
   saveListingDraft,
   syncCompletedSteps,
+  type DraftFieldKey,
   type ListingDraft,
   type PublishPlanId,
   type PublishStepId,
@@ -54,7 +56,6 @@ import {
   Lightbulb,
   Loader2,
   Lock,
-  Sparkles,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -97,19 +98,42 @@ function LockedStep({ step }: { step: PublishStepId }) {
   );
 }
 
+const INVALID_CONTROL =
+  "border-destructive focus-visible:ring-destructive focus:ring-destructive";
+
+const FIELD_IDS: Record<DraftFieldKey, string> = {
+  planId: "pub-plan",
+  marcaId: "pub-marca",
+  modeloId: "pub-modelo",
+  year: "pub-year",
+  km: "pub-km",
+  price: "pub-price",
+  fuel: "pub-fuel",
+  transmission: "pub-tr",
+  location: "pub-loc",
+  province: "pub-prov",
+  images: "pub-photos",
+  title: "pub-title",
+  description: "pub-desc",
+  sellerName: "pub-name",
+  sellerEmail: "pub-email",
+  sellerPhone: "pub-phone",
+};
+
 /** Detalle de lo que falta, en el lugar del error y no como toast que se va. */
 function StepIssues({ issues }: { issues: string[] }) {
   if (issues.length === 0) return null;
 
   return (
-    <div role="status" className="rounded-xl border border-border bg-muted/40 px-4 py-3">
-      <p className="type-meta text-muted-foreground">Falta completar</p>
+    <div
+      role="status"
+      className="rounded-xl border border-destructive/50 bg-destructive/5 px-4 py-3"
+    >
+      <p className="type-meta text-destructive">Falta completar</p>
       <ul className="mt-1.5 space-y-1">
         {issues.map((issue) => (
-          <li key={issue} className="type-body-sm text-foreground flex gap-2">
-            <span className="text-muted-foreground" aria-hidden>
-              ·
-            </span>
+          <li key={issue} className="type-body-sm text-destructive flex gap-2">
+            <span aria-hidden>·</span>
             {issue}
           </li>
         ))}
@@ -249,6 +273,13 @@ export function PublishWizard() {
           ? issues[0]
           : `Faltan ${issues.length} datos en esta etapa.`,
       );
+      const firstField = [...getStepIssueFields(draft, step)][0];
+      if (firstField) {
+        document.getElementById(FIELD_IDS[firstField])?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
       return;
     }
 
@@ -340,10 +371,20 @@ export function PublishWizard() {
       if (blobs.size < MIN_PHOTOS) {
         throw new Error("No se encontraron las fotos en este navegador. Volvé a subirlas.");
       }
-      await submitListing(next, blobs);
+      const result = await submitListing(next, blobs);
       setDraft(next);
-      saveListingDraft(next);
-      toast.success("Solicitud enviada. Tu publicación quedó pendiente de revisión.");
+      clearListingDraft();
+      void clearImages();
+      if (result.mailSent) {
+        toast.success("Solicitud enviada. Tu publicación quedó pendiente de revisión.");
+      } else {
+        toast.success("Solicitud guardada, pendiente de revisión.");
+        toast.warning(
+          result.mailError
+            ? `No se envió el mail de aviso (${result.mailError}).`
+            : "No se envió el mail de aviso.",
+        );
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo enviar la solicitud.");
@@ -366,6 +407,9 @@ export function PublishWizard() {
   /** Faltantes visibles solo después de un intento, para no cargar el form vacío. */
   const issuesFor = (step: PublishStepId) =>
     attempted.includes(step) ? getStepIssues(draft, step) : [];
+
+  const invalid = (step: PublishStepId, field: DraftFieldKey) =>
+    attempted.includes(step) && getStepIssueFields(draft, step).has(field);
 
   if (draft.status === "pendiente_revision") {
     return (
@@ -424,9 +468,10 @@ export function PublishWizard() {
             </p>
           </header>
 
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div id="pub-plan" className="grid sm:grid-cols-3 gap-4">
             {PUBLISH_PLANS.map((plan) => {
               const selected = draft.planId === plan.id;
+              const planMissing = invalid("plan", "planId");
               return (
                 <button
                   key={plan.id}
@@ -437,7 +482,9 @@ export function PublishWizard() {
                     "text-left rounded-xl border p-5 transition-colors flex flex-col gap-3",
                     selected
                       ? "border-foreground bg-muted/40"
-                      : "border-border hover:border-foreground/40",
+                      : planMissing
+                        ? "border-destructive hover:border-destructive"
+                        : "border-border hover:border-foreground/40",
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -489,12 +536,21 @@ export function PublishWizard() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="pub-marca">Marca</Label>
+                  <Label
+                    htmlFor="pub-marca"
+                    className={invalid("vehiculo", "marcaId") ? "text-destructive" : undefined}
+                  >
+                    Marca
+                  </Label>
                   <Select
                     value={draft.marcaId}
                     onValueChange={(v) => update({ marcaId: v, modeloId: "" })}
                   >
-                    <SelectTrigger id="pub-marca">
+                    <SelectTrigger
+                      id="pub-marca"
+                      aria-invalid={invalid("vehiculo", "marcaId")}
+                      className={invalid("vehiculo", "marcaId") ? INVALID_CONTROL : undefined}
+                    >
                       <SelectValue placeholder="Seleccioná marca" />
                     </SelectTrigger>
                     <SelectContent side="bottom" className="max-h-72">
@@ -508,13 +564,23 @@ export function PublishWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-modelo">Modelo</Label>
+                  <Label
+                    htmlFor="pub-modelo"
+                    className={invalid("vehiculo", "modeloId") ? "text-destructive" : undefined}
+                  >
+                    Modelo
+                  </Label>
                   <Select
                     value={draft.modeloId}
                     onValueChange={(v) => update({ modeloId: v })}
                     disabled={!draft.marcaId}
                   >
-                    <SelectTrigger id="pub-modelo" disabled={!draft.marcaId}>
+                    <SelectTrigger
+                      id="pub-modelo"
+                      disabled={!draft.marcaId}
+                      aria-invalid={invalid("vehiculo", "modeloId")}
+                      className={invalid("vehiculo", "modeloId") ? INVALID_CONTROL : undefined}
+                    >
                       <SelectValue placeholder="Seleccioná modelo" />
                     </SelectTrigger>
                     <SelectContent side="bottom" className="max-h-72">
@@ -538,9 +604,18 @@ export function PublishWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-year">Año</Label>
+                  <Label
+                    htmlFor="pub-year"
+                    className={invalid("vehiculo", "year") ? "text-destructive" : undefined}
+                  >
+                    Año
+                  </Label>
                   <Select value={draft.year} onValueChange={(v) => update({ year: v })}>
-                    <SelectTrigger id="pub-year">
+                    <SelectTrigger
+                      id="pub-year"
+                      aria-invalid={invalid("vehiculo", "year")}
+                      className={invalid("vehiculo", "year") ? INVALID_CONTROL : undefined}
+                    >
                       <SelectValue placeholder="Año" />
                     </SelectTrigger>
                     <SelectContent side="bottom" className="max-h-72">
@@ -554,18 +629,30 @@ export function PublishWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-km">Kilometraje</Label>
+                  <Label
+                    htmlFor="pub-km"
+                    className={invalid("vehiculo", "km") ? "text-destructive" : undefined}
+                  >
+                    Kilometraje
+                  </Label>
                   <Input
                     id="pub-km"
                     inputMode="numeric"
                     value={draft.km}
                     onChange={(e) => update({ km: e.target.value.replace(/\D/g, "") })}
                     placeholder="Ej. 45000"
+                    aria-invalid={invalid("vehiculo", "km")}
+                    className={invalid("vehiculo", "km") ? INVALID_CONTROL : undefined}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-price">Precio</Label>
+                  <Label
+                    htmlFor="pub-price"
+                    className={invalid("vehiculo", "price") ? "text-destructive" : undefined}
+                  >
+                    Precio
+                  </Label>
                   <div className="flex gap-2">
                     <Select
                       value={draft.currency}
@@ -585,15 +672,28 @@ export function PublishWizard() {
                       value={draft.price}
                       onChange={(e) => update({ price: e.target.value.replace(/\D/g, "") })}
                       placeholder="Monto"
-                      className="flex-1"
+                      className={cn(
+                        "flex-1",
+                        invalid("vehiculo", "price") && INVALID_CONTROL,
+                      )}
+                      aria-invalid={invalid("vehiculo", "price")}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-fuel">Combustible</Label>
+                  <Label
+                    htmlFor="pub-fuel"
+                    className={invalid("vehiculo", "fuel") ? "text-destructive" : undefined}
+                  >
+                    Combustible
+                  </Label>
                   <Select value={draft.fuel} onValueChange={(v) => update({ fuel: v })}>
-                    <SelectTrigger id="pub-fuel">
+                    <SelectTrigger
+                      id="pub-fuel"
+                      aria-invalid={invalid("vehiculo", "fuel")}
+                      className={invalid("vehiculo", "fuel") ? INVALID_CONTROL : undefined}
+                    >
                       <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -607,13 +707,24 @@ export function PublishWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-tr">Transmisión</Label>
+                  <Label
+                    htmlFor="pub-tr"
+                    className={invalid("vehiculo", "transmission") ? "text-destructive" : undefined}
+                  >
+                    Transmisión
+                  </Label>
                   <Select
                     value={draft.transmission}
                     onValueChange={(v) => update({ transmission: v })}
                   >
-                    <SelectTrigger id="pub-tr">
-                      <SelectValue placeholder="Caja" />
+                    <SelectTrigger
+                      id="pub-tr"
+                      aria-invalid={invalid("vehiculo", "transmission")}
+                      className={
+                        invalid("vehiculo", "transmission") ? INVALID_CONTROL : undefined
+                      }
+                    >
+                      <SelectValue placeholder="Manual o automática" />
                     </SelectTrigger>
                     <SelectContent>
                       {TRANSMISSION_OPTIONS.map((t) => (
@@ -626,22 +737,38 @@ export function PublishWizard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-loc">Ciudad / localidad</Label>
+                  <Label
+                    htmlFor="pub-loc"
+                    className={invalid("vehiculo", "location") ? "text-destructive" : undefined}
+                  >
+                    Ciudad / Localidad
+                  </Label>
                   <Input
                     id="pub-loc"
                     value={draft.location}
                     onChange={(e) => update({ location: e.target.value })}
                     placeholder="Ej. Palermo"
+                    aria-invalid={invalid("vehiculo", "location")}
+                    className={invalid("vehiculo", "location") ? INVALID_CONTROL : undefined}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-prov">Provincia</Label>
+                  <Label
+                    htmlFor="pub-prov"
+                    className={invalid("vehiculo", "province") ? "text-destructive" : undefined}
+                  >
+                    Provincia
+                  </Label>
                   <Select
                     value={draft.province}
                     onValueChange={(v) => update({ province: v })}
                   >
-                    <SelectTrigger id="pub-prov">
+                    <SelectTrigger
+                      id="pub-prov"
+                      aria-invalid={invalid("vehiculo", "province")}
+                      className={invalid("vehiculo", "province") ? INVALID_CONTROL : undefined}
+                    >
                       <SelectValue placeholder="Provincia" />
                     </SelectTrigger>
                     <SelectContent side="bottom" className="max-h-72">
@@ -690,34 +817,66 @@ export function PublishWizard() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pub-title">Título del aviso</Label>
+                <Label
+                  htmlFor="pub-title"
+                  className={invalid("fotos", "title") ? "text-destructive" : undefined}
+                >
+                  Título del aviso
+                </Label>
                 <Input
                   id="pub-title"
                   value={draft.title}
                   onChange={(e) => update({ title: e.target.value })}
                   placeholder="Ej. BYD Song Pro DM-i 2024 · único dueño"
+                  aria-invalid={invalid("fotos", "title")}
+                  className={invalid("fotos", "title") ? INVALID_CONTROL : undefined}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pub-desc">Descripción</Label>
+                <Label
+                  htmlFor="pub-desc"
+                  className={invalid("fotos", "description") ? "text-destructive" : undefined}
+                >
+                  Descripción
+                </Label>
                 <Textarea
                   id="pub-desc"
                   rows={5}
                   value={draft.description}
                   onChange={(e) => update({ description: e.target.value })}
                   placeholder="Contá el uso del auto, service, equipamiento destacado y motivo de venta. Mínimo unas 2-3 oraciones."
-                  className="resize-y min-h-[8rem]"
+                  className={cn(
+                    "resize-y min-h-[8rem]",
+                    invalid("fotos", "description") && INVALID_CONTROL,
+                  )}
+                  aria-invalid={invalid("fotos", "description")}
                 />
-                <p className="type-meta text-muted-foreground">
+                <p
+                  className={cn(
+                    "type-meta",
+                    invalid("fotos", "description")
+                      ? "text-destructive"
+                      : "text-muted-foreground",
+                  )}
+                >
                   {draft.description.trim().length} de {MIN_DESCRIPTION_LENGTH} caracteres mínimos
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3" id="pub-photos">
                 <div className="flex items-baseline justify-between gap-3">
-                  <Label>Fotos</Label>
-                  <span className="type-meta text-muted-foreground">
+                  <Label className={invalid("fotos", "images") ? "text-destructive" : undefined}>
+                    Fotos
+                  </Label>
+                  <span
+                    className={cn(
+                      "type-meta",
+                      invalid("fotos", "images")
+                        ? "text-destructive"
+                        : "text-muted-foreground",
+                    )}
+                  >
                     {draft.images.length} de {photoCap} · plan {planName}
                   </span>
                 </div>
@@ -727,7 +886,9 @@ export function PublishWizard() {
                     "flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-6 py-10 transition-colors",
                     draft.images.length >= photoCap
                       ? "border-border opacity-60 cursor-not-allowed"
-                      : "border-border cursor-pointer hover:border-foreground/40",
+                      : invalid("fotos", "images")
+                        ? "border-destructive cursor-pointer"
+                        : "border-border cursor-pointer hover:border-foreground/40",
                   )}
                 >
                   <ImagePlus className="h-8 w-8 text-muted-foreground" />
@@ -794,14 +955,6 @@ export function PublishWizard() {
                     })}
                   </ul>
                 )}
-
-                <div className="flex items-start gap-2 type-body-sm text-muted-foreground">
-                  <Sparkles className="h-4 w-4 shrink-0 mt-0.5" />
-                  <p>
-                    Tip: el título con marca, modelo y un diferencial (km bajos, único dueño, service
-                    oficial) mejora el click del aviso. La primera foto se usa como portada.
-                  </p>
-                </div>
               </div>
 
               <StepIssues issues={issuesFor("fotos")} />
@@ -830,39 +983,65 @@ export function PublishWizard() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="pub-name">Nombre y apellido</Label>
-                  <Input
-                    id="pub-name"
-                    value={draft.sellerName}
-                    onChange={(e) => update({ sellerName: e.target.value })}
-                    autoComplete="name"
-                  />
-                </div>
-
-                <div className="space-y-2 sm:col-span-2">
                   <span className="type-body-sm text-foreground">Publicás como</span>
                   <div className="flex gap-2">
-                    {(["particular", "concesionario"] as const).map((value) => (
+                    {(
+                      [
+                        { value: "particular", label: "Particular" },
+                        { value: "concesionario", label: "Concesionario" },
+                      ] as const
+                    ).map((option) => (
                       <button
-                        key={value}
+                        key={option.value}
                         type="button"
-                        onClick={() => update({ sellerType: value })}
-                        aria-pressed={draft.sellerType === value}
+                        onClick={() => update({ sellerType: option.value })}
+                        aria-pressed={draft.sellerType === option.value}
                         className={cn(
-                          "rounded-lg border px-4 py-2 type-body-sm transition-colors capitalize",
-                          draft.sellerType === value
+                          "rounded-lg border px-4 py-2 type-body-sm transition-colors",
+                          draft.sellerType === option.value
                             ? "border-foreground bg-muted/40 text-foreground"
                             : "border-border text-muted-foreground hover:border-foreground/40",
                         )}
                       >
-                        {value}
+                        {option.label}
                       </button>
                     ))}
                   </div>
                 </div>
 
+                <div className="space-y-2 sm:col-span-2">
+                  <Label
+                    htmlFor="pub-name"
+                    className={invalid("contacto", "sellerName") ? "text-destructive" : undefined}
+                  >
+                    {draft.sellerType === "concesionario"
+                      ? "Nombre de la agencia"
+                      : "Nombre y apellido"}
+                  </Label>
+                  <Input
+                    id="pub-name"
+                    value={draft.sellerName}
+                    onChange={(e) => update({ sellerName: e.target.value })}
+                    autoComplete={draft.sellerType === "concesionario" ? "organization" : "name"}
+                    placeholder={
+                      draft.sellerType === "concesionario"
+                        ? "Ej. Autos del Sur"
+                        : undefined
+                    }
+                    aria-invalid={invalid("contacto", "sellerName")}
+                    className={
+                      invalid("contacto", "sellerName") ? INVALID_CONTROL : undefined
+                    }
+                  />
+                </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="pub-phone">Teléfono</Label>
+                  <Label
+                    htmlFor="pub-phone"
+                    className={invalid("contacto", "sellerPhone") ? "text-destructive" : undefined}
+                  >
+                    Teléfono
+                  </Label>
                   <Input
                     id="pub-phone"
                     type="tel"
@@ -870,17 +1049,30 @@ export function PublishWizard() {
                     onChange={(e) => update({ sellerPhone: e.target.value })}
                     autoComplete="tel"
                     placeholder="+54 9 11 …"
+                    aria-invalid={invalid("contacto", "sellerPhone")}
+                    className={
+                      invalid("contacto", "sellerPhone") ? INVALID_CONTROL : undefined
+                    }
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="pub-email">Email</Label>
+                  <Label
+                    htmlFor="pub-email"
+                    className={invalid("contacto", "sellerEmail") ? "text-destructive" : undefined}
+                  >
+                    Email
+                  </Label>
                   <Input
                     id="pub-email"
                     type="email"
                     value={draft.sellerEmail}
                     onChange={(e) => update({ sellerEmail: e.target.value })}
                     autoComplete="email"
+                    aria-invalid={invalid("contacto", "sellerEmail")}
+                    className={
+                      invalid("contacto", "sellerEmail") ? INVALID_CONTROL : undefined
+                    }
                   />
                 </div>
               </div>

@@ -8,12 +8,16 @@ const TRANSITION_S = 1.4;
 
 const HERO_SLIDES = [
   {
-    src: "/thumb-1920-1272450.jpg",
-    alt: "Autos chinos en Argentina — mercado local",
+    src: "/hero1.jpg",
+    alt: "Auto chino en Buenos Aires, frente al Obelisco",
   },
   {
-    src: "/thumb-1920-1237964.jpg",
-    alt: "Vehículos chinos — referencia del mercado automotriz",
+    src: "/hero2.jpg",
+    alt: "Sedán chino en ruta de montaña",
+  },
+  {
+    src: "/hero3.jpg",
+    alt: "Utilitario chino frente a las Cataratas del Iguazú",
   },
 ];
 
@@ -23,7 +27,7 @@ export function HeroSection() {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    HERO_SLIDES.slice(1).forEach((slide) => {
+    HERO_SLIDES.forEach((slide) => {
       const img = new Image();
       img.src = slide.src;
     });
@@ -38,8 +42,8 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-[32rem] md:min-h-[36rem] lg:min-h-[40rem] overflow-hidden border-b border-border">
-      <div className="absolute inset-0">
+    <section className="relative overflow-hidden h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)] min-h-[22rem] max-h-[40rem] md:max-h-[44rem]">
+      <div className="absolute inset-0 bg-black">
         {HERO_SLIDES.map((slide, index) => {
           const isActive = current === index;
 
@@ -48,21 +52,13 @@ export function HeroSection() {
               key={slide.src}
               src={slide.src}
               alt={slide.alt}
-              loading={index === 0 ? "eager" : "lazy"}
+              loading="eager"
+              decoding="async"
               fetchPriority={index === 0 ? "high" : "auto"}
-              animate={{
-                opacity: isActive ? 1 : 0,
-                scale: isActive ? [1, 1.06] : 1,
-              }}
-              transition={{
-                opacity: { duration: TRANSITION_S, ease: premiumEase },
-                scale: {
-                  duration: AUTOPLAY_MS / 1000,
-                  ease: "linear",
-                  times: [0, 1],
-                },
-              }}
-              className="absolute inset-0 h-full w-full object-cover will-change-transform"
+              initial={false}
+              animate={{ opacity: isActive ? 1 : 0 }}
+              transition={{ duration: TRANSITION_S, ease: premiumEase }}
+              className="absolute inset-0 h-full w-full object-cover"
               style={{ zIndex: isActive ? 1 : 0 }}
               aria-hidden={!isActive}
             />
@@ -70,36 +66,34 @@ export function HeroSection() {
         })}
       </div>
 
-      <div className="absolute inset-0 z-10">
-        <div className="container relative mx-auto h-full min-h-[32rem] md:min-h-[36rem] lg:min-h-[40rem]">
-          <motion.h1
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="type-hero-headline text-white max-w-2xl mx-auto text-center absolute top-10 md:top-12 lg:top-14 inset-x-0"
-          >
-            El mayor portal de autos chinos en Argentina
-          </motion.h1>
+      <div className="relative z-10 flex h-full flex-col items-center justify-between gap-6 px-4 py-8 md:py-10 lg:py-12">
+        <motion.h1
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="type-hero-headline text-white max-w-3xl text-center"
+        >
+          El mayor portal de autos chinos en Argentina
+        </motion.h1>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="absolute bottom-10 md:bottom-12 lg:bottom-14 inset-x-0 flex flex-col items-center gap-4 text-center px-4"
-          >
-            <p className="type-hero-tagline text-white max-w-2xl">
-              Comprá, vendé e informate sobre el mercado automotriz chino en nuestro país
-            </p>
-            <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
-              <Button asChild variant="onDarkSolid">
-                <Link to="/marcas">Explorar marcas</Link>
-              </Button>
-              <Button asChild variant="onDark">
-                <a href="#contacto">Contacto</a>
-              </Button>
-            </div>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex flex-col items-center gap-4 text-center"
+        >
+          <p className="type-hero-tagline text-white max-w-2xl">
+            Comprá, vendé e informate sobre el mercado automotriz chino en nuestro país
+          </p>
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3">
+            <Button asChild variant="onDarkSolid">
+              <Link to="/marcas">Explorar marcas</Link>
+            </Button>
+            <Button asChild variant="onDark">
+              <Link to="/vender">Publicá tu vehículo</Link>
+            </Button>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -6,6 +6,7 @@ import {
   isDraftSubmittable,
   isStepUnlocked,
   isStepValid,
+  loadListingDraft,
   markStepComplete,
   maxPhotosFor,
   syncCompletedSteps,
@@ -126,7 +127,7 @@ describe("getStepIssues", () => {
   it("enumera cada campo faltante del vehículo", () => {
     const issues = getStepIssues({ ...EMPTY_DRAFT }, "vehiculo");
     expect(issues).toContain("Marca");
-    expect(issues).toContain("Provincia");
+    expect(issues).toContain("Ciudad / Localidad");
     expect(issues).toHaveLength(9);
   });
 
@@ -140,6 +141,15 @@ describe("getStepIssues", () => {
     expect(getStepIssues(draft, "fotos")).toEqual([
       "Al menos 3 fotos (subiste 1)",
     ]);
+  });
+
+  it("pide nombre de la agencia cuando publica un concesionario", () => {
+    const draft = draftWith({
+      ...CONTACTO_OK,
+      sellerType: "concesionario",
+      sellerName: "",
+    });
+    expect(getStepIssues(draft, "contacto")).toEqual(["Nombre de la agencia"]);
   });
 
   it("rechaza un email mal formado", () => {
@@ -167,6 +177,36 @@ describe("maxPhotosFor", () => {
 
   it("sin plan elegido usa el tope más bajo", () => {
     expect(maxPhotosFor({ ...EMPTY_DRAFT })).toBe(8);
+  });
+});
+
+describe("loadListingDraft", () => {
+  it("descarta una solicitud ya enviada y no la vuelve a mostrar", () => {
+    localStorage.setItem(
+      "auchar-listing-draft-v1",
+      JSON.stringify({
+        ...EMPTY_DRAFT,
+        status: "pendiente_revision",
+        title: "BAIC modelo pinocho 27",
+      }),
+    );
+
+    const loaded = loadListingDraft();
+    expect(loaded.status).toBe("draft");
+    expect(loaded.title).toBe("");
+    expect(localStorage.getItem("auchar-listing-draft-v1")).toBeNull();
+  });
+
+  it("pasa transmisiones CVT o DCT a Automática", () => {
+    localStorage.setItem(
+      "auchar-listing-draft-v1",
+      JSON.stringify({
+        ...EMPTY_DRAFT,
+        transmission: "CVT",
+      }),
+    );
+
+    expect(loadListingDraft().transmission).toBe("Automática");
   });
 });
 

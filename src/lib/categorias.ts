@@ -19,7 +19,7 @@ export type CategoriaSlug =
   | "hatchback"
   | "sedan"
   | "pickup"
-  | "comercial"
+  | "utilitario"
   | "offroad";
 
 export interface CategoriaInfo {
@@ -74,9 +74,9 @@ export const CATEGORIAS: CategoriaInfo[] = [
     orden: 6,
   },
   {
-    slug: "comercial",
-    label: "Comerciales",
-    descripcion: "Utilitarios y furgones",
+    slug: "utilitario",
+    label: "Utilitarios",
+    descripcion: "Furgones, vans y comerciales",
     icon: Package,
     orden: 7,
   },
@@ -100,9 +100,9 @@ function isHybrid(n: string): boolean {
   return /dm-i|hev|hybrid|phev|mhev/.test(n);
 }
 
-function isComercial(n: string): boolean {
+function isUtilitario(n: string): boolean {
   return (
-    /furgon|mamut|sunray|view cs|gratour|aumark|toano|tm1|foison|box refrigerado|rino$|camion|utilitario|minivan/.test(
+    /furgon|mamut|sunray|view cs|gratour|aumark|toano|tm1|foison|box refrigerado|rino$|camion|utilitario|minivan|u-tour|myway|^m7$|ev30x|be11/.test(
       n,
     ) ||
     n.includes("mamut") ||
@@ -152,7 +152,7 @@ function isSedan(n: string): boolean {
 }
 
 function isSuv(n: string): boolean {
-  if (isComercial(n) || isPickup(n)) return false;
+  if (isUtilitario(n) || isPickup(n)) return false;
 
   return (
     /tiggo|haval|jolion|cs\d|atto|song|yuan|seal u|js\d|\(s[2-8]\)|x35|x55|x25|x40|x50|x60|x70|x3$|x7$|bj30|dashing|deepal|forthing|gsm|gs8|glory 5|glory 580|lynk|jaecoo|omoda|kaiyi|d90|swm|geely|huge|mage|arcfox|kaola|jetour|u-tour|myway|m7|h6|h1|h2|zs|t600|t33|t5$|t1$|t2$|s5$|s7$|tiggo|maxus|leapmotor/.test(
@@ -169,7 +169,7 @@ export function getCategoriasDeModelo(nombre: string): CategoriaSlug[] {
 
   if (isElectric(n)) cats.add("electrico");
   if (isHybrid(n)) cats.add("hibrido");
-  if (isComercial(n)) cats.add("comercial");
+  if (isUtilitario(n)) cats.add("utilitario");
   if (isPickup(n)) cats.add("pickup");
   if (isOffroad(n)) cats.add("offroad");
   if (isHatchback(n)) cats.add("hatchback");
@@ -222,8 +222,16 @@ export function filterMarcasPorCategoria(
     .filter((marca) => marca.modelos.length > 0);
 }
 
+const CATEGORIA_SLUG_ALIASES: Record<string, CategoriaSlug> = {
+  comercial: "utilitario",
+};
+
+export function resolveCategoriaSlug(slug: string): string {
+  return CATEGORIA_SLUG_ALIASES[slug] ?? slug;
+}
+
 export function getCategoriaBySlug(slug: string): CategoriaInfo | undefined {
-  return CATEGORIAS.find((c) => c.slug === slug);
+  return CATEGORIAS.find((c) => c.slug === resolveCategoriaSlug(slug));
 }
 
 export interface ModeloConMarca {
@@ -251,5 +259,6 @@ export function getModelosPorCategoria(categoria: CategoriaSlug): ModeloConMarca
 export function getCategoriaActivaBySlug(
   slug: string,
 ): (CategoriaInfo & { count: number }) | undefined {
-  return getCategoriasConConteo().find((c) => c.slug === slug);
+  const resolved = resolveCategoriaSlug(slug);
+  return getCategoriasConConteo().find((c) => c.slug === resolved);
 }

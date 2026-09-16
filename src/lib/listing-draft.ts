@@ -129,11 +129,17 @@ export function loadListingDraft(): ListingDraft {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...EMPTY_DRAFT };
     const parsed = JSON.parse(raw) as ListingDraft;
+    // La confirmación de envío es solo en memoria: si ya se mandó, no reaparece.
+    if (parsed.status === "pendiente_revision") {
+      localStorage.removeItem(STORAGE_KEY);
+      return { ...EMPTY_DRAFT };
+    }
     return {
       ...EMPTY_DRAFT,
       ...parsed,
       completedSteps: parsed.completedSteps ?? [],
       images: parsed.images ?? [],
+      transmission: normalizeTransmission(parsed.transmission ?? ""),
       status: parsed.status === "pendiente_revision" ? "pendiente_revision" : "draft",
     };
   } catch {
@@ -142,6 +148,10 @@ export function loadListingDraft(): ListingDraft {
 }
 
 export function saveListingDraft(draft: ListingDraft): void {
+  if (draft.status === "pendiente_revision") {
+    clearListingDraft();
+    return;
+  }
   const payload: ListingDraft = {
     ...draft,
     updatedAt: new Date().toISOString(),
@@ -176,49 +186,107 @@ export function maxPhotosFor(draft: ListingDraft): number {
   return plan?.maxPhotos ?? PUBLISH_PLANS[0].maxPhotos;
 }
 
-/** Qué falta para dar la etapa por terminada. Lista vacía = etapa válida. */
-export function getStepIssues(draft: ListingDraft, step: PublishStepId): string[] {
-  const missing: string[] = [];
+export type DraftFieldKey =
+  | "planId"
+  | "marcaId"
+  | "modeloId"
+  | "year"
+  | "km"
+  | "price"
+  | "fuel"
+  | "transmission"
+  | "location"
+  | "province"
+  | "images"
+  | "title"
+  | "description"
+  | "sellerName"
+  | "sellerEmail"
+  | "sellerPhone";
+
+export type StepFieldIssue = { field: DraftFieldKey; message: string };
+
+/** Qué falta por campo, para marcar inputs y listar el resumen. */
+export function getStepFieldIssues(
+  draft: ListingDraft,
+  step: PublishStepId,
+): StepFieldIssue[] {
+  const missing: StepFieldIssue[] = [];
 
   switch (step) {
     case "plan":
-      if (!draft.planId) missing.push("Elegí un plan de publicación");
+      if (!draft.planId) {
+        missing.push({ field: "planId", message: "Elegí un plan de publicación" });
+      }
       return missing;
 
     case "vehiculo":
-      if (!draft.marcaId) missing.push("Marca");
-      if (!draft.modeloId) missing.push("Modelo");
-      if (!draft.year) missing.push("Año");
-      if (!draft.km) missing.push("Kilometraje");
-      if (!draft.price) missing.push("Precio");
-      if (!draft.fuel) missing.push("Combustible");
-      if (!draft.transmission) missing.push("Transmisión");
-      if (!draft.location.trim()) missing.push("Ciudad o localidad");
-      if (!draft.province) missing.push("Provincia");
+      if (!draft.marcaId) missing.push({ field: "marcaId", message: "Marca" });
+      if (!draft.modeloId) missing.push({ field: "modeloId", message: "Modelo" });
+      if (!draft.year) missing.push({ field: "year", message: "Año" });
+      if (!draft.km) missing.push({ field: "km", message: "Kilometraje" });
+      if (!draft.price) missing.push({ field: "price", message: "Precio" });
+      if (!draft.fuel) missing.push({ field: "fuel", message: "Combustible" });
+      if (!draft.transmission) {
+        missing.push({ field: "transmission", message: "Transmisión" });
+      }
+      if (!draft.location.trim()) {
+        missing.push({ field: "location", message: "Ciudad / Localidad" });
+      }
+      if (!draft.province) missing.push({ field: "province", message: "Provincia" });
       return missing;
 
     case "fotos":
       if (draft.images.length < MIN_PHOTOS) {
-        missing.push(
-          `Al menos ${MIN_PHOTOS} fotos (subiste ${draft.images.length})`,
-        );
+        missing.push({
+          field: "images",
+          message: `Al menos ${MIN_PHOTOS} fotos (subiste ${draft.images.length})`,
+        });
       }
       if (draft.title.trim().length < MIN_TITLE_LENGTH) {
-        missing.push(`Título de ${MIN_TITLE_LENGTH} caracteres o más`);
+        missing.push({
+          field: "title",
+          message: `Título de ${MIN_TITLE_LENGTH} caracteres o más`,
+        });
       }
       if (draft.description.trim().length < MIN_DESCRIPTION_LENGTH) {
-        missing.push(`Descripción de ${MIN_DESCRIPTION_LENGTH} caracteres o más`);
+        missing.push({
+          field: "description",
+          message: `Descripción de ${MIN_DESCRIPTION_LENGTH} caracteres o más`,
+        });
       }
       return missing;
 
     case "contacto":
-      if (!draft.sellerName.trim()) missing.push("Nombre y apellido");
-      if (!EMAIL_RE.test(draft.sellerEmail.trim())) missing.push("Email válido");
+      if (!draft.sellerName.trim()) {
+        missing.push({
+          field: "sellerName",
+          message:
+            draft.sellerType === "concesionario"
+              ? "Nombre de la agencia"
+              : "Nombre y apellido",
+        });
+      }
+      if (!EMAIL_RE.test(draft.sellerEmail.trim())) {
+        missing.push({ field: "sellerEmail", message: "Email válido" });
+      }
       if (draft.sellerPhone.replace(/\D/g, "").length < 8) {
-        missing.push("Teléfono de al menos 8 dígitos");
+        missing.push({ field: "sellerPhone", message: "Teléfono de al menos 8 dígitos" });
       }
       return missing;
   }
+}
+
+/** Qué falta para dar la etapa por terminada. Lista vacía = etapa válida. */
+export function getStepIssues(draft: ListingDraft, step: PublishStepId): string[] {
+  return getStepFieldIssues(draft, step).map((issue) => issue.message);
+}
+
+export function getStepIssueFields(
+  draft: ListingDraft,
+  step: PublishStepId,
+): Set<DraftFieldKey> {
+  return new Set(getStepFieldIssues(draft, step).map((issue) => issue.field));
 }
 
 export function isStepValid(draft: ListingDraft, step: PublishStepId): boolean {
@@ -274,7 +342,12 @@ export const FUEL_OPTIONS = [
   "GNC",
 ];
 
-export const TRANSMISSION_OPTIONS = ["Manual", "Automática", "CVT", "DCT"];
+export const TRANSMISSION_OPTIONS = ["Manual", "Automática"] as const;
+
+function normalizeTransmission(value: string): string {
+  if (value === "CVT" || value === "DCT") return "Automática";
+  return value;
+}
 
 export const PROVINCE_OPTIONS = [
   "Ciudad Autónoma de Buenos Aires",

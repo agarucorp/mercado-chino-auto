@@ -124,6 +124,11 @@ export function getModeloPath(marca: Marca, modelo: Modelo): string {
   return `/marcas/${marca.slug}/${getModeloSlug(modelo)}`;
 }
 
+const MARCA_SLUG_ALIASES: Record<string, string> = {
+  lepamotors: "leapmotors",
+};
+
 export function getMarcaBySlug(marcas: Marca[], slug: string): Marca | undefined {
-  return marcas.find((m) => m.slug === slug || m.id === slug);
+  const canonical = MARCA_SLUG_ALIASES[slug] ?? slug;
+  return marcas.find((m) => m.slug === canonical || m.id === canonical);
 }

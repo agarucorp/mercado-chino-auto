@@ -73,7 +73,7 @@ export function BrandCarousel() {
                     className="flex flex-col items-center gap-2.5 group/card"
                     title={marca.nombre}
                   >
-                    <div className="w-full aspect-square rounded-lg bg-muted/40 flex items-center justify-center p-3 sm:p-4 transition-colors">
+                    <div className="w-full aspect-square rounded-lg bg-white border border-black/10 flex items-center justify-center p-3 sm:p-4">
                       <MarcaLogo
                         marcaId={marca.id}
                         nombre={marca.nombre}

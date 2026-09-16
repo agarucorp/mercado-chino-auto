@@ -171,7 +171,7 @@ export const MARCAS: Marca[] = [
     ["X3 PRO", "Vigente"],
     ["X7", "Vigente"],
   ]),
-  marca("LEPAMOTORS", 2026, "STELLANTIS", [
+  marca("LEAPMOTORS", 2026, "STELLANTIS", [
     ["C10", "Vigente"],
     ["B10", "Vigente"],
   ]),

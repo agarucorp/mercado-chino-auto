@@ -188,8 +188,8 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "kaiyi-x3-pro": ft("X3 PRO", "USD 26.000", "2026-vigente", "Naftero 1.5 Turbo", "Automática", "156 CV", "7,2 L/100 km", "6 airbags, ABS, ESP, ISOFIX", "700 km"),
   "kaiyi-x7": ft("X7", "desde USD 35.000", "2026-vigente", "Híbrido 1.5 / Naftero 2.0 Turbo", "Automática", "170-238 CV", "6,5-9,0 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "800 km"),
 
-  "lepamotors-c10": ft("C10", "USD 35.500", "2026-vigente", "Eléctrico con generador 1.5 (REEV)", "Automática", "215 CV", "15 kWh/100 km + extensión nafta", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.150 km combinados"),
-  "lepamotors-b10": ft("B10", "USD 31.990", "2026-vigente", "Eléctrico con generador 1.5 (REEV)", "Automática", "215 CV", "14 kWh/100 km + extensión nafta", "6 airbags, ABS, ESP, ADAS, ISOFIX", "900 km combinados"),
+  "leapmotors-c10": ft("C10", "USD 35.500", "2026-vigente", "Eléctrico con generador 1.5 (REEV)", "Automática", "215 CV", "15 kWh/100 km + extensión nafta", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.150 km combinados"),
+  "leapmotors-b10": ft("B10", "USD 31.990", "2026-vigente", "Eléctrico con generador 1.5 (REEV)", "Automática", "215 CV", "14 kWh/100 km + extensión nafta", "6 airbags, ABS, ESP, ADAS, ISOFIX", "900 km combinados"),
 
   "lifan-x50": ft("X50", "Usado desde USD 6.500", "2015-2019", "Naftero 1.5", "Manual", "103 CV", "6,8 L/100 km", "2 airbags, ABS, EBD, ISOFIX", "680 km"),
   "lifan-x60": ft("X60", "Usado desde USD 7.500", "2013-2019", "Naftero 1.8", "Manual o automática", "128 CV", "8,5 L/100 km", "2 airbags, ABS, EBD, ISOFIX", "650 km"),

@@ -23,15 +23,12 @@ import AdminModelos from "./pages/AdminModelos";
 import AdminModeloHistorial from "./pages/AdminModeloHistorial";
 import AdminPublicaciones from "./pages/AdminPublicaciones";
 import { AuthProvider } from "@/hooks/useAuth";
-import { EditModeProvider } from "@/hooks/useEditMode";
-import { AdminBar } from "@/components/admin/AdminBar";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <EditModeProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -59,10 +56,8 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <AdminBar />
           </BrowserRouter>
         </TooltipProvider>
-      </EditModeProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

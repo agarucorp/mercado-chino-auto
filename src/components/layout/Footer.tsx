@@ -106,16 +106,14 @@ export const Footer = () => {
         </div>
 
         <div className="border-t border-accent-foreground/20 mt-12 pt-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-            <span className="type-meta text-accent-foreground/50">Powered by</span>
-            <img
-              src="/logos/typo.svg"
-              alt="AUCHAR"
-              className="h-[0.525rem] sm:h-[0.656rem] w-auto"
-              width={871}
-              height={72}
-            />
-          </div>
+          <a
+            href="https://www.agarucorp.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="type-meta text-accent-foreground/50 hover:text-accent-foreground transition-colors inline-flex items-center justify-center gap-1.5 mx-auto w-full"
+          >
+            Powered by <span className="text-accent-foreground">AgaruCorp</span>
+          </a>
         </div>
       </div>
     </footer>

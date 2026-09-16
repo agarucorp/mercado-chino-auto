@@ -16,12 +16,12 @@ const Index = () => {
       <HeroSection />
       <HeroSearchSection />
       <BrandCarousel />
-      <PatentamientosSection />
-      <VehicleOfTheWeekSection />
       <CategoryCarousel />
+      <VehicleOfTheWeekSection />
       <LatestListingsPreview />
-      <MostReviewedPreview />
       <NewsPreview />
+      <MostReviewedPreview />
+      <PatentamientosSection />
       <ModelCompareSection />
     </Layout>
   );

@@ -10,6 +10,7 @@ describe("categorias", () => {
       expect(cat.count).toBeGreaterThan(0);
     }
     const slugs = cats.map((c) => c.slug);
+    expect(slugs).toContain("utilitario");
     expect(slugs).not.toContain("camion" as never);
   });
 
@@ -32,10 +33,11 @@ describe("categorias", () => {
       [
         "electrico:12",
         "hibrido:16",
-        "suv:88",
+        "suv:83",
         "hatchback:10",
         "sedan:5",
         "pickup:15",
+        "utilitario:6",
         "offroad:4",
       ]
     `);

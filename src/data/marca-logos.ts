@@ -9,7 +9,7 @@ export const MARCA_LOGO_URLS: Partial<Record<string, string>> = {
   deepal: "/logos/DEEPAL.png",
   dfsk: "/logos/Dongfeng_Sokon_DFSK_Logo.svg",
   dongfeng: "/logos/DONGFENG.png",
-  faw: "/logos/FAW.jpg",
+  faw: "/logos/faw.png",
   forthing: "/logos/FORTHING.png",
   foton: "/logos/FOTON.png",
   gac: "/logos/GAC.png",
@@ -30,8 +30,10 @@ export const MARCA_LOGO_URLS: Partial<Record<string, string>> = {
   "lynk-and-co": "/logos/lynk-and-co.png",
   maxus: "/logos/MAXUS.png",
   mg: "/logos/MG.png",
+  rely: "/logos/rely.png",
   shineray: "/logos/SHINERAY.png",
   skywell: "/logos/SKYWELL.png",
+  xev: "/logos/xev.png",
 };
 
 export function getMarcaLogoUrl(marcaId: string): string | undefined {
