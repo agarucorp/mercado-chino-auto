@@ -12,7 +12,7 @@ import { NewsCard } from "@/components/news/NewsCard";
 import { formatKm, formatPrice } from "@/data/listings";
 import { useApprovedListings } from "@/hooks/useListings";
 import { useNewsByModelo } from "@/hooks/useNews";
-import { getFichaTecnica, getModeloImage } from "@/data/modelo-media";
+import { getFichaTecnica, getModeloImages } from "@/data/modelo-media";
 import { MARCAS } from "@/data/marcas";
 import { getMarcaBySlug, getModeloBySlug } from "@/lib/marcas";
 import { ArrowLeft, MapPin, Newspaper } from "lucide-react";
@@ -46,7 +46,7 @@ const ModeloDetail = () => {
     (l) => l.marcaId === marca.id && l.modeloId === modelo.id,
   );
   const ficha = getFichaTecnica(modelo.id);
-  const imagen = getModeloImage(modelo.id);
+  const imagenes = getModeloImages(modelo.id);
 
   return (
     <Layout>
@@ -67,7 +67,7 @@ const ModeloDetail = () => {
                 </DetailStickyAside>
               }
             >
-              <ListingGallery images={[imagen]} title={modelo.nombre} />
+              <ListingGallery images={imagenes} title={modelo.nombre} />
 
               <DetailMobileAside>
                 <ModeloSidebar marca={marca} modelo={modelo} ficha={ficha} />

@@ -199,7 +199,7 @@ export const DNRPA_PATENTAMIENTOS: DnrpaPatentamiento[] = [
   {
     "year": 2026,
     "marcaId": "baic",
-    "modeloId": "baic-x35",
+    "modeloId": "baic-x35-ex35",
     "marcaNombre": "BAIC",
     "modeloNombre": "X35",
     "cantidad": 202
@@ -791,7 +791,7 @@ export const DNRPA_PATENTAMIENTOS: DnrpaPatentamiento[] = [
   {
     "year": 2025,
     "marcaId": "baic",
-    "modeloId": "baic-x35",
+    "modeloId": "baic-x35-ex35",
     "marcaNombre": "BAIC",
     "modeloNombre": "X35",
     "cantidad": 449
@@ -1247,7 +1247,7 @@ export const DNRPA_PATENTAMIENTOS: DnrpaPatentamiento[] = [
   {
     "year": 2024,
     "marcaId": "baic",
-    "modeloId": "baic-x35",
+    "modeloId": "baic-x35-ex35",
     "marcaNombre": "BAIC",
     "modeloNombre": "X35",
     "cantidad": 257

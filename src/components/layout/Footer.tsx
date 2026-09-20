@@ -1,6 +1,6 @@
 import { SiteLogo } from "@/components/layout/SiteLogo";
 import { Link } from "react-router-dom";
-import { Facebook, Instagram } from "lucide-react";
+import { Instagram } from "lucide-react";
 
 const footerLinks = {
   secciones: [
@@ -22,10 +22,7 @@ const footerLinks = {
   ],
 };
 
-const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-];
+const socialLinks = [{ icon: Instagram, href: "#", label: "Instagram" }];
 
 export const Footer = () => {
   return (

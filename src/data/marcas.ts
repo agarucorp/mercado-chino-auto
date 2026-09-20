@@ -38,11 +38,9 @@ export const MARCAS: Marca[] = [
   marca("BAIC", 2018, "GRUPO BELCASTRO", [
     ["X25 / EX260", "Discontinuado"],
     ["D20", "Discontinuado"],
-    ["X35", "Vigente"],
-    ["EX35", "Vigente"],
+    ["X35 / EX35", "Vigente"],
     ["X55 II", "Vigente"],
-    ["EX55 Plus", "Vigente"],
-    ["EXX", "Vigente"],
+    ["X55 Plus", "Vigente"],
     ["BJ30", "Vigente"],
     ["BJ40", "Vigente"],
     ["BJ60", "Vigente"],

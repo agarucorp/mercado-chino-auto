@@ -16,12 +16,12 @@ import ClasificadoDetail from "./pages/ClasificadoDetail";
 import CategoriaDetail from "./pages/CategoriaDetail";
 import NotFound from "./pages/NotFound";
 import NoticiaDetail from "./pages/NoticiaDetail";
-import Login from "./pages/Login";
 import AdminHome from "./pages/AdminHome";
 import AdminNoticias from "./pages/AdminNoticias";
 import AdminModelos from "./pages/AdminModelos";
 import AdminModeloHistorial from "./pages/AdminModeloHistorial";
 import AdminPublicaciones from "./pages/AdminPublicaciones";
+import AdminSolicitudDetail from "./pages/AdminSolicitudDetail";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const queryClient = new QueryClient();
@@ -42,7 +42,9 @@ const App = () => (
               <Route path="/admin/noticias" element={<AdminNoticias />} />
               <Route path="/admin/modelos" element={<AdminModelos />} />
               <Route path="/admin/modelos/:marcaId/:modeloId" element={<AdminModeloHistorial />} />
-              <Route path="/admin/publicaciones" element={<AdminPublicaciones />} />
+              <Route path="/admin/solicitudes" element={<AdminPublicaciones />} />
+              <Route path="/admin/solicitudes/:id" element={<AdminSolicitudDetail />} />
+              <Route path="/admin/publicaciones" element={<Navigate to="/admin/solicitudes" replace />} />
               <Route path="/marcas" element={<Marcas />} />
               <Route path="/marcas/:marcaSlug/:modeloSlug" element={<ModeloDetail />} />
               <Route path="/marcas/:slug" element={<MarcaDetail />} />
@@ -53,7 +55,7 @@ const App = () => (
               <Route path="/clasificados" element={<Clasificados />} />
               <Route path="/clasificados/:id" element={<ClasificadoDetail />} />
               <Route path="/resenas" element={<Navigate to="/clasificados" replace />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<Navigate to="/admin" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

@@ -1,13 +1,30 @@
+import { resolveModeloId } from "@/lib/marcas";
+
 export interface FichaTecnicaRow {
   label: string;
   value: string;
 }
 
-const IMAGENES: Record<string, string> = {
+const IMAGENES: Record<string, string | string[]> = {
   "arcfox-t1": "/ARCFOX/models/alpha-t1.png",
-  "arcfox-kaola-s": "/ARCFOX/models/kaola-s.png",
+  "arcfox-kaola-s": [
+    "/ARCFOX/models/kaola-s.png",
+    "/ARCFOX/models/kaola-s-side.png",
+  ],
   "arcfox-t5": "/ARCFOX/models/alpha-t5.png",
   "arcfox-s5": "/ARCFOX/models/alpha-s5.png",
+  "baic-x25-ex260": "/BAIC/models/x25.png",
+  "baic-d20": "/BAIC/models/d20.png",
+  "baic-x35-ex35": ["/BAIC/models/x35-front.png", "/BAIC/models/x35.png"],
+  "baic-x55-ii": ["/BAIC/models/x55-ii-front.jpg", "/BAIC/models/x55-ii.png"],
+  "baic-x55-plus": "/BAIC/models/x55-plus.png",
+  "baic-bj30": "/BAIC/models/bj30-front.jpg",
+  "baic-bj40": ["/BAIC/models/bj40-front.jpg", "/BAIC/models/bj40.png"],
+  "baic-bj60": "/BAIC/models/bj60-front.jpg",
+  "baic-u5": ["/BAIC/models/u5-plus-front.webp", "/BAIC/models/u5-plus.png"],
+  "baic-u5-plus": ["/BAIC/models/u5-plus-front.webp", "/BAIC/models/u5-plus.png"],
+  "baic-eu-5": ["/BAIC/models/eu5-front.jpg", "/BAIC/models/eu5.png"],
+  "baic-eu5-plus": ["/BAIC/models/eu5-front.jpg", "/BAIC/models/eu5.png"],
   "byd-dolphin-mini":
     "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&h=500&fit=crop",
   "byd-song-pro":
@@ -69,11 +86,9 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
 
   "baic-x25-ex260": ft("X25 / EX260", "Usado desde USD 9.500", "2018-2021", "Naftero 1.5L (X25) / Eléctrico (EX260)", "Manual o automática", "114 CV / 72 CV", "7,8 L/100 km / 15 kWh/100 km", "2 a 4 airbags, ABS con EBD, ISOFIX", "570 km / 250 km"),
   "baic-d20": ft("D20", "Usado desde USD 8.000", "2019-2021", "Naftero 1.3", "Manual", "110 CV", "6 L/100 km", "2 airbags frontales, ABS, EBD, asistente de frenado, ISOFIX", "750 km"),
-  "baic-x35": ft("X35", "desde USD 25.500", "2023-vigente", "Naftero 1.5L Turbo", "Automática", "148 CV", "8,8 L/100 km", "2 airbags frontales, ABS, ESP, control de crucero, ISOFIX", "540 km"),
-  "baic-ex35": ft("EX35", "Sin precio de referencia", "2023-vigente", "Eléctrico", "Automática", "109 CV", "15 kWh/100 km", "4 airbags, ABS con EBD, ESP, ISOFIX", "301 km"),
+  "baic-x35-ex35": ft("X35 / EX35", "desde USD 25.500", "2023-vigente", "Naftero 1.5L Turbo (X35) / Eléctrico (EX35)", "Automática", "148 CV / 109 CV", "8,8 L/100 km / 15 kWh/100 km", "2 a 4 airbags, ABS, ESP, ISOFIX", "540 km / 301 km"),
   "baic-x55-ii": ft("X55 II", "desde USD 39.700", "2023-vigente", "Naftero 1.5L Turbo", "Automática", "177 CV", "9,2 L/100 km", "6 airbags, ISOFIX, ESP, TCS, asistentes de arranque y descenso", "580 km"),
-  "baic-ex55-plus": ft("EX55 Plus", "Sin precio de referencia", "2024-vigente", "Eléctrico", "Automática", "163 CV", "15 kWh/100 km", "6 airbags, ESP, ABS con EBD, ISOFIX", "400 km"),
-  "baic-exx": ft("EXX", "Sin precio de referencia", "2025-vigente", "Eléctrico", "Automática", "163 CV", "14 kWh/100 km", "6 airbags, ESP, ADAS, ISOFIX", "400 km"),
+  "baic-x55-plus": ft("X55 Plus", "Sin precio de referencia", "2024-vigente", "Naftero 1.5L Turbo", "Automática", "177 CV", "9,2 L/100 km", "6 airbags, ESP, ABS con EBD, ISOFIX", "580 km"),
   "baic-bj30": ft("BJ30", "desde USD 35.800", "2025-vigente", "Sistema HEV (naftero 1.5 acoplado a motores eléctricos)", "Automática", "403 CV", "6,5 L/100 km", "6 airbags, ESP, ABS+EBD y paquete ADAS (AEB, mantenimiento de carril)", "1.000 km"),
   "baic-bj40": ft("BJ40", "desde USD 61.300", "2024-vigente", "Naftero 2.0 Turbo", "Automática", "241 CV", "11 L/100 km", "Chasis reforzado contra volcaduras, 6 airbags, control de descenso, ADAS", "650 km"),
   "baic-bj60": ft("BJ60", "USD 78.600", "2025-vigente", "Naftero 2.0 Turbo mild hybrid 48V", "Automática 8AT", "263 CV", "10,5 L/100 km", "6 airbags, ADAS (LKA, FCW, APA), bloqueos de diferencial, ISOFIX", "800 km"),
@@ -248,11 +263,17 @@ function hashIndex(id: string, max: number): number {
   return h;
 }
 
+export function getModeloImages(modeloId: string): string[] {
+  const value = IMAGENES[resolveModeloId(modeloId)];
+  if (Array.isArray(value) && value.length > 0) return value;
+  if (typeof value === "string") return [value];
+  return [FALLBACK_IMAGES[hashIndex(modeloId, FALLBACK_IMAGES.length)]];
+}
+
 export function getModeloImage(modeloId: string): string {
-  if (IMAGENES[modeloId]) return IMAGENES[modeloId];
-  return FALLBACK_IMAGES[hashIndex(modeloId, FALLBACK_IMAGES.length)];
+  return getModeloImages(modeloId)[0];
 }
 
 export function getFichaTecnica(modeloId: string): FichaTecnicaRow[] {
-  return FICHAS[modeloId] ?? FICHA_DEFAULT;
+  return FICHAS[resolveModeloId(modeloId)] ?? FICHA_DEFAULT;
 }

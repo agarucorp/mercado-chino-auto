@@ -128,7 +128,7 @@ function isElectric(n: string): boolean {
   if (/glory e5/.test(n)) return false;
 
   return (
-    /easy 3|yuan pro|dolphin|ora 03|geometry ex5|ex35|exx|u5 plus ev|iev7s|ev30x|et5|yoyo|cyberster|nammi|e200|ex260|leapmotor|cyberster/.test(
+    /easy 3|yuan pro|dolphin|ora 03|geometry ex5|ex35|u5 plus ev|iev7s|ev30x|et5|yoyo|cyberster|nammi|e200|ex260|leapmotor|cyberster/.test(
       n,
     ) ||
     (n.includes("box") && n.includes("nammi")) ||

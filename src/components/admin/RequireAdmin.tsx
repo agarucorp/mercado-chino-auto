@@ -8,7 +8,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
   const location = useLocation();
 
   if (!configured) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/admin" replace state={{ from: location.pathname }} />;
   }
 
   if (loading) {
@@ -21,7 +21,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
   }
 
   if (!isAdmin) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/admin" replace state={{ from: location.pathname }} />;
   }
 
   return <>{children}</>;

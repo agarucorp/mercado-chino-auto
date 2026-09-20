@@ -2,22 +2,36 @@ import { RequireAdmin } from "@/components/admin/RequireAdmin";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminListings } from "@/hooks/useListings";
+import { useUnseenSolicitudIds } from "@/lib/admin-solicitudes";
 import { cn } from "@/lib/utils";
 import { ClipboardList, LogOut, Menu, Newspaper, Car } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const NAV = [
-  { to: "/admin/noticias", label: "Noticias", icon: Newspaper },
-  { to: "/admin/modelos", label: "Historial por modelo", icon: Car },
-  { to: "/admin/publicaciones", label: "Publicaciones", icon: ClipboardList },
-];
-
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
+  const location = useLocation();
+  const { data = [] } = useAdminListings(true);
+  const pendingIds = data.filter((listing) => listing.status === "pendiente").map((listing) => listing.id);
+  const unseen = useUnseenSolicitudIds(pendingIds);
+  const solicitudesActive = location.pathname.startsWith("/admin/solicitudes");
+
+  const items = [
+    { to: "/admin/noticias", label: "Noticias", icon: Newspaper, badge: 0, active: false },
+    { to: "/admin/modelos", label: "Historial por modelo", icon: Car, badge: 0, active: false },
+    {
+      to: "/admin/solicitudes",
+      label: "Solicitudes",
+      icon: ClipboardList,
+      badge: unseen.length,
+      active: solicitudesActive,
+    },
+  ];
+
   return (
     <nav className="flex flex-col gap-1">
-      {NAV.map((item) => (
+      {items.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
@@ -25,14 +39,19 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
           className={({ isActive }) =>
             cn(
               "flex items-center gap-2 rounded-lg px-3 py-2 type-body-sm transition-colors",
-              isActive
+              isActive || item.active
                 ? "bg-muted text-foreground"
                 : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
             )
           }
         >
           <item.icon className="h-4 w-4 shrink-0" aria-hidden />
-          {item.label}
+          <span className="flex-1">{item.label}</span>
+          {item.badge > 0 && (
+            <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[11px] font-medium leading-none text-white">
+              {item.badge}
+            </span>
+          )}
         </NavLink>
       ))}
     </nav>

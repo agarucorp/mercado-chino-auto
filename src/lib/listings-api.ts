@@ -125,6 +125,14 @@ export async function fetchAdminListings(): Promise<AdminListing[]> {
   }));
 }
 
+export async function fetchAdminListingById(id: string): Promise<AdminListing | null> {
+  const { data, error } = await client().from("listings").select("*").eq("id", id).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  const images = await imagePathsFor([data.id]);
+  return { ...rowToListing(data, images.get(data.id) ?? []), remote: data };
+}
+
 /**
  * invoke() manda la publishable key en Authorization. Esa key no es un JWT,
  * el gateway responde 401 y Resend nunca llega a ejecutarse.
@@ -236,11 +244,33 @@ export async function submitListing(
   return { listingId, ...mail };
 }
 
+export type ListingReviewPatch = {
+  title?: string;
+  version?: string | null;
+  marca_id?: string;
+  modelo_id?: string;
+  year?: number;
+  km?: number;
+  price?: number;
+  currency?: "ARS" | "USD";
+  fuel?: string;
+  transmission?: string;
+  location?: string;
+  province?: string;
+  description?: string;
+  plan?: PlanId;
+  seller_name?: string;
+  seller_email?: string;
+  seller_phone?: string;
+  seller_type?: ListingRow["seller_type"];
+};
+
 export async function reviewListing(input: {
   id: string;
   status: Extract<ListingStatus, "aprobada" | "rechazada" | "pendiente">;
   adminNotes: string;
   reviewerId: string;
+  patch?: ListingReviewPatch;
 }): Promise<void> {
   const published_at =
     input.status === "aprobada" ? new Date().toISOString() : null;
@@ -248,6 +278,7 @@ export async function reviewListing(input: {
   const { error } = await client()
     .from("listings")
     .update({
+      ...(input.patch ?? {}),
       status: input.status,
       admin_notes: input.adminNotes.trim() || null,
       reviewed_by: input.reviewerId,
@@ -257,8 +288,6 @@ export async function reviewListing(input: {
     .eq("id", input.id);
 
   if (error) throw new Error(error.message);
-
-  await notifyListing(input.id, "reviewed");
 }
 
 export type { PlanId };

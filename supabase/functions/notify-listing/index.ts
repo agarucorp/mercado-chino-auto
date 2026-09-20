@@ -34,7 +34,15 @@ function secret(name: string): string {
   return (Deno.env.get(name) ?? "").trim().replace(/^["']|["']$/g, "");
 }
 
-async function sendResend(to: string[], subject: string, html: string) {
+const CONTACT_INBOX = "info.auchar@gmail.com";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+async function sendResend(
+  to: string[],
+  subject: string,
+  html: string,
+  replyTo?: string,
+) {
   const apiKey = secret("RESEND_API_KEY");
   if (!apiKey) return { skipped: true as const, reason: "no_resend_key" };
 
@@ -47,7 +55,13 @@ async function sendResend(to: string[], subject: string, html: string) {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to, subject, html }),
+    body: JSON.stringify({
+      from,
+      to,
+      subject,
+      html,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+    }),
   });
   if (!res.ok) {
     const detail = await res.text();
@@ -66,15 +80,58 @@ Deno.serve(async (req) => {
   // submitted solo necesita service role; anon puede faltar con keys nuevas
   if (!supabaseUrl || !serviceKey) return json({ error: "misconfigured" }, 500);
 
-  let payload: { listingId?: string; event?: string };
+  let payload: {
+    listingId?: string;
+    event?: string;
+    name?: string;
+    email?: string;
+    message?: string;
+  };
   try {
     payload = await req.json();
   } catch {
     return json({ error: "invalid_json" }, 400);
   }
 
-  const listingId = payload.listingId?.trim() ?? "";
   const event = payload.event;
+
+  if (event === "contact") {
+    const name = payload.name?.trim() ?? "";
+    const email = payload.email?.trim() ?? "";
+    const message = payload.message?.trim() ?? "";
+    if (
+      name.length < 2 ||
+      name.length > 120 ||
+      !EMAIL_RE.test(email) ||
+      message.length < 10 ||
+      message.length > 4000
+    ) {
+      return json({ error: "invalid_payload" }, 400);
+    }
+
+    const to = secret("CONTACT_NOTIFY_EMAIL") || CONTACT_INBOX;
+    console.log("notify-contact", {
+      hasKey: Boolean(secret("RESEND_API_KEY")),
+      hasFrom: Boolean(secret("RESEND_FROM")),
+      hasTo: Boolean(to),
+    });
+
+    try {
+      const result = await sendResend(
+        [to],
+        `Contacto web: ${name}`,
+        `<p>Llegó un mensaje desde el formulario de contacto.</p>
+         <p><strong>${esc(name)}</strong> · ${esc(email)}</p>
+         <p>${esc(message).replace(/\n/g, "<br>")}</p>`,
+        email,
+      );
+      return json({ ok: true, ...result });
+    } catch (err) {
+      return json({ error: err instanceof Error ? err.message : "send_failed" }, 502);
+    }
+  }
+
+  const listingId = payload.listingId?.trim() ?? "";
   if (!listingId || (event !== "submitted" && event !== "reviewed")) {
     return json({ error: "invalid_payload" }, 400);
   }
@@ -125,7 +182,7 @@ Deno.serve(async (req) => {
       ? `<p>Entró una solicitud de aviso.</p>
          <p><strong>${esc(String(listing.year))} ${esc(String(listing.title))}</strong> · plan ${esc(String(listing.plan))}</p>
          <p>Vendedor: ${esc(String(listing.seller_name))} · ${esc(String(listing.seller_email))} · ${esc(String(listing.seller_phone))}</p>
-         <p><a href="${esc(siteUrl)}/admin/publicaciones">Abrir bandeja</a></p>`
+         <p><a href="${esc(siteUrl)}/admin/solicitudes">Abrir solicitudes</a></p>`
       : `<p>Hola ${esc(String(listing.seller_name))},</p>
          <p>Estado: <strong>${esc(String(listing.status))}</strong></p>
          ${listing.admin_notes ? `<p>Comentario: ${esc(String(listing.admin_notes))}</p>` : ""}

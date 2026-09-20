@@ -1,6 +1,7 @@
 import type { Listing } from "@/data/listings";
 import { LISTINGS_DATA, getListingById as getMockListingById } from "@/data/listings";
 import {
+  fetchAdminListingById,
   fetchAdminListings,
   fetchApprovedListings,
   fetchListingById,
@@ -51,5 +52,14 @@ export function useAdminListings(enabled: boolean) {
     queryKey: ADMIN_LISTINGS_KEY,
     enabled: enabled && isSupabaseConfigured,
     queryFn: fetchAdminListings,
+    refetchInterval: 20_000,
+  });
+}
+
+export function useAdminListing(id: string | undefined) {
+  return useQuery<AdminListing | null>({
+    queryKey: [...ADMIN_LISTINGS_KEY, id],
+    enabled: Boolean(id) && isSupabaseConfigured,
+    queryFn: () => fetchAdminListingById(id!),
   });
 }

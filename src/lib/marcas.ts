@@ -114,9 +114,24 @@ export function getModeloSlug(modelo: Modelo): string {
   return modelo.id.replace(`${modelo.marcaId}-`, "");
 }
 
+const MODELO_SLUG_ALIASES: Record<string, string> = {
+  "baic-x35": "baic-x35-ex35",
+  "baic-ex35": "baic-x35-ex35",
+  "baic-ex55-plus": "baic-x55-plus",
+};
+
+export function resolveModeloId(modeloId: string): string {
+  return MODELO_SLUG_ALIASES[modeloId] ?? modeloId;
+}
+
 export function getModeloBySlug(marca: Marca, modeloSlug: string): Modelo | undefined {
+  const requested = `${marca.id}-${modeloSlug}`;
+  const canonical = resolveModeloId(requested);
   return marca.modelos.find(
-    (m) => getModeloSlug(m) === modeloSlug || m.id === `${marca.id}-${modeloSlug}`,
+    (m) =>
+      m.id === canonical ||
+      getModeloSlug(m) === modeloSlug ||
+      m.id === requested,
   );
 }
 

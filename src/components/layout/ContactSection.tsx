@@ -2,13 +2,47 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, MapPin } from "lucide-react";
+import { CONTACT_INBOX, getContactIssues, submitContact } from "@/lib/contact-api";
+import { Loader2, Mail, MapPin } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export function ContactSection() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("El formulario de contacto estará activo próximamente.");
+    const issues = getContactIssues({ name, email, message });
+    if (issues.length > 0) {
+      toast.error(
+        issues.length === 1 ? issues[0] : `Faltan ${issues.length} datos en el formulario.`,
+      );
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await submitContact({ name, email, message });
+      if (result.mailSent) {
+        toast.success("Mensaje enviado. Te respondemos a la brevedad.");
+        setName("");
+        setEmail("");
+        setMessage("");
+        return;
+      }
+      toast.error(
+        result.mailError
+          ? `No se pudo enviar el mensaje (${result.mailError}).`
+          : "No se pudo enviar el mensaje.",
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo enviar el mensaje.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -23,7 +57,12 @@ export function ContactSection() {
             <div className="mt-8 space-y-3">
               <p className="type-body text-muted-foreground inline-flex items-center gap-2">
                 <Mail className="w-4 h-4 shrink-0 text-foreground" />
-                contacto@auchar.com.ar
+                <a
+                  href={`mailto:${CONTACT_INBOX}`}
+                  className="hover:text-foreground transition-colors"
+                >
+                  {CONTACT_INBOX}
+                </a>
               </p>
               <p className="type-body text-muted-foreground inline-flex items-center gap-2">
                 <MapPin className="w-4 h-4 shrink-0 text-foreground" />
@@ -32,21 +71,42 @@ export function ContactSection() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="contacto-nombre">Nombre</Label>
-              <Input id="contacto-nombre" required />
+              <Input
+                id="contacto-nombre"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="contacto-email">Email</Label>
-              <Input id="contacto-email" type="email" required />
+              <Input
+                id="contacto-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="contacto-mensaje">Mensaje</Label>
-              <Textarea id="contacto-mensaje" rows={4} required className="resize-none" />
+              <Textarea
+                id="contacto-mensaje"
+                rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                required
+                className="resize-none"
+              />
             </div>
-            <Button type="submit" className="w-full sm:w-auto">
-              Enviar mensaje
+            <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
+              {submitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden />}
+              {submitting ? "Enviando…" : "Enviar mensaje"}
             </Button>
           </form>
         </div>
