@@ -8,6 +8,7 @@ import {
   updateNews,
   type NewsInput,
 } from "@/lib/news-api";
+import { newsMatchesModelo } from "@/lib/news-placement";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -41,7 +42,7 @@ export function useNewsByMarca(marcaId: string): NewsArticle[] {
 export function useNewsByModelo(marcaId: string, modeloId: string): NewsArticle[] {
   const { data = [] } = useNews();
   return useMemo(
-    () => data.filter((n) => n.marcaId === marcaId && n.modeloId === modeloId),
+    () => data.filter((n) => newsMatchesModelo(n, marcaId, modeloId)),
     [data, marcaId, modeloId],
   );
 }
@@ -68,31 +69,7 @@ export function useNewsMutations() {
 
   const reorder = useMutation({
     mutationFn: (orderedIds: string[]) => reorderNews(orderedIds),
-
-    // El drag tiene que verse instantáneo: pintamos el orden nuevo antes de
-    // que responda la base y lo revertimos si falla.
-    onMutate: async (orderedIds) => {
-      await queryClient.cancelQueries({ queryKey: NEWS_QUERY_KEY });
-      const previous = queryClient.getQueryData<NewsArticle[]>(NEWS_QUERY_KEY);
-
-      if (previous) {
-        const byId = new Map(previous.map((n) => [n.id, n]));
-        const reordered = orderedIds
-          .map((id) => byId.get(id))
-          .filter((n): n is NewsArticle => Boolean(n));
-        queryClient.setQueryData(NEWS_QUERY_KEY, reordered);
-      }
-
-      return { previous };
-    },
-
-    onError: (_err, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(NEWS_QUERY_KEY, context.previous);
-      }
-    },
-
-    onSettled: invalidate,
+    onSuccess: invalidate,
   });
 
   return { create, update, remove, reorder };

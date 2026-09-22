@@ -60,7 +60,15 @@ const AdminHome = () => {
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm space-y-4">
+        {!configured && (
+          <p role="alert" className="type-body-sm text-destructive rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2">
+            Falta configurar Supabase en el entorno de producción
+            (`VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`). Sin eso el login
+            queda deshabilitado.
+          </p>
+        )}
+
         {session && !isAdmin ? (
           <Button type="button" variant="outline" className="w-full" onClick={() => void signOut()}>
             Cerrar sesión

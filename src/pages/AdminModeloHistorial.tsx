@@ -16,6 +16,7 @@ import { MARCAS } from "@/data/marcas";
 import { useNews, useNewsMutations } from "@/hooks/useNews";
 import { getModeloPath } from "@/lib/marcas";
 import type { NewsInput } from "@/lib/news-api";
+import { newsMatchesModelo } from "@/lib/news-placement";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
@@ -31,7 +32,9 @@ function AdminModeloHistorialInner() {
 
   const historial = useMemo(
     () =>
-      news.filter((n) => n.marcaId === marcaId && n.modeloId === modeloId),
+      news.filter(
+        (n) => marcaId && modeloId && newsMatchesModelo(n, marcaId, modeloId),
+      ),
     [news, marcaId, modeloId],
   );
 

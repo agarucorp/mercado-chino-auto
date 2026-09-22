@@ -1,5 +1,6 @@
 import type { NewsArticle } from "@/components/news/NewsCard";
 import { MARCAS } from "@/data/marcas";
+import { newsMatchesModelo } from "@/lib/news-placement";
 
 export const NEWS_DATA: NewsArticle[] = [
   {
@@ -177,7 +178,7 @@ export function getFilteredNews(
 }
 
 export function getNewsByModelo(marcaId: string, modeloId: string) {
-  return NEWS_DATA.filter((n) => n.marcaId === marcaId && n.modeloId === modeloId);
+  return NEWS_DATA.filter((n) => newsMatchesModelo(n, marcaId, modeloId));
 }
 
 export function getNewsByMarca(marcaId: string) {

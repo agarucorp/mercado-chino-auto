@@ -34,10 +34,13 @@ const CATEGORIAS = [
   "Comparativas",
   "Pickups",
   "Política",
+  "Test",
 ];
 
 const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 const NINGUNA = "__ninguna__";
+/** Marca elegida sin modelo concreto → aplica a todos los modelos de esa marca. */
+const TODOS_MODELOS = "__todos__";
 
 interface NewsEditorDialogProps {
   open: boolean;
@@ -107,7 +110,11 @@ export function NewsEditorDialog({
             sourceName: article.source ?? "",
             sourceUrl: article.sourceUrl ?? "",
             marcaId: article.marcaId ?? NINGUNA,
-            modeloId: article.modeloId ?? NINGUNA,
+            modeloId: article.modeloId
+              ? article.modeloId
+              : article.marcaId
+                ? TODOS_MODELOS
+                : NINGUNA,
             featured: Boolean(article.featured),
             published: article.published !== false,
             date: article.sortDate,
@@ -116,7 +123,11 @@ export function NewsEditorDialog({
             ...EMPTY,
             sourceUrl: initialSourceUrl,
             marcaId: initialMarcaId ?? NINGUNA,
-            modeloId: initialModeloId ?? NINGUNA,
+            modeloId: initialModeloId
+              ? initialModeloId
+              : initialMarcaId
+                ? TODOS_MODELOS
+                : NINGUNA,
           },
     );
   }, [open, article, initialSourceUrl, initialMarcaId, initialModeloId]);
@@ -183,7 +194,7 @@ export function NewsEditorDialog({
     issues.push("El link de la fuente tiene que empezar con http:// o https://");
   }
   if (form.marcaId !== NINGUNA && form.modeloId === NINGUNA) {
-    issues.push("Elegí el modelo o pasá marca y modelo a No aplica");
+    issues.push("Elegí un modelo o «Todos los modelos»");
   }
 
   const save = async (published: boolean) => {
@@ -194,6 +205,12 @@ export function NewsEditorDialog({
 
     setSaving(true);
     try {
+      const marcaId = form.marcaId === NINGUNA ? null : form.marcaId;
+      const modeloId =
+        !marcaId || form.modeloId === NINGUNA || form.modeloId === TODOS_MODELOS
+          ? null
+          : form.modeloId;
+
       await onSubmit({
         title: form.title.trim(),
         excerpt: form.excerpt.trim(),
@@ -203,8 +220,8 @@ export function NewsEditorDialog({
         category: form.category,
         source_name: form.sourceName.trim() || null,
         source_url: form.sourceUrl.trim() || null,
-        marca_id: form.marcaId === NINGUNA ? null : form.marcaId,
-        modelo_id: form.modeloId === NINGUNA ? null : form.modeloId,
+        marca_id: marcaId,
+        modelo_id: modeloId,
         featured: form.featured,
         published,
         published_at: `${form.date}T12:00:00Z`,
@@ -372,7 +389,7 @@ export function NewsEditorDialog({
                 value={form.marcaId}
                 onValueChange={(v) => {
                   set("marcaId", v);
-                  set("modeloId", NINGUNA);
+                  set("modeloId", v === NINGUNA ? NINGUNA : TODOS_MODELOS);
                 }}
               >
                 <SelectTrigger id="news-marca">
@@ -403,17 +420,21 @@ export function NewsEditorDialog({
                   {form.marcaId === NINGUNA ? (
                     <SelectItem value={NINGUNA}>No aplica</SelectItem>
                   ) : (
-                    modelos.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {m.nombre}
-                      </SelectItem>
-                    ))
+                    <>
+                      <SelectItem value={TODOS_MODELOS}>Todos los modelos</SelectItem>
+                      {modelos.map((m) => (
+                        <SelectItem key={m.id} value={m.id}>
+                          {m.nombre}
+                        </SelectItem>
+                      ))}
+                    </>
                   )}
                 </SelectContent>
               </Select>
               <p className="type-meta text-muted-foreground">
-                Si es general, dejá No aplica. Al quitarla del radar se borra. Si tiene modelo,
-                queda en el historial de esa ficha.
+                Sin marca (No aplica): al quitarla del radar se borra. Con marca y «Todos los
+                modelos»: queda en el historial de cada ficha de esa marca. Con un modelo
+                concreto: solo en esa ficha.
               </p>
             </div>
           </div>

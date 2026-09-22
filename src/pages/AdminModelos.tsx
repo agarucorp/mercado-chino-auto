@@ -11,12 +11,27 @@ function AdminModelosInner() {
 
   const counts = useMemo(() => {
     const map = new Map<string, { total: number; radar: number }>();
-    for (const n of news) {
-      if (!n.modeloId) continue;
-      const cur = map.get(n.modeloId) ?? { total: 0, radar: 0 };
+
+    const bump = (modeloId: string, published: boolean) => {
+      const cur = map.get(modeloId) ?? { total: 0, radar: 0 };
       cur.total += 1;
-      if (n.published !== false) cur.radar += 1;
-      map.set(n.modeloId, cur);
+      if (published) cur.radar += 1;
+      map.set(modeloId, cur);
+    };
+
+    for (const n of news) {
+      const published = n.published !== false;
+      if (n.modeloId) {
+        bump(n.modeloId, published);
+        continue;
+      }
+      // «Todos los modelos» de una marca: cuenta en cada ficha de esa marca.
+      if (!n.marcaId) continue;
+      const marca = MARCAS.find((m) => m.id === n.marcaId);
+      if (!marca) continue;
+      for (const modelo of marca.modelos) {
+        bump(modelo.id, published);
+      }
     }
     return map;
   }, [news]);
