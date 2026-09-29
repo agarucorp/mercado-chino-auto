@@ -38,7 +38,7 @@ describe("categorias", () => {
         "sedan:5",
         "pickup:15",
         "utilitario:6",
-        "offroad:4",
+        "offroad:5",
       ]
     `);
   });

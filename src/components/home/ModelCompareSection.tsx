@@ -342,7 +342,10 @@ export function ModelCompareSection() {
   const canCompare = optionA && optionB && optionA.id !== optionB.id;
 
   return (
-    <section className="py-10 md:py-14 border-t-2 border-border bg-muted/30">
+    <section
+      id="comparar"
+      className="py-10 md:py-14 border-t-2 border-border bg-muted/30 scroll-mt-16 md:scroll-mt-20"
+    >
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent/10 text-accent mb-4">

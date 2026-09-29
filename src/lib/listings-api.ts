@@ -62,6 +62,8 @@ export function rowToListing(
     sellerPhone: row.seller_phone,
     adminNotes: row.admin_notes,
     submittedAt: row.submitted_at,
+    isWeeklyPick: row.is_weekly_pick ?? false,
+    homePickOrder: row.home_pick_order ?? null,
   };
 }
 
@@ -106,8 +108,32 @@ export async function fetchListingById(id: string): Promise<Listing | null> {
   return rowToListing(data, images.get(data.id) ?? []);
 }
 
+export interface AdminListingImage {
+  id: string;
+  storagePath: string;
+  url: string;
+  position: number;
+}
+
+async function imageRecordsFor(listingId: string): Promise<AdminListingImage[]> {
+  const { data, error } = await client()
+    .from("listing_images")
+    .select("id, storage_path, position")
+    .eq("listing_id", listingId)
+    .order("position", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    storagePath: row.storage_path,
+    url: listingImagePublicUrl(row.storage_path),
+    position: row.position,
+  }));
+}
+
 export interface AdminListing extends Listing {
   remote: ListingRow;
+  imageRecords?: AdminListingImage[];
 }
 
 export async function fetchAdminListings(): Promise<AdminListing[]> {
@@ -129,8 +155,93 @@ export async function fetchAdminListingById(id: string): Promise<AdminListing | 
   const { data, error } = await client().from("listings").select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
-  const images = await imagePathsFor([data.id]);
-  return { ...rowToListing(data, images.get(data.id) ?? []), remote: data };
+  const imageRecords = await imageRecordsFor(data.id);
+  return {
+    ...rowToListing(
+      data,
+      imageRecords.map((r) => r.storagePath),
+    ),
+    remote: data,
+    imageRecords,
+  };
+}
+
+/** Saca una foto de un aviso existente: fila y objeto en storage. */
+export async function deleteListingImage(image: { id: string; storagePath: string }): Promise<void> {
+  const db = client();
+  const { error: rowError } = await db.from("listing_images").delete().eq("id", image.id);
+  if (rowError) throw new Error(rowError.message);
+
+  const { error: storageError } = await db.storage
+    .from(LISTING_IMAGE_BUCKET)
+    .remove([image.storagePath]);
+  if (storageError) throw new Error(storageError.message);
+}
+
+/**
+ * Cambia el orden de las fotos de un aviso (la de position 0 es la portada).
+ * Son pocas fotos por aviso, así que un update por fila alcanza sin necesitar
+ * una función atómica como la de noticias.
+ */
+export async function reorderListingImages(
+  items: { id: string; position: number }[],
+): Promise<void> {
+  const db = client();
+  for (const item of items) {
+    const { error } = await db
+      .from("listing_images")
+      .update({ position: item.position })
+      .eq("id", item.id);
+    if (error) throw new Error(error.message);
+  }
+}
+
+/** Elimina un aviso para siempre: sus fotos (storage + filas) y la fila del aviso. */
+export async function deleteListing(id: string): Promise<void> {
+  const db = client();
+  const images = await imageRecordsFor(id);
+
+  if (images.length > 0) {
+    const { error: storageError } = await db.storage
+      .from(LISTING_IMAGE_BUCKET)
+      .remove(images.map((img) => img.storagePath));
+    if (storageError) throw new Error(storageError.message);
+  }
+
+  const { error } = await db.from("listings").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+/** Suma una foto a un aviso que ya existe (no al alta: ahí se usa uploadListingImage + createListing). */
+export async function addListingImage(
+  listingId: string,
+  file: File,
+): Promise<AdminListingImage> {
+  const storagePath = await uploadListingImage(listingId, file);
+  const db = client();
+
+  const { data: top } = await db
+    .from("listing_images")
+    .select("position")
+    .eq("listing_id", listingId)
+    .order("position", { ascending: false })
+    .limit(1);
+
+  const position = (top?.[0]?.position ?? -1) + 1;
+
+  const { data, error } = await db
+    .from("listing_images")
+    .insert({ listing_id: listingId, storage_path: storagePath, position })
+    .select("id, storage_path, position")
+    .single();
+
+  if (error) throw new Error(error.message);
+  return {
+    id: data.id,
+    storagePath: data.storage_path,
+    url: listingImagePublicUrl(data.storage_path),
+    position: data.position,
+  };
 }
 
 /**
@@ -383,6 +494,48 @@ export async function reviewListing(input: {
   const { error } = await client().from("listings").update(update).eq("id", input.id);
 
   if (error) throw new Error(error.message);
+}
+
+/**
+ * "Vehículo de la semana": solo uno a la vez. Si `listingId` es null, saca
+ * el que esté puesto sin marcar ningún otro.
+ *
+ * Requiere la migración 20260929000000_home_picks.sql (columna
+ * is_weekly_pick). Si todavía no corrió, Supabase devuelve un error de
+ * columna inexistente y acá lo re-lanzamos con un mensaje entendible.
+ */
+export async function setWeeklyPick(listingId: string | null): Promise<void> {
+  const db = client();
+
+  const { error: clearError } = await db
+    .from("listings")
+    .update({ is_weekly_pick: false })
+    .eq("is_weekly_pick", true);
+  if (clearError) throw new Error(mapHomePicksError(clearError.message));
+
+  if (listingId) {
+    const { error } = await db
+      .from("listings")
+      .update({ is_weekly_pick: true })
+      .eq("id", listingId);
+    if (error) throw new Error(mapHomePicksError(error.message));
+  }
+}
+
+/** "Los más vistos": hasta 3 avisos, `order` es la posición (1, 2 o 3). */
+export async function setHomePick(listingId: string, order: number | null): Promise<void> {
+  const { error } = await client()
+    .from("listings")
+    .update({ home_pick_order: order })
+    .eq("id", listingId);
+  if (error) throw new Error(mapHomePicksError(error.message));
+}
+
+function mapHomePicksError(message: string): string {
+  if (message.includes("is_weekly_pick") || message.includes("home_pick_order")) {
+    return "Falta correr la migración 20260929000000_home_picks.sql en Supabase.";
+  }
+  return message;
 }
 
 export type { PlanId };

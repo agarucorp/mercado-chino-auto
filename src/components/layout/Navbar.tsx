@@ -10,6 +10,7 @@ const navItems = [
   { label: "Marcas", href: "/marcas" },
   { label: "Noticias", href: "/noticias" },
   { label: "Clasificados", href: "/clasificados" },
+  { label: "Comparar", href: "/#comparar" },
   { label: "Vender", href: "/vender" },
 ];
 
@@ -17,7 +18,8 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
-  const isActive = (href: string) => location.pathname.startsWith(href);
+  const isActive = (href: string) =>
+    !href.includes("#") && href !== "/" && location.pathname.startsWith(href);
 
   const linkClass = (href: string) =>
     cn(

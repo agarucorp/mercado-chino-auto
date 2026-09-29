@@ -58,6 +58,8 @@ export type ListingRow = {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  is_weekly_pick?: boolean;
+  home_pick_order?: number | null;
 }
 
 export type ListingImageRow = {

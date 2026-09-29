@@ -49,7 +49,7 @@ const Clasificados = () => {
           >
             <h1 className="type-h1 text-foreground mb-4">Clasificados</h1>
             <p className="type-body text-muted-foreground">
-              Comprá y vendé vehículos chinos. Miles de ofertas verificadas en todo el país.
+              Comprá y vendé vehículos chinos en Argentina.
             </p>
             <div className="mt-6">
               <Button asChild>

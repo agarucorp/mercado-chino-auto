@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ListingGalleryProps {
   images: string[];
@@ -23,14 +23,42 @@ export function ListingGallery({ images, title }: ListingGalleryProps) {
   const showPrev = () => setLightboxIndex((i) => (i - 1 + images.length) % images.length);
   const showNext = () => setLightboxIndex((i) => (i + 1) % images.length);
 
+  // Flechas del teclado: la galería es el uso principal de esta pantalla
+  // mientras el lightbox está abierto, así que no compite con otro atajo.
+  useEffect(() => {
+    if (!lightboxOpen || images.length < 2) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") showPrev();
+      if (e.key === "ArrowRight") showNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightboxOpen, images.length]);
+
   return (
     <div className="space-y-3">
       <button
         type="button"
         onClick={() => openLightbox(activeIndex)}
-        className="relative aspect-[16/10] rounded-xl overflow-hidden bg-muted border border-border block w-full"
+        className="group relative rounded-xl overflow-hidden bg-white border border-border block w-full"
       >
-        <img src={mainImage} alt={title} className="w-full h-full object-cover" />
+        <img
+          key={mainImage}
+          src={mainImage}
+          alt={title}
+          className="w-full max-h-[28rem] object-contain animate-in fade-in duration-300 mx-auto"
+        />
+        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors duration-200 flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-full bg-background/90 p-2.5 shadow-sm">
+            <Maximize2 className="h-4 w-4 text-foreground" aria-hidden />
+          </span>
+        </div>
+        {images.length > 1 && (
+          <span className="absolute bottom-2 right-2 rounded-full bg-black/60 text-white type-meta px-2.5 py-1">
+            {activeIndex + 1} / {images.length}
+          </span>
+        )}
       </button>
 
       {images.length > 1 && (
@@ -43,7 +71,7 @@ export function ListingGallery({ images, title }: ListingGalleryProps) {
                 type="button"
                 onClick={() => (isLastWithExtra ? openLightbox(3) : setActiveIndex(i))}
                 className={cn(
-                  "relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all",
+                  "relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all duration-200",
                   activeIndex === i
                     ? "border-primary ring-2 ring-primary/20"
                     : "border-border hover:border-primary/40",
@@ -62,21 +90,27 @@ export function ListingGallery({ images, title }: ListingGalleryProps) {
       )}
 
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-4xl w-[95vw] p-0 gap-0 overflow-hidden bg-black border-none">
+        <DialogContent className="max-w-5xl w-[95vw] p-0 gap-0 overflow-hidden bg-black border-none sm:rounded-xl">
           <DialogTitle className="sr-only">{title}</DialogTitle>
-          <div className="relative aspect-[4/3] sm:aspect-[16/9] bg-black">
+
+          <div
+            className="relative flex items-center justify-center bg-black"
+            style={{ height: "min(80vh, 720px)" }}
+          >
             <img
+              key={lightboxIndex}
               src={images[lightboxIndex]}
               alt={`${title} - foto ${lightboxIndex + 1} de ${images.length}`}
-              className="w-full h-full object-contain"
+              className="max-w-full max-h-full w-auto h-auto object-contain animate-in fade-in duration-200"
             />
+
             {images.length > 1 && (
               <>
                 <button
                   type="button"
                   onClick={showPrev}
                   aria-label="Foto anterior"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 hover:bg-black/80 text-white p-2 transition-colors"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 hover:bg-black/80 text-white p-2.5 transition-colors"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
@@ -84,16 +118,37 @@ export function ListingGallery({ images, title }: ListingGalleryProps) {
                   type="button"
                   onClick={showNext}
                   aria-label="Foto siguiente"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 hover:bg-black/80 text-white p-2 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 hover:bg-black/80 text-white p-2.5 transition-colors"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </button>
-                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 text-white text-xs px-2.5 py-1">
+                <span className="absolute top-3 left-3 rounded-full bg-black/60 text-white type-meta px-2.5 py-1">
                   {lightboxIndex + 1} / {images.length}
                 </span>
               </>
             )}
           </div>
+
+          {images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto p-3 bg-black">
+              {images.map((img, i) => (
+                <button
+                  key={img}
+                  type="button"
+                  onClick={() => setLightboxIndex(i)}
+                  aria-label={`Ver foto ${i + 1}`}
+                  className={cn(
+                    "shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-md overflow-hidden border-2 transition-all",
+                    lightboxIndex === i
+                      ? "border-white"
+                      : "border-transparent opacity-50 hover:opacity-90",
+                  )}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

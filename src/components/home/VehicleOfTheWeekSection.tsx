@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 
 export function VehicleOfTheWeekSection() {
   const { data: listings = [] } = useApprovedListings();
-  const listing = listings.find((l) => l.featured) ?? listings[0];
+  const listing =
+    listings.find((l) => l.isWeeklyPick) ?? listings.find((l) => l.featured) ?? listings[0];
   if (!listing) return null;
 
   const headline = `${listing.year} ${listing.title} ${listing.version}`;

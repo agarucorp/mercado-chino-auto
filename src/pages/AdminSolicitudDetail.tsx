@@ -1,4 +1,14 @@
 import { AdminShell } from "@/components/admin/AdminShell";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,10 +39,18 @@ import {
   PUBLISH_PLANS,
   TRANSMISSION_OPTIONS,
 } from "@/lib/listing-draft";
-import { reviewListing, type AdminListing } from "@/lib/listings-api";
+import {
+  addListingImage,
+  deleteListing,
+  deleteListingImage,
+  reorderListingImages,
+  reviewListing,
+  type AdminListing,
+  type AdminListingImage,
+} from "@/lib/listings-api";
 import type { ListingStatus } from "@/types/database";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ImagePlus, Loader2, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -96,6 +114,84 @@ function AdminSolicitudDetailInner() {
   const { data: listing, isLoading, isError, error } = useAdminListing(id);
   const [form, setForm] = useState<SolicitudForm | null>(null);
   const [busy, setBusy] = useState<ListingStatus | "guardando" | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
+  const [reorderingPhotoId, setReorderingPhotoId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const invalidateListing = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: [...ADMIN_LISTINGS_KEY, id] }),
+      queryClient.invalidateQueries({ queryKey: ADMIN_LISTINGS_KEY }),
+    ]);
+
+  const handleAddPhotos = async (files: FileList | null) => {
+    if (!files?.length || !id) return;
+    setUploadingPhoto(true);
+    try {
+      for (const file of Array.from(files)) {
+        try {
+          await addListingImage(id, file);
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : `No se pudo subir ${file.name}.`);
+        }
+      }
+      await invalidateListing();
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleRemovePhoto = async (image: { id: string; storagePath: string }) => {
+    setRemovingPhotoId(image.id);
+    try {
+      await deleteListingImage(image);
+      await invalidateListing();
+      toast.success("Foto eliminada.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo borrar la foto.");
+    } finally {
+      setRemovingPhotoId(null);
+    }
+  };
+
+  const handleMovePhoto = async (photos: AdminListingImage[], index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= photos.length) return;
+
+    const a = photos[index];
+    const b = photos[target];
+    setReorderingPhotoId(a.id);
+    try {
+      await reorderListingImages([
+        { id: a.id, position: b.position },
+        { id: b.id, position: a.position },
+      ]);
+      await invalidateListing();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo reordenar las fotos.");
+    } finally {
+      setReorderingPhotoId(null);
+    }
+  };
+
+  const handleDeleteListing = async () => {
+    if (!id) return;
+    setDeleting(true);
+    try {
+      await deleteListing(id);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ADMIN_LISTINGS_KEY }),
+        queryClient.invalidateQueries({ queryKey: APPROVED_LISTINGS_KEY }),
+      ]);
+      toast.success("Publicación eliminada.");
+      navigate("/admin/solicitudes");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo eliminar la publicación.");
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (id) markSolicitudSeen(id);
@@ -233,15 +329,81 @@ function AdminSolicitudDetailInner() {
         </p>
       )}
 
-      {listing.images.length > 0 && (
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {listing.images.map((src) => (
-            <div key={src} className="aspect-[4/3] overflow-hidden rounded-lg bg-muted">
-              <img src={src} alt="" className="h-full w-full object-cover" />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="mt-8 space-y-3">
+        <Label>Fotos ({listing.imageRecords?.length ?? listing.images.length})</Label>
+        <p className="type-meta text-muted-foreground">
+          La primera es la portada. Usá las flechas para cambiar el orden.
+        </p>
+        {(listing.imageRecords?.length ?? 0) > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {listing.imageRecords!.map((img, index, photos) => (
+              <div
+                key={img.id}
+                className="relative aspect-[4/3] overflow-hidden rounded-lg bg-muted border border-border"
+              >
+                <img src={img.url} alt="" className="h-full w-full object-cover" />
+                {index === 0 && (
+                  <span className="absolute left-2 top-2 type-meta rounded-full bg-foreground/85 text-background px-2 py-0.5">
+                    Portada
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => void handleRemovePhoto(img)}
+                  disabled={removingPhotoId === img.id}
+                  className="absolute right-2 top-2 rounded-full bg-background/90 border border-border p-1.5 text-muted-foreground hover:text-destructive disabled:opacity-50"
+                  aria-label="Quitar foto"
+                >
+                  {removingPhotoId === img.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                  ) : (
+                    <X className="h-3.5 w-3.5" aria-hidden />
+                  )}
+                </button>
+                <div className="absolute bottom-2 left-2 right-2 flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => void handleMovePhoto(photos, index, -1)}
+                    disabled={index === 0 || reorderingPhotoId !== null}
+                    className="rounded-full bg-background/90 border border-border p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    aria-label="Mover antes"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleMovePhoto(photos, index, 1)}
+                    disabled={index === photos.length - 1 || reorderingPhotoId !== null}
+                    className="rounded-full bg-background/90 border border-border p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    aria-label="Mover después"
+                  >
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <label className="inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 type-body-sm cursor-pointer hover:border-foreground/40">
+          {uploadingPhoto ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          ) : (
+            <ImagePlus className="h-4 w-4" aria-hidden />
+          )}
+          {uploadingPhoto ? "Subiendo…" : "Sumar fotos"}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="sr-only"
+            disabled={uploadingPhoto}
+            onChange={(e) => {
+              void handleAddPhotos(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </label>
+      </div>
 
       <form className="mt-10 space-y-8" onSubmit={(e) => e.preventDefault()}>
         <section className="grid gap-4 sm:grid-cols-2">
@@ -514,8 +676,42 @@ function AdminSolicitudDetailInner() {
               Quitar de clasificados
             </Button>
           )}
+          <Button
+            type="button"
+            variant="outline"
+            className="text-destructive hover:text-destructive"
+            disabled={busy !== null || deleting}
+            onClick={() => setConfirmDelete(true)}
+          >
+            <Trash2 className="h-4 w-4" aria-hidden />
+            Eliminar publicación
+          </Button>
         </div>
       </form>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar esta publicación?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se borra para siempre, junto con sus fotos. No se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDeleteListing();
+              }}
+            >
+              {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden />}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

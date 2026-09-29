@@ -1,19 +1,119 @@
 import { AdminShell } from "@/components/admin/AdminShell";
+import { NuevaPublicacionDialog } from "@/components/admin/NuevaPublicacionDialog";
 import { Button } from "@/components/ui/button";
 import { formatKm, formatPrice } from "@/data/listings";
 import { useUnseenSolicitudIds } from "@/lib/admin-solicitudes";
+import { ADMIN_LISTINGS_KEY, APPROVED_LISTINGS_KEY, useAdminListings } from "@/hooks/useListings";
+import { setHomePick, setWeeklyPick, type AdminListing } from "@/lib/listings-api";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
-import { useAdminListings } from "@/hooks/useListings";
-import { Loader2, Plus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Eye, Loader2, Plus, Star } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+
+function DestacadosHome({ aprobadas }: { aprobadas: AdminListing[] }) {
+  const queryClient = useQueryClient();
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const invalidate = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ADMIN_LISTINGS_KEY }),
+      queryClient.invalidateQueries({ queryKey: APPROVED_LISTINGS_KEY }),
+    ]);
+
+  const toggleWeekly = async (listing: AdminListing) => {
+    setBusyId(listing.id);
+    try {
+      await setWeeklyPick(listing.isWeeklyPick ? null : listing.id);
+      await invalidate();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo guardar.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const togglePick = async (listing: AdminListing) => {
+    const currentPicks = aprobadas.filter((l) => l.homePickOrder != null).length;
+    if (listing.homePickOrder == null && currentPicks >= 3) {
+      toast.error('Ya hay 3 elegidos para "Los más vistos". Sacá uno antes de sumar otro.');
+      return;
+    }
+
+    setBusyId(listing.id);
+    try {
+      if (listing.homePickOrder != null) {
+        await setHomePick(listing.id, null);
+      } else {
+        const used = new Set(aprobadas.map((l) => l.homePickOrder).filter(Boolean));
+        const nextSlot = [1, 2, 3].find((n) => !used.has(n)) ?? 1;
+        await setHomePick(listing.id, nextSlot);
+      }
+      await invalidate();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo guardar.");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  if (aprobadas.length === 0) return null;
+
+  return (
+    <div className="mt-14">
+      <h2 className="type-h2 text-foreground mb-2">Destacados en la home</h2>
+      <p className="type-body text-muted-foreground mb-4 max-w-2xl">
+        Elegí el vehículo de la semana y hasta 3 avisos para "Los más vistos".
+      </p>
+      <ul className="space-y-2">
+        {aprobadas.map((listing) => (
+          <li
+            key={listing.id}
+            className="flex flex-wrap items-center gap-3 rounded-lg border border-border p-3"
+          >
+            <div className="w-16 h-12 shrink-0 rounded-md overflow-hidden bg-muted">
+              <img src={listing.image} alt="" className="h-full w-full object-cover" />
+            </div>
+            <p className="type-body-sm text-foreground flex-1 min-w-[10rem] truncate">
+              {listing.year} {listing.title}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant={listing.isWeeklyPick ? "default" : "outline"}
+              disabled={busyId === listing.id}
+              onClick={() => void toggleWeekly(listing)}
+            >
+              <Star className="h-3.5 w-3.5 mr-1.5" aria-hidden />
+              Semana
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={listing.homePickOrder != null ? "default" : "outline"}
+              disabled={busyId === listing.id}
+              onClick={() => void togglePick(listing)}
+            >
+              <Eye className="h-3.5 w-3.5 mr-1.5" aria-hidden />
+              Más vistos{listing.homePickOrder != null ? ` #${listing.homePickOrder}` : ""}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function AdminPublicacionesInner() {
   const { data = [], isLoading, isError, error } = useAdminListings(true);
   const pendientes = data.filter((l) => l.status === "pendiente");
   const otros = data.filter((l) => l.status !== "pendiente");
+  const aprobadas = data.filter((l) => l.status === "aprobada");
   const nuevas = useUnseenSolicitudIds(pendientes.map((l) => l.id));
   const nuevasSet = new Set(nuevas);
+  const [nuevaOpen, setNuevaOpen] = useState(false);
 
   return (
     <>
@@ -25,13 +125,13 @@ function AdminPublicacionesInner() {
             falte y aprobá para que el aviso salga en clasificados.
           </p>
         </div>
-        <Button type="button" asChild className="shrink-0">
-          <Link to="/admin/solicitudes/nueva">
-            <Plus className="h-4 w-4 mr-2" aria-hidden />
-            Cargar publicación
-          </Link>
+        <Button type="button" className="shrink-0" onClick={() => setNuevaOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" aria-hidden />
+          Cargar publicación
         </Button>
       </div>
+
+      <NuevaPublicacionDialog open={nuevaOpen} onOpenChange={setNuevaOpen} />
 
       {nuevas.length > 0 && (
         <p
@@ -143,6 +243,8 @@ function AdminPublicacionesInner() {
           </ul>
         </div>
       )}
+
+      <DestacadosHome aprobadas={aprobadas} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 const AUTOPLAY_MS = 5000;
@@ -21,24 +21,34 @@ const HERO_SLIDES = [
   },
 ];
 
-const premiumEase = [0.22, 1, 0.36, 1] as const;
-
 export function HeroSection() {
   const [current, setCurrent] = useState(0);
+  const timerRef = useRef<number | null>(null);
 
+  // Decodificamos las 3 fotos antes de arrancar el carrusel: si el cambio de
+  // slide le pide al navegador pintar un bitmap todavía no decodificado, el
+  // frame se traba justo en ese instante y se ve como un glitch al pasar de
+  // imagen. Con esto la decodificación ya terminó mucho antes de que haga falta.
   useEffect(() => {
-    HERO_SLIDES.forEach((slide) => {
-      const img = new Image();
-      img.src = slide.src;
+    let cancelled = false;
+
+    Promise.all(
+      HERO_SLIDES.map((slide) => {
+        const img = new Image();
+        img.src = slide.src;
+        return img.decode ? img.decode().catch(() => {}) : Promise.resolve();
+      }),
+    ).then(() => {
+      if (cancelled) return;
+      timerRef.current = window.setInterval(() => {
+        setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
+      }, AUTOPLAY_MS);
     });
-  }, []);
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, AUTOPLAY_MS);
-
-    return () => window.clearInterval(timer);
+    return () => {
+      cancelled = true;
+      if (timerRef.current !== null) window.clearInterval(timerRef.current);
+    };
   }, []);
 
   return (
@@ -48,18 +58,20 @@ export function HeroSection() {
           const isActive = current === index;
 
           return (
-            <motion.img
+            <img
               key={slide.src}
               src={slide.src}
               alt={slide.alt}
               loading="eager"
               decoding="async"
               fetchPriority={index === 0 ? "high" : "auto"}
-              initial={false}
-              animate={{ opacity: isActive ? 1 : 0 }}
-              transition={{ duration: TRANSITION_S, ease: premiumEase }}
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ zIndex: isActive ? 1 : 0, willChange: "opacity", transform: "translateZ(0)" }}
+              className="absolute inset-0 h-full w-full object-cover transition-opacity ease-out"
+              style={{
+                opacity: isActive ? 1 : 0,
+                zIndex: isActive ? 1 : 0,
+                transitionDuration: `${TRANSITION_S}s`,
+                willChange: "opacity",
+              }}
               aria-hidden={!isActive}
             />
           );

@@ -26,7 +26,6 @@ const AdminModelos = lazy(() => import("./pages/AdminModelos"));
 const AdminModeloHistorial = lazy(() => import("./pages/AdminModeloHistorial"));
 const AdminPublicaciones = lazy(() => import("./pages/AdminPublicaciones"));
 const AdminSolicitudDetail = lazy(() => import("./pages/AdminSolicitudDetail"));
-const AdminNuevaPublicacion = lazy(() => import("./pages/AdminNuevaPublicacion"));
 
 const queryClient = new QueryClient();
 
@@ -56,7 +55,6 @@ const App = () => (
                 <Route path="/admin/modelos" element={<AdminModelos />} />
                 <Route path="/admin/modelos/:marcaId/:modeloId" element={<AdminModeloHistorial />} />
                 <Route path="/admin/solicitudes" element={<AdminPublicaciones />} />
-                <Route path="/admin/solicitudes/nueva" element={<AdminNuevaPublicacion />} />
                 <Route path="/admin/solicitudes/:id" element={<AdminSolicitudDetail />} />
                 <Route path="/admin/publicaciones" element={<Navigate to="/admin/solicitudes" replace />} />
                 <Route path="/marcas" element={<Marcas />} />

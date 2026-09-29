@@ -43,6 +43,7 @@ export const MARCAS: Marca[] = [
     ["X55 Plus", "Vigente"],
     ["BJ30", "Vigente"],
     ["BJ40", "Vigente"],
+    ["BJ40 Pro", "Vigente"],
     ["BJ60", "Vigente"],
     ["U5", "Vigente"],
     ["U5 Plus", "Vigente"],

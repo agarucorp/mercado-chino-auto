@@ -133,9 +133,6 @@ export function ListingSellerCard({ seller }: ListingSellerCardProps) {
           )}
         </div>
       </div>
-      <div className="mt-4 rounded-lg bg-muted/50 h-36 flex items-center justify-center border border-border">
-        <p className="type-meta text-muted-foreground">Mapa — próximamente</p>
-      </div>
     </section>
   );
 }

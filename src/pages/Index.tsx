@@ -4,7 +4,7 @@ import { HeroSearchSection } from "@/components/home/HeroSearchSection";
 import { HeroSection } from "@/components/home/HeroSection";
 import { LatestListingsPreview } from "@/components/home/LatestListingsPreview";
 import { ModelCompareSection } from "@/components/home/ModelCompareSection";
-import { MostReviewedPreview } from "@/components/home/MostReviewedPreview";
+import { MostViewedListingsSection } from "@/components/home/MostViewedListingsSection";
 import { PatentamientosSection } from "@/components/home/PatentamientosSection";
 import { VehicleOfTheWeekSection } from "@/components/home/VehicleOfTheWeekSection";
 import { Layout } from "@/components/layout/Layout";
@@ -20,7 +20,7 @@ const Index = () => {
       <VehicleOfTheWeekSection />
       <LatestListingsPreview />
       <NewsPreview />
-      <MostReviewedPreview />
+      <MostViewedListingsSection />
       <PatentamientosSection />
       <ModelCompareSection />
     </Layout>

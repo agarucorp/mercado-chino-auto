@@ -42,6 +42,8 @@ export interface Listing {
   sellerPhone?: string;
   adminNotes?: string | null;
   submittedAt?: string;
+  isWeeklyPick?: boolean;
+  homePickOrder?: number | null;
 }
 
 const IMG = {
