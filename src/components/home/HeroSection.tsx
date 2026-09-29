@@ -59,12 +59,20 @@ export function HeroSection() {
               animate={{ opacity: isActive ? 1 : 0 }}
               transition={{ duration: TRANSITION_S, ease: premiumEase }}
               className="absolute inset-0 h-full w-full object-cover"
-              style={{ zIndex: isActive ? 1 : 0 }}
+              style={{ zIndex: isActive ? 1 : 0, willChange: "opacity", transform: "translateZ(0)" }}
               aria-hidden={!isActive}
             />
           );
         })}
       </div>
+
+      {/* Scrim fijo: garantiza contraste del texto sobre cualquiera de las fotos,
+          que son todas de cielo/paisaje claro. Sin esto el contraste depende de
+          qué tan clara sea la zona de la foto detrás del texto en cada slide. */}
+      <div
+        className="absolute inset-0 z-[5] bg-gradient-to-b from-black/65 via-black/10 to-black/70"
+        aria-hidden
+      />
 
       <div className="relative z-10 flex h-full flex-col items-center justify-between gap-6 px-4 py-8 md:py-10 lg:py-12">
         <motion.h1

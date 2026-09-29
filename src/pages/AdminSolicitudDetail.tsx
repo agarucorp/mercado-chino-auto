@@ -30,6 +30,7 @@ import {
   TRANSMISSION_OPTIONS,
 } from "@/lib/listing-draft";
 import { reviewListing, type AdminListing } from "@/lib/listings-api";
+import type { ListingStatus } from "@/types/database";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -94,7 +95,7 @@ function AdminSolicitudDetailInner() {
   const queryClient = useQueryClient();
   const { data: listing, isLoading, isError, error } = useAdminListing(id);
   const [form, setForm] = useState<SolicitudForm | null>(null);
-  const [busy, setBusy] = useState<"aprobada" | "rechazada" | null>(null);
+  const [busy, setBusy] = useState<ListingStatus | "guardando" | null>(null);
 
   useEffect(() => {
     if (id) markSolicitudSeen(id);
@@ -127,7 +128,7 @@ function AdminSolicitudDetailInner() {
     setForm((current) => (current ? { ...current, ...patch } : current));
   };
 
-  const submit = async (status: "aprobada" | "rechazada") => {
+  const persist = async (status: ListingStatus, busyKey: ListingStatus | "guardando") => {
     if (!listing || !form || !user) return;
     if (status === "aprobada") {
       const issues = getSolicitudFormIssues(form);
@@ -137,7 +138,7 @@ function AdminSolicitudDetailInner() {
       }
     }
 
-    setBusy(status);
+    setBusy(busyKey);
     try {
       await reviewListing({
         id: listing.id,
@@ -145,24 +146,43 @@ function AdminSolicitudDetailInner() {
         adminNotes: form.adminNotes,
         reviewerId: user.id,
         patch: buildListingReviewPatch(form),
+        bumpPublishedAt: status === "aprobada" && listing.status !== "aprobada",
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ADMIN_LISTINGS_KEY }),
         queryClient.invalidateQueries({ queryKey: APPROVED_LISTINGS_KEY }),
         queryClient.invalidateQueries({ queryKey: ["listings", listing.id] }),
       ]);
-      if (status === "aprobada") {
-        toast.success("La solicitud se publicó en clasificados.");
-        navigate(`/clasificados/${listing.id}`);
-      } else {
-        toast.message("Solicitud rechazada.");
-        navigate("/admin/solicitudes");
-      }
+      return true;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo guardar la revisión.");
+      return false;
     } finally {
       setBusy(null);
     }
+  };
+
+  const approve = async () => {
+    if (!(await persist("aprobada", "aprobada"))) return;
+    toast.success("La solicitud se publicó en clasificados.");
+    navigate(`/clasificados/${listing!.id}`);
+  };
+
+  const reject = async () => {
+    if (!(await persist("rechazada", "rechazada"))) return;
+    toast.message("Solicitud rechazada.");
+    navigate("/admin/solicitudes");
+  };
+
+  const archive = async () => {
+    if (!(await persist("archivada", "archivada"))) return;
+    toast.success("Se quitó de clasificados. Podés volver a publicarla cuando quieras.");
+  };
+
+  const saveChanges = async () => {
+    if (!listing) return;
+    if (!(await persist(listing.status, "guardando"))) return;
+    toast.success("Cambios guardados.");
   };
 
   if (isLoading || (listing && !form)) {
@@ -204,6 +224,12 @@ function AdminSolicitudDetailInner() {
       {pendiente && (
         <p className="mt-6 rounded-xl border border-amber-500/50 bg-amber-50 px-4 py-3 type-body-sm text-amber-950">
           Revisá o completá los datos y aprobá para crear el aviso en clasificados.
+        </p>
+      )}
+      {listing.status === "archivada" && (
+        <p className="mt-6 rounded-xl border border-border bg-muted/40 px-4 py-3 type-body-sm text-foreground">
+          Este aviso está quitado de clasificados. No se ve en el sitio hasta que lo vuelvas a
+          publicar.
         </p>
       )}
 
@@ -445,18 +471,25 @@ function AdminSolicitudDetailInner() {
 
         <div className="flex flex-wrap gap-3">
           {listing.status === "aprobada" && (
-            <Button asChild>
+            <Button asChild variant="outline">
               <Link to={`/clasificados/${listing.id}`}>Ver en clasificados</Link>
             </Button>
           )}
-          {(pendiente || listing.status === "rechazada") && (
-            <Button
-              type="button"
-              disabled={busy !== null}
-              onClick={() => void submit("aprobada")}
-            >
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={busy !== null}
+            onClick={() => void saveChanges()}
+          >
+            {busy === "guardando" && <Loader2 className="animate-spin" aria-hidden />}
+            Guardar cambios
+          </Button>
+
+          {(pendiente || listing.status === "rechazada" || listing.status === "archivada") && (
+            <Button type="button" disabled={busy !== null} onClick={() => void approve()}>
               {busy === "aprobada" && <Loader2 className="animate-spin" aria-hidden />}
-              Aprobar y publicar
+              {listing.status === "archivada" ? "Volver a publicar" : "Aprobar y publicar"}
             </Button>
           )}
           {pendiente && (
@@ -464,10 +497,21 @@ function AdminSolicitudDetailInner() {
               type="button"
               variant="destructive"
               disabled={busy !== null}
-              onClick={() => void submit("rechazada")}
+              onClick={() => void reject()}
             >
               {busy === "rechazada" && <Loader2 className="animate-spin" aria-hidden />}
               Rechazar
+            </Button>
+          )}
+          {listing.status === "aprobada" && (
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={busy !== null}
+              onClick={() => void archive()}
+            >
+              {busy === "archivada" && <Loader2 className="animate-spin" aria-hidden />}
+              Quitar de clasificados
             </Button>
           )}
         </div>

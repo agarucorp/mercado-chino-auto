@@ -265,27 +265,122 @@ export type ListingReviewPatch = {
   seller_type?: ListingRow["seller_type"];
 };
 
+export const MAX_LISTING_IMAGE_BYTES = 8 * 1024 * 1024;
+
+/**
+ * Sube una foto suelta al bucket antes de que exista el aviso: el admin
+ * arma las fotos y recién al publicar se crea la fila en `listings`. El
+ * storage_path no necesita coincidir con el id del aviso, así que un
+ * folder temporal (`draftId`) alcanza para agrupar las subidas de una carga.
+ */
+export async function uploadListingImage(draftId: string, file: File): Promise<string> {
+  if (file.size > MAX_LISTING_IMAGE_BYTES) {
+    throw new Error("La imagen supera los 8 MB.");
+  }
+
+  const db = client();
+  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const path = `${draftId}/${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await db.storage
+    .from(LISTING_IMAGE_BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+
+  if (error) throw new Error(error.message);
+  return path;
+}
+
+export async function deleteListingImageObject(storagePath: string): Promise<void> {
+  const { error } = await client().storage.from(LISTING_IMAGE_BUCKET).remove([storagePath]);
+  if (error) throw new Error(error.message);
+}
+
+export interface NewListingInput {
+  title: string;
+  version: string | null;
+  marca_id: string;
+  modelo_id: string;
+  year: number;
+  km: number;
+  price: number;
+  currency: "ARS" | "USD";
+  fuel: string;
+  transmission: string;
+  location: string;
+  province: string;
+  description: string;
+  plan: PlanId;
+  seller_name: string;
+  seller_email: string;
+  seller_phone: string;
+  seller_type: ListingRow["seller_type"];
+  admin_notes: string | null;
+}
+
+/** El admin carga un aviso ya aprobado, sin pasar por la cola de solicitudes. */
+export async function createListing(
+  input: NewListingInput,
+  reviewerId: string,
+  imagePaths: string[],
+): Promise<string> {
+  const db = client();
+  const now = new Date().toISOString();
+
+  const { data, error } = await db
+    .from("listings")
+    .insert({
+      ...input,
+      status: "aprobada",
+      reviewed_by: reviewerId,
+      reviewed_at: now,
+      published_at: now,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw new Error(error.message);
+  const listingId = data.id as string;
+
+  for (const [position, storagePath] of imagePaths.entries()) {
+    const { error: imageError } = await db.from("listing_images").insert({
+      listing_id: listingId,
+      storage_path: storagePath,
+      position,
+    });
+    if (imageError) throw new Error(imageError.message);
+  }
+
+  return listingId;
+}
+
 export async function reviewListing(input: {
   id: string;
-  status: Extract<ListingStatus, "aprobada" | "rechazada" | "pendiente">;
+  status: ListingStatus;
   adminNotes: string;
   reviewerId: string;
   patch?: ListingReviewPatch;
+  /**
+   * true solo cuando el aviso pasa a "aprobada" desde otro estado: ahí sí
+   * pisamos published_at con la fecha actual. Guardar cambios sin cambiar
+   * de estado no debe reflotar el aviso al tope de clasificados.
+   */
+  bumpPublishedAt?: boolean;
 }): Promise<void> {
-  const published_at =
-    input.status === "aprobada" ? new Date().toISOString() : null;
+  const update: Record<string, unknown> = {
+    ...(input.patch ?? {}),
+    status: input.status,
+    admin_notes: input.adminNotes.trim() || null,
+    reviewed_by: input.reviewerId,
+    reviewed_at: new Date().toISOString(),
+  };
 
-  const { error } = await client()
-    .from("listings")
-    .update({
-      ...(input.patch ?? {}),
-      status: input.status,
-      admin_notes: input.adminNotes.trim() || null,
-      reviewed_by: input.reviewerId,
-      reviewed_at: new Date().toISOString(),
-      published_at,
-    })
-    .eq("id", input.id);
+  if (input.status === "aprobada") {
+    if (input.bumpPublishedAt) update.published_at = new Date().toISOString();
+  } else {
+    update.published_at = null;
+  }
+
+  const { error } = await client().from("listings").update(update).eq("id", input.id);
 
   if (error) throw new Error(error.message);
 }

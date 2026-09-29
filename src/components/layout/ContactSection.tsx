@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CONTACT_INBOX, getContactIssues, submitContact } from "@/lib/contact-api";
-import { Loader2, Mail, MapPin } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -54,7 +54,7 @@ export function ContactSection() {
             <p className="type-body text-muted-foreground mt-3 max-w-md">
               Escribinos por consultas sobre marcas, publicaciones o alianzas comerciales.
             </p>
-            <div className="mt-8 space-y-3">
+            <div className="mt-8 space-y-1.5">
               <p className="type-body text-muted-foreground inline-flex items-center gap-2">
                 <Mail className="w-4 h-4 shrink-0 text-foreground" />
                 <a
@@ -64,10 +64,7 @@ export function ContactSection() {
                   {CONTACT_INBOX}
                 </a>
               </p>
-              <p className="type-body text-muted-foreground inline-flex items-center gap-2">
-                <MapPin className="w-4 h-4 shrink-0 text-foreground" />
-                Buenos Aires, Argentina
-              </p>
+              <p className="type-meta text-muted-foreground pl-6">Buenos Aires, Argentina</p>
             </div>
           </div>
 

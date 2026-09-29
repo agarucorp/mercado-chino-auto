@@ -34,7 +34,6 @@ const CATEGORIAS = [
   "Comparativas",
   "Pickups",
   "Política",
-  "Test",
 ];
 
 const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
@@ -445,7 +444,8 @@ export function NewsEditorDialog({
                 Destacada en el listado
               </Label>
               <p className="type-meta text-muted-foreground mt-0.5">
-                El orden real lo definís con Subir / Bajar en la grilla.
+                Le agrega una etiqueta "Destacada" en la card. El orden real lo definís
+                con Subir / Bajar en la grilla.
               </p>
             </div>
             <Switch

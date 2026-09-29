@@ -1,10 +1,11 @@
 import { AdminShell } from "@/components/admin/AdminShell";
+import { Button } from "@/components/ui/button";
 import { formatKm, formatPrice } from "@/data/listings";
 import { useUnseenSolicitudIds } from "@/lib/admin-solicitudes";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import { useAdminListings } from "@/hooks/useListings";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function AdminPublicacionesInner() {
@@ -16,11 +17,21 @@ function AdminPublicacionesInner() {
 
   return (
     <>
-      <h1 className="type-h1 text-foreground">Solicitudes</h1>
-      <p className="type-body text-muted-foreground mt-3">
-        Pedidos de publicación enviados desde Vender. Revisá los datos, completá lo que falte y
-        aprobá para que el aviso salga en clasificados.
-      </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="type-h1 text-foreground">Solicitudes</h1>
+          <p className="type-body text-muted-foreground mt-3 max-w-2xl">
+            Pedidos de publicación enviados desde Vender. Revisá los datos, completá lo que
+            falte y aprobá para que el aviso salga en clasificados.
+          </p>
+        </div>
+        <Button type="button" asChild className="shrink-0">
+          <Link to="/admin/solicitudes/nueva">
+            <Plus className="h-4 w-4 mr-2" aria-hidden />
+            Cargar publicación
+          </Link>
+        </Button>
+      </div>
 
       {nuevas.length > 0 && (
         <p
