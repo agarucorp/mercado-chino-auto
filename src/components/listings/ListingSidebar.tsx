@@ -15,11 +15,7 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
   const headline = `${listing.year} ${listing.title} ${listing.version}`;
 
   return (
-    <SummaryCardShell
-      title={headline}
-      footer={`Publicado por ${listing.seller.name}`}
-      className={className}
-    >
+    <SummaryCardShell title={headline} className={className}>
       <div>
         <p className="type-numeric text-2xl sm:text-3xl font-bold text-foreground">
           {formatPrice(listing.price, listing.currency ?? "ARS")}
@@ -54,9 +50,6 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
         <Button className="w-full" size="lg">
           <MessageCircle className="w-4 h-4" />
           Contactar al vendedor
-        </Button>
-        <Button className="w-full" size="lg">
-          Cotizar que me contacten
         </Button>
       </div>
     </SummaryCardShell>
