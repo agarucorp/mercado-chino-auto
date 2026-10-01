@@ -132,6 +132,7 @@ const MODELO_SLUG_ALIASES: Record<string, string> = {
   "gwm-haval-h6-pro-hev": "gwm-haval-h6",
   "gwm-haval-jolion-pro-hev": "gwm-haval-jolion",
   "forthing-t5-hev": "forthing-t5",
+  "forthing-t5-evo": "forthing-t5",
   "forthing-u-tour-hybrid": "forthing-u-tour",
   "gwm-poer-elite": "gwm-poer",
   "jmc-grand-avenue-dadao-pro": "jmc-grand-avenue",

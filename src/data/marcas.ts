@@ -91,7 +91,7 @@ export const MARCAS: Marca[] = [
   ]),
   marca("FORTHING", 2025, "ORIENTE MOTORS", [
     ["T5", "Vigente"],
-    ["T5 EVO", "Vigente"],
+    ["T5 MT", "Vigente"],
     ["U-Tour", "Vigente"],
     ["Friday REEV", "Vigente"],
   ]),
