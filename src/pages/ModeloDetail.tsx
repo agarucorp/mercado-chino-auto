@@ -14,7 +14,7 @@ import { useApprovedListings } from "@/hooks/useListings";
 import { useNewsByModelo } from "@/hooks/useNews";
 import { getFichaTecnica, getModeloImages } from "@/data/modelo-media";
 import { MARCAS } from "@/data/marcas";
-import { getMarcaBySlug, getModeloBySlug } from "@/lib/marcas";
+import { getMarcaBySlug, getModeloBySlug, resolveModeloId } from "@/lib/marcas";
 import { ArrowLeft, MapPin, Newspaper } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
@@ -43,7 +43,7 @@ const ModeloDetail = () => {
   }
 
   const clasificados = allListings.filter(
-    (l) => l.marcaId === marca.id && l.modeloId === modelo.id,
+    (l) => l.marcaId === marca.id && resolveModeloId(l.modeloId ?? "") === modelo.id,
   );
   const ficha = getFichaTecnica(modelo.id);
   const imagenes = getModeloImages(modelo.id);

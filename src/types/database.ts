@@ -134,10 +134,6 @@ export type Database = {
         Args: Record<string, unknown>;
         Returns: boolean;
       };
-      reorder_news: {
-        Args: { ids: string[] };
-        Returns: void;
-      };
     };
     Enums: {
       listing_status: ListingStatus;

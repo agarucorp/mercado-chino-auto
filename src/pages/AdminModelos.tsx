@@ -2,6 +2,7 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { Input } from "@/components/ui/input";
 import { MARCAS } from "@/data/marcas";
 import { useNews } from "@/hooks/useNews";
+import { resolveModeloId } from "@/lib/marcas";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -22,7 +23,7 @@ function AdminModelosInner() {
     for (const n of news) {
       const published = n.published !== false;
       if (n.modeloId) {
-        bump(n.modeloId, published);
+        bump(resolveModeloId(n.modeloId), published);
         continue;
       }
       // «Todos los modelos» de una marca: cuenta en cada ficha de esa marca.

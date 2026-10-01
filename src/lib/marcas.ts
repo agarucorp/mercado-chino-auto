@@ -117,7 +117,26 @@ export function getModeloSlug(modelo: Modelo): string {
 const MODELO_SLUG_ALIASES: Record<string, string> = {
   "baic-x35": "baic-x35-ex35",
   "baic-ex35": "baic-x35-ex35",
-  "baic-ex55-plus": "baic-x55-plus",
+  "baic-x55-ii": "baic-x55",
+  "baic-x55-plus": "baic-x55",
+  "baic-ex55-plus": "baic-x55",
+  "baic-eu-5": "baic-eu5",
+  "baic-eu5-plus": "baic-eu5",
+  "baic-u5-plus": "baic-u5",
+  "baic-bj40-pro": "baic-bj40",
+  "gac-gs4-emkoo-hev": "gac-emkoo-hybrid",
+  "dfsk-glory-e5": "dfsk-e5",
+  "dfsk-e5-phev": "dfsk-e5",
+  "dfsk-e5-plus": "dfsk-e5",
+  "gwm-haval-h6-hev": "gwm-haval-h6",
+  "gwm-haval-h6-pro-hev": "gwm-haval-h6",
+  "gwm-haval-jolion-pro-hev": "gwm-haval-jolion",
+  "forthing-t5-hev": "forthing-t5",
+  "forthing-u-tour-hybrid": "forthing-u-tour",
+  "gwm-poer-elite": "gwm-poer",
+  "jmc-grand-avenue-dadao-pro": "jmc-grand-avenue",
+  "kaiyi-x3-pro": "kaiyi-x3",
+  "maxus-t90-ev": "maxus-t90",
 };
 
 export function resolveModeloId(modeloId: string): string {

@@ -39,16 +39,12 @@ export const MARCAS: Marca[] = [
     ["X25 / EX260", "Discontinuado"],
     ["D20", "Discontinuado"],
     ["X35 / EX35", "Vigente"],
-    ["X55 II", "Vigente"],
-    ["X55 Plus", "Vigente"],
+    ["X55", "Vigente"],
     ["BJ30", "Vigente"],
     ["BJ40", "Vigente"],
-    ["BJ40 Pro", "Vigente"],
     ["BJ60", "Vigente"],
     ["U5", "Vigente"],
-    ["U5 Plus", "Vigente"],
-    ["EU 5", "Vigente"],
-    ["EU5 Plus", "Vigente"],
+    ["EU5", "Vigente"],
   ]),
   marca("BYD", 2025, "BYD Auto Argentina S.A.U.", [
     ["Dolphin Mini", "Vigente"],
@@ -82,9 +78,7 @@ export const MARCAS: Marca[] = [
   marca("DFSK", 2017, "Grupo Corven", [
     ["Glory 580", "Vigente"],
     ["Glory 500", "Vigente"],
-    ["Glory E5", "Vigente"],
-    ["E5 PHEV", "Vigente"],
-    ["E5 Plus", "Vigente"],
+    ["E5", "Vigente"],
   ]),
   marca("DONGFENG", 2026, "FAMLY", [
     ["Box", "Vigente"],
@@ -97,10 +91,8 @@ export const MARCAS: Marca[] = [
   ]),
   marca("FORTHING", 2025, "ORIENTE MOTORS", [
     ["T5", "Vigente"],
-    ["T5 HEV", "Vigente"],
     ["T5 EVO", "Vigente"],
     ["U-Tour", "Vigente"],
-    ["U-Tour Hybrid", "Vigente"],
     ["Friday REEV", "Vigente"],
   ]),
   marca("FOTON", 2017, "Grupo Corven", [
@@ -111,7 +103,6 @@ export const MARCAS: Marca[] = [
   ]),
   marca("GAC", 2026, "AVANTEK", [
     ["GS3 Emzoom", "Vigente"],
-    ["GS4 Emkoo HEV", "Vigente"],
     ["Emkoo Hybrid", "Vigente"],
     ["GS8", "Vigente"],
     ["Aion ES", "Vigente"],
@@ -132,12 +123,8 @@ export const MARCAS: Marca[] = [
     ["HAVAL H2", "Discontinuado"],
     ["HAVAL H6", "Vigente"],
     ["HAVAL H6 GT", "Vigente"],
-    ["HAVAL H6 HEV", "Vigente"],
-    ["HAVAL H6 PRO HEV", "Vigente"],
     ["HAVAL Jolion", "Vigente"],
-    ["HAVAL Jolion PRO HEV", "Vigente"],
     ["Poer", "Vigente"],
-    ["Poer Elite", "Vigente"],
     ["TANK 300", "Vigente"],
     ["ORA 03", "Vigente"],
   ]),
@@ -162,12 +149,10 @@ export const MARCAS: Marca[] = [
   ]),
   marca("JMC", 2011, "Ralitor", [
     ["Grand Avenue", "Vigente"],
-    ["Grand Avenue Dadao Pro", "Vigente"],
   ]),
   marca("JMEV", 2025, "GRUPO ANTELO", [["Easy 3", "Vigente"]]),
   marca("KAIYI", 2026, "GRUPO EMPRESARIO PRIETO", [
     ["X3", "Vigente"],
-    ["X3 PRO", "Vigente"],
     ["X7", "Vigente"],
   ]),
   marca("LEAPMOTORS", 2026, "STELLANTIS", [
@@ -189,7 +174,6 @@ export const MARCAS: Marca[] = [
   marca("MAXUS", 2025, "GRUPO PRIETO", [
     ["T60", "Vigente"],
     ["T90", "Vigente"],
-    ["T90 EV", "Vigente"],
     ["D90", "Vigente"],
     ["eterron", "Vigente"],
   ]),

@@ -31,14 +31,14 @@ describe("categorias", () => {
     const cats = getCategoriasConConteo();
     expect(cats.map((c) => `${c.slug}:${c.count}`)).toMatchInlineSnapshot(`
       [
-        "electrico:11",
-        "hibrido:16",
-        "suv:82",
+        "electrico:41",
+        "hibrido:29",
+        "suv:74",
         "hatchback:10",
         "sedan:5",
-        "pickup:15",
-        "utilitario:6",
-        "offroad:5",
+        "pickup:13",
+        "utilitario:5",
+        "offroad:3",
       ]
     `);
   });

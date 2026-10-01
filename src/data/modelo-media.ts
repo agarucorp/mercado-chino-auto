@@ -16,15 +16,16 @@ const IMAGENES: Record<string, string | string[]> = {
   "baic-x25-ex260": "/BAIC/models/x25.png",
   "baic-d20": "/BAIC/models/d20.png",
   "baic-x35-ex35": ["/BAIC/models/x35-front.png", "/BAIC/models/x35.png"],
-  "baic-x55-ii": ["/BAIC/models/x55-ii-front.jpg", "/BAIC/models/x55-ii.png"],
-  "baic-x55-plus": "/BAIC/models/x55-plus.png",
+  "baic-x55": [
+    "/BAIC/models/x55-ii-front.jpg",
+    "/BAIC/models/x55-ii.png",
+    "/BAIC/models/x55-plus.png",
+  ],
   "baic-bj30": "/BAIC/models/bj30-front.jpg",
   "baic-bj40": ["/BAIC/models/bj40-front.jpg", "/BAIC/models/bj40.png"],
   "baic-bj60": "/BAIC/models/bj60-front.jpg",
   "baic-u5": ["/BAIC/models/u5-plus-front.webp", "/BAIC/models/u5-plus.png"],
-  "baic-u5-plus": ["/BAIC/models/u5-plus-front.webp", "/BAIC/models/u5-plus.png"],
-  "baic-eu-5": ["/BAIC/models/eu5-front.jpg", "/BAIC/models/eu5.png"],
-  "baic-eu5-plus": ["/BAIC/models/eu5-front.jpg", "/BAIC/models/eu5.png"],
+  "baic-eu5": ["/BAIC/models/eu5-front.jpg", "/BAIC/models/eu5.png"],
   "byd-dolphin-mini":
     "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&h=500&fit=crop",
   "byd-song-pro":
@@ -78,6 +79,39 @@ function ft(
   ];
 }
 
+interface VarianteFicha {
+  nombre: string;
+  precio: string;
+  vigencia: string;
+  motor: string;
+  transmision: string;
+  potencia: string;
+  consumo: string;
+  seguridad: string;
+  autonomia: string;
+}
+
+/** Una sola ficha para el mismo auto con versiones (nafta, híbrido, Plus, etc.). */
+function ftVariantes(variantes: VarianteFicha[]): FichaTecnicaRow[] {
+  const campo = (key: keyof Omit<VarianteFicha, "nombre">) => {
+    const values = variantes.map((v) => v[key]);
+    if (new Set(values).size === 1) return values[0];
+    return variantes.map((v) => `${v.nombre}: ${v[key]}`).join(" · ");
+  };
+
+  return ft(
+    variantes.map((v) => v.nombre).join(" · "),
+    campo("precio"),
+    campo("vigencia"),
+    campo("motor"),
+    campo("transmision"),
+    campo("potencia"),
+    campo("consumo"),
+    campo("seguridad"),
+    campo("autonomia"),
+  );
+}
+
 const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "arcfox-t1": ft("T1", "USD 29.500", "2026-vigente", "Eléctrico", "Automática", "95 CV", "14-15 kWh/100 km", "6 airbags, ESP, ADAS, AEB, ISOFIX", "310 km"),
   "arcfox-kaola-s": ft("Kaola S", "USD 27.200", "2026-vigente", "Eléctrico", "Automática", "160 CV", "14-16 kWh/100 km", "6 airbags, ESP, ADAS, ISOFIX", "500 km"),
@@ -87,16 +121,104 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "baic-x25-ex260": ft("X25 / EX260", "Usado desde USD 9.500", "2018-2021", "Naftero 1.5L (X25) / Eléctrico (EX260)", "Manual o automática", "114 CV / 72 CV", "7,8 L/100 km / 15 kWh/100 km", "2 a 4 airbags, ABS con EBD, ISOFIX", "570 km / 250 km"),
   "baic-d20": ft("D20", "Usado desde USD 8.000", "2019-2021", "Naftero 1.3", "Manual", "110 CV", "6 L/100 km", "2 airbags frontales, ABS, EBD, asistente de frenado, ISOFIX", "750 km"),
   "baic-x35-ex35": ft("X35 / EX35", "desde USD 25.500", "2023-vigente", "Naftero 1.5L Turbo (X35) / Eléctrico (EX35)", "Automática", "148 CV / 109 CV", "8,8 L/100 km / 15 kWh/100 km", "2 a 4 airbags, ABS, ESP, ISOFIX", "540 km / 301 km"),
-  "baic-x55-ii": ft("X55 II", "desde USD 39.700", "2023-vigente", "Naftero 1.5L Turbo", "Automática", "177 CV", "9,2 L/100 km", "6 airbags, ISOFIX, ESP, TCS, asistentes de arranque y descenso", "580 km"),
-  "baic-x55-plus": ft("X55 Plus", "Sin precio de referencia", "2024-vigente", "Naftero 1.5L Turbo", "Automática", "177 CV", "9,2 L/100 km", "6 airbags, ESP, ABS con EBD, ISOFIX", "580 km"),
+  "baic-x55": ftVariantes([
+    {
+      nombre: "X55 II",
+      precio: "desde USD 39.700",
+      vigencia: "2023-vigente",
+      motor: "Naftero 1.5L Turbo",
+      transmision: "Automática",
+      potencia: "177 CV",
+      consumo: "9,2 L/100 km",
+      seguridad: "6 airbags, ISOFIX, ESP, TCS, asistentes de arranque y descenso",
+      autonomia: "580 km",
+    },
+    {
+      nombre: "X55 Plus",
+      precio: "Sin precio de referencia",
+      vigencia: "2024-vigente",
+      motor: "Naftero 1.5L Turbo",
+      transmision: "Automática",
+      potencia: "177 CV",
+      consumo: "9,2 L/100 km",
+      seguridad: "6 airbags, ESP, ABS con EBD, ISOFIX",
+      autonomia: "580 km",
+    },
+  ]),
   "baic-bj30": ft("BJ30", "desde USD 35.800", "2025-vigente", "Sistema HEV (naftero 1.5 acoplado a motores eléctricos)", "Automática", "403 CV", "6,5 L/100 km", "6 airbags, ESP, ABS+EBD y paquete ADAS (AEB, mantenimiento de carril)", "1.000 km"),
-  "baic-bj40": ft("BJ40", "desde USD 61.300", "2024-vigente", "Naftero 2.0 Turbo", "Automática", "241 CV", "11 L/100 km", "Chasis reforzado contra volcaduras, 6 airbags, control de descenso, ADAS", "650 km"),
-  "baic-bj40-pro": ft("BJ40 Pro", "USD 52.800", "2026-vigente", "Naftero 2.0 Turbo", "Automática ZF 8 vel.", "241 CV", "11 L/100 km", "6 airbags, ESP, control de tracción, ADAS (frenado autónomo, crucero adaptativo, mantenimiento de carril), cámara 360°, ISOFIX", "810 km"),
+  "baic-bj40": ftVariantes([
+    {
+      nombre: "BJ40",
+      precio: "desde USD 61.300",
+      vigencia: "2024-vigente",
+      motor: "Naftero 2.0 Turbo",
+      transmision: "Automática",
+      potencia: "241 CV",
+      consumo: "11 L/100 km",
+      seguridad: "Chasis reforzado, 6 airbags, control de descenso, ADAS",
+      autonomia: "650 km",
+    },
+    {
+      nombre: "BJ40 Pro",
+      precio: "USD 52.800",
+      vigencia: "2026-vigente",
+      motor: "Naftero 2.0 Turbo",
+      transmision: "Automática ZF 8 vel.",
+      potencia: "241 CV",
+      consumo: "11 L/100 km",
+      seguridad: "6 airbags, ESP, ADAS, cámara 360°, ISOFIX",
+      autonomia: "810 km",
+    },
+  ]),
   "baic-bj60": ft("BJ60", "USD 78.600", "2025-vigente", "Naftero 2.0 Turbo mild hybrid 48V", "Automática 8AT", "263 CV", "10,5 L/100 km", "6 airbags, ADAS (LKA, FCW, APA), bloqueos de diferencial, ISOFIX", "800 km"),
-  "baic-u5": ft("U5", "Sin precio de referencia", "2024-vigente", "Naftero 1.5", "Automática CVT", "111 CV", "6,8 L/100 km", "2 airbags, ABS, EBD, ESP, ISOFIX", "700 km"),
-  "baic-u5-plus": ft("U5 Plus", "USD 25.600", "2025-vigente", "Naftero 1.5", "Automática CVT", "111 CV", "6,8 L/100 km", "Airbags frontales y laterales, ABS+EBD+EBA, ESC, TCS, cámara 360°, BSD, ISOFIX", "700 km"),
-  "baic-eu-5": ft("EU 5", "USD 28.900", "2024-vigente", "Eléctrico", "Automática", "163 CV", "13,7 kWh/100 km", "6 airbags, ABS, ESP, TCS, ADAS, ISOFIX", "416 km"),
-  "baic-eu5-plus": ft("EU5 Plus", "USD 48.700", "2025-vigente", "Eléctrico", "Automática", "165 CV", "13,7 kWh/100 km", "6 airbags, ADAS, ABS, ESP, ISOFIX", "501 km"),
+  "baic-u5": ftVariantes([
+    {
+      nombre: "U5",
+      precio: "Sin precio de referencia",
+      vigencia: "2024-vigente",
+      motor: "Naftero 1.5",
+      transmision: "Automática CVT",
+      potencia: "111 CV",
+      consumo: "6,8 L/100 km",
+      seguridad: "2 airbags, ABS, EBD, ESP, ISOFIX",
+      autonomia: "700 km",
+    },
+    {
+      nombre: "U5 Plus",
+      precio: "USD 25.600",
+      vigencia: "2025-vigente",
+      motor: "Naftero 1.5",
+      transmision: "Automática CVT",
+      potencia: "111 CV",
+      consumo: "6,8 L/100 km",
+      seguridad: "Airbags frontales y laterales, ABS+EBD+EBA, ESC, TCS, cámara 360°, BSD, ISOFIX",
+      autonomia: "700 km",
+    },
+  ]),
+  "baic-eu5": ftVariantes([
+    {
+      nombre: "EU 5",
+      precio: "USD 28.900",
+      vigencia: "2024-vigente",
+      motor: "Eléctrico",
+      transmision: "Automática",
+      potencia: "163 CV",
+      consumo: "13,7 kWh/100 km",
+      seguridad: "6 airbags, ABS, ESP, TCS, ADAS, ISOFIX",
+      autonomia: "416 km",
+    },
+    {
+      nombre: "EU5 Plus",
+      precio: "USD 48.700",
+      vigencia: "2025-vigente",
+      motor: "Eléctrico",
+      transmision: "Automática",
+      potencia: "165 CV",
+      consumo: "13,7 kWh/100 km",
+      seguridad: "6 airbags, ADAS, ABS, ESP, ISOFIX",
+      autonomia: "501 km",
+    },
+  ]),
 
   "byd-dolphin-mini": ft("Dolphin Mini", "desde USD 22.990", "2025-vigente", "Eléctrico", "Automática", "88 CV", "13 kWh/100 km", "6 airbags, ABS, ESP, AEB, ISOFIX", "280-380 km"),
   "byd-yuan-pro": ft("Yuan Pro", "desde USD 29.990", "2025-vigente", "Eléctrico", "Automática", "177 CV", "14 kWh/100 km", "6 airbags, ABS, ESC, TCS, BSD, cámara 360°, ISOFIX", "380 km"),
@@ -126,9 +248,30 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
 
   "dfsk-glory-580": ft("Glory 580", "USD 31.000", "2018-vigente", "Naftero 1.5 Turbo", "Manual o CVT", "150 CV", "8,5 L/100 km", "2 a 6 airbags, ABS, ESP (según versión), ISOFIX", "680 km"),
   "dfsk-glory-500": ft("Glory 500", "Sin precio de referencia", "2020-vigente", "Naftero 1.5 Turbo", "Manual o CVT", "148 CV", "7,8 L/100 km", "2 airbags, ABS, ESP (según versión), ISOFIX", "700 km"),
-  "dfsk-glory-e5": ft("Glory E5", "Sin precio de referencia", "2024-vigente", "Híbrido enchufable 1.5", "Automática DHT", "204 CV", "1,6 L/100 km (ciclo PHEV)", "6 airbags, ABS, ESP, ISOFIX", "1.000 km combinados"),
-  "dfsk-e5-phev": ft("E5 PHEV", "USD 34.500", "2025-vigente", "Híbrido enchufable 1.5", "Automática DHT", "204 CV", "1,6 L/100 km (ciclo PHEV)", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km combinados"),
-  "dfsk-e5-plus": ft("E5 Plus", "USD 33.800", "2025-vigente", "Naftero 1.5 Turbo", "Automática", "150 CV", "7,5 L/100 km", "6 airbags, ABS, ESP, ISOFIX", "720 km"),
+  "dfsk-e5": ftVariantes([
+    {
+      nombre: "E5 Plus (naftero)",
+      precio: "USD 33.800",
+      vigencia: "2025-vigente",
+      motor: "Naftero 1.5 Turbo",
+      transmision: "Automática",
+      potencia: "150 CV",
+      consumo: "7,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ISOFIX",
+      autonomia: "720 km",
+    },
+    {
+      nombre: "Glory E5 / E5 PHEV",
+      precio: "E5 PHEV USD 34.500",
+      vigencia: "2024-vigente",
+      motor: "Híbrido enchufable 1.5",
+      transmision: "Automática DHT",
+      potencia: "204 CV",
+      consumo: "1,6 L/100 km (ciclo PHEV)",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "1.000 km combinados",
+    },
+  ]),
 
   "dongfeng-box": ft("Box", "USD 29.700", "2026-vigente", "Eléctrico", "Automática", "95 CV", "14 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "310 km"),
   "dongfeng-mage": ft("Mage", "USD 34.400", "2026-vigente", "Híbrido 1.5 + eléctrico", "Automática DHT", "190 CV", "5,2 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km"),
@@ -137,11 +280,55 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "faw-x40": ft("X40", "Usado desde USD 9.000", "2018-2022", "Naftero 1.6", "Manual o automática", "114 CV", "7,2 L/100 km", "2 airbags, ABS, EBD, ISOFIX", "680 km"),
   "faw-t33": ft("T33", "Sin precio de referencia", "2021-vigente", "Naftero 1.6", "Manual o automática", "114 CV", "7,0 L/100 km", "2 airbags, ABS, ESP (según versión), ISOFIX", "700 km"),
 
-  "forthing-t5": ft("T5", "USD 21.950", "2025-vigente", "Naftero 1.5 Turbo", "Manual", "150 CV", "7,8 L/100 km", "6 airbags, ABS, ESP, ISOFIX", "700 km"),
-  "forthing-t5-hev": ft("T5 HEV", "USD 36.190", "2025-vigente", "Híbrido 1.5 Turbo + eléctrico", "Automática DHT", "252 CV", "5,5 L/100 km", "6 airbags, ABS, EBD, ESP, EBA, TCS, HHC, ISOFIX", "950 km"),
+  "forthing-t5": ftVariantes([
+    {
+      nombre: "T5",
+      precio: "USD 21.950",
+      vigencia: "2025-vigente",
+      motor: "Naftero 1.5 Turbo",
+      transmision: "Manual",
+      potencia: "150 CV",
+      consumo: "7,8 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ISOFIX",
+      autonomia: "700 km",
+    },
+    {
+      nombre: "T5 HEV",
+      precio: "USD 36.190",
+      vigencia: "2025-vigente",
+      motor: "Híbrido 1.5 Turbo + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "252 CV",
+      consumo: "5,5 L/100 km",
+      seguridad: "6 airbags, ABS, EBD, ESP, EBA, TCS, HHC, ISOFIX",
+      autonomia: "950 km",
+    },
+  ]),
   "forthing-t5-evo": ft("T5 EVO", "USD 36.840", "2025-vigente", "Naftero 1.5 Turbo", "Automática DCT", "197 CV", "7,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "720 km"),
-  "forthing-u-tour": ft("U-Tour", "USD 40.221", "2025-vigente", "Naftero 1.5 Turbo", "Automática", "197 CV", "8,5 L/100 km", "10 airbags, ABS, ESP, EBA, TCS, BSD, cámara 360°, ISOFIX", "700 km"),
-  "forthing-u-tour-hybrid": ft("U-Tour Hybrid", "USD 43.957", "2025-vigente", "Híbrido 1.5 Turbo + eléctrico", "Automática DHT", "252 CV", "6,0 L/100 km", "10 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km"),
+  "forthing-u-tour": ftVariantes([
+    {
+      nombre: "U-Tour",
+      precio: "USD 40.221",
+      vigencia: "2025-vigente",
+      motor: "Naftero 1.5 Turbo",
+      transmision: "Automática",
+      potencia: "197 CV",
+      consumo: "8,5 L/100 km",
+      seguridad: "10 airbags, ABS, ESP, EBA, TCS, BSD, cámara 360°, ISOFIX",
+      autonomia: "700 km",
+    },
+    {
+      nombre: "U-Tour Hybrid",
+      precio: "USD 43.957",
+      vigencia: "2025-vigente",
+      motor: "Híbrido 1.5 Turbo + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "252 CV",
+      consumo: "6,0 L/100 km",
+      seguridad: "10 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "1.000 km",
+    },
+  ]),
   "forthing-friday-reev": ft("Friday REEV", "desde USD 32.300", "2025-vigente", "Eléctrico con generador 1.5 (REEV)", "Automática", "163 CV", "15 kWh/100 km + extensión nafta", "6 airbags, ABS, ESP, BSD, ADAS, ISOFIX", "900 km combinados"),
 
   "foton-tunland-luxury": ft("Tunland Luxury", "Usado desde USD 14.000", "2017-2022", "Diésel 2.8 Turbo", "Manual", "163 CV", "10,5 L/100 km", "2 airbags, ABS, EBD", "800 km"),
@@ -150,7 +337,6 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "foton-tunland-g7": ft("Tunland G7", "Sin precio de referencia", "2023-vigente", "Diésel 2.0 Turbo", "Manual o automática", "163 CV", "10 L/100 km", "2 a 6 airbags, ABS, ESP (según versión)", "800 km"),
 
   "gac-gs3-emzoom": ft("GS3 Emzoom", "desde USD 31.900", "2026-vigente", "Naftero 1.5 Turbo", "Automática", "177 CV", "7,2 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "750 km"),
-  "gac-gs4-emkoo-hev": ft("GS4 Emkoo HEV", "USD 33.800", "2026-vigente", "Híbrido 1.5 + eléctrico", "Automática DHT", "190 CV", "5,3 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km"),
   "gac-emkoo-hybrid": ft("Emkoo Hybrid", "USD 33.800", "2026-vigente", "Híbrido 1.5 + eléctrico", "Automática DHT", "190 CV", "5,3 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km"),
   "gac-gs8": ft("GS8", "USD 60.000", "2026-vigente", "Naftero 2.0 Turbo", "Automática 8AT", "252 CV", "10 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "700 km"),
   "gac-aion-es": ft("Aion ES", "USD 33.800", "2026-vigente", "Eléctrico", "Automática", "163 CV", "13,5 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "500 km"),
@@ -167,14 +353,90 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
 
   "gwm-haval-h1": ft("HAVAL H1", "Usado desde USD 8.000", "2018-2021", "Naftero 1.5", "Manual o automática", "105 CV", "7,0 L/100 km", "2 airbags, ABS, cámara de retroceso (según versión), ISOFIX", "640 km"),
   "gwm-haval-h2": ft("HAVAL H2", "Usado desde USD 11.000", "2018-2022", "Naftero 1.5 Turbo", "Manual o automática", "141 CV", "8,0 L/100 km", "6 airbags, ABS, ESP, ISOFIX", "680 km"),
-  "gwm-haval-h6": ft("HAVAL H6", "desde USD 36.500", "2018-vigente", "Naftero 2.0 Turbo", "Automática DCT 7 vel.", "204 CV", "8,8 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "690 km"),
+  "gwm-haval-h6": ftVariantes([
+    {
+      nombre: "H6",
+      precio: "desde USD 36.500",
+      vigencia: "2018-vigente",
+      motor: "Naftero 2.0 Turbo",
+      transmision: "Automática DCT 7 vel.",
+      potencia: "204 CV",
+      consumo: "8,8 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "690 km",
+    },
+    {
+      nombre: "H6 HEV",
+      precio: "desde USD 33.500",
+      vigencia: "2024-vigente",
+      motor: "Híbrido 1.5 Turbo + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "243 CV",
+      consumo: "5,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "1.100 km",
+    },
+    {
+      nombre: "H6 Pro HEV",
+      precio: "USD 35.500",
+      vigencia: "2025-vigente",
+      motor: "Híbrido 1.5 Turbo + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "243 CV",
+      consumo: "5,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "1.100 km",
+    },
+  ]),
   "gwm-haval-h6-gt": ft("HAVAL H6 GT", "USD 44.400", "2023-vigente", "Naftero 2.0 Turbo", "Automática DCT 7 vel.", "204 CV", "9,2 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "660 km"),
-  "gwm-haval-h6-hev": ft("HAVAL H6 HEV", "desde USD 33.500", "2024-vigente", "Híbrido 1.5 Turbo + eléctrico", "Automática DHT", "243 CV", "5,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.100 km"),
-  "gwm-haval-h6-pro-hev": ft("HAVAL H6 PRO HEV", "USD 35.500", "2025-vigente", "Híbrido 1.5 Turbo + eléctrico", "Automática DHT", "243 CV", "5,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.100 km"),
-  "gwm-haval-jolion": ft("HAVAL Jolion", "desde USD 30.000", "2022-vigente", "Naftero 1.5 Turbo", "Automática DCT 7 vel.", "141 CV", "7,5 L/100 km", "6 airbags, ABS, ESP, ISOFIX", "730 km"),
-  "gwm-haval-jolion-pro-hev": ft("HAVAL Jolion PRO HEV", "desde USD 28.990", "2025-vigente", "Híbrido 1.5 + eléctrico", "Automática DHT", "190 CV", "5,1 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km"),
-  "gwm-poer": ft("Poer", "USD 41.990", "2021-vigente", "Diésel 2.0 Turbo", "Automática 8AT", "163 CV", "9,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "800 km"),
-  "gwm-poer-elite": ft("Poer Elite", "desde USD 28.730", "2024-vigente", "Diésel 2.0 Turbo", "Manual o automática", "163 CV", "9,5 L/100 km", "2 a 6 airbags, ABS, ESP, ISOFIX", "800 km"),
+  "gwm-haval-jolion": ftVariantes([
+    {
+      nombre: "Jolion",
+      precio: "desde USD 30.000",
+      vigencia: "2022-vigente",
+      motor: "Naftero 1.5 Turbo",
+      transmision: "Automática DCT 7 vel.",
+      potencia: "141 CV",
+      consumo: "7,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ISOFIX",
+      autonomia: "730 km",
+    },
+    {
+      nombre: "Jolion Pro HEV",
+      precio: "desde USD 28.990",
+      vigencia: "2025-vigente",
+      motor: "Híbrido 1.5 + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "190 CV",
+      consumo: "5,1 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "1.000 km",
+    },
+  ]),
+  "gwm-poer": ftVariantes([
+    {
+      nombre: "Poer",
+      precio: "USD 41.990",
+      vigencia: "2021-vigente",
+      motor: "Diésel 2.0 Turbo",
+      transmision: "Automática 8AT",
+      potencia: "163 CV",
+      consumo: "9,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "800 km",
+    },
+    {
+      nombre: "Poer Elite",
+      precio: "desde USD 28.730",
+      vigencia: "2024-vigente",
+      motor: "Diésel 2.0 Turbo",
+      transmision: "Manual o automática",
+      potencia: "163 CV",
+      consumo: "9,5 L/100 km",
+      seguridad: "2 a 6 airbags, ABS, ESP, ISOFIX",
+      autonomia: "800 km",
+    },
+  ]),
   "gwm-tank-300": ft("TANK 300", "USD 51.900", "2024-vigente", "Naftero 2.0 Turbo", "Automática 8AT", "217 CV", "11 L/100 km", "6 airbags, ESP, ADAS, bloqueos de diferencial, HHC/HDC, ISOFIX", "630 km"),
   "gwm-ora-03": ft("ORA 03", "USD 31.000", "2024-vigente", "Eléctrico", "Automática", "169 CV", "16,7 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "370 km"),
 
@@ -195,13 +457,57 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "jetour-t1": ft("T1", "USD 51.900", "2025-vigente", "Naftero 2.0 Turbo", "Automática 8AT", "254 CV", "10 L/100 km", "6 airbags, ABS, ESP, ADAS off-road, ISOFIX", "700 km"),
   "jetour-t2": ft("T2", "USD 54.900", "2025-vigente", "Naftero 2.0 Turbo", "Automática 8AT", "254 CV", "10,5 L/100 km", "6 airbags, ABS, ESP, ADAS off-road, ISOFIX", "680 km"),
 
-  "jmc-grand-avenue": ft("Grand Avenue", "Sin precio de referencia", "2022-vigente", "Diésel 2.0 Turbo", "Manual o automática", "163 CV", "9,5 L/100 km", "2 airbags, ABS, ESP (según versión)", "800 km"),
-  "jmc-grand-avenue-dadao-pro": ft("Grand Avenue Dadao Pro", "Sin precio de referencia", "2024-vigente", "Diésel 2.0 Turbo", "Automática", "163 CV", "9,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "800 km"),
+  "jmc-grand-avenue": ftVariantes([
+    {
+      nombre: "Grand Avenue",
+      precio: "Sin precio de referencia",
+      vigencia: "2022-vigente",
+      motor: "Diésel 2.0 Turbo",
+      transmision: "Manual o automática",
+      potencia: "163 CV",
+      consumo: "9,5 L/100 km",
+      seguridad: "2 airbags, ABS, ESP (según versión)",
+      autonomia: "800 km",
+    },
+    {
+      nombre: "Dadao Pro",
+      precio: "Sin precio de referencia",
+      vigencia: "2024-vigente",
+      motor: "Diésel 2.0 Turbo",
+      transmision: "Automática",
+      potencia: "163 CV",
+      consumo: "9,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "800 km",
+    },
+  ]),
 
   "jmev-easy-3": ft("Easy 3", "USD 18.900", "2025-vigente", "Eléctrico", "Automática", "68 CV", "12 kWh/100 km", "2 airbags, ABS, EBD, ESC, cámara 360°, ISOFIX", "330 km"),
 
-  "kaiyi-x3": ft("X3", "USD 22.000", "2026-vigente", "Naftero 1.5", "Manual o CVT", "116 CV", "6,8 L/100 km", "2 airbags, ABS, ESP, ISOFIX", "720 km"),
-  "kaiyi-x3-pro": ft("X3 PRO", "USD 26.000", "2026-vigente", "Naftero 1.5 Turbo", "Automática", "156 CV", "7,2 L/100 km", "6 airbags, ABS, ESP, ISOFIX", "700 km"),
+  "kaiyi-x3": ftVariantes([
+    {
+      nombre: "X3",
+      precio: "USD 22.000",
+      vigencia: "2026-vigente",
+      motor: "Naftero 1.5",
+      transmision: "Manual o CVT",
+      potencia: "116 CV",
+      consumo: "6,8 L/100 km",
+      seguridad: "2 airbags, ABS, ESP, ISOFIX",
+      autonomia: "720 km",
+    },
+    {
+      nombre: "X3 Pro",
+      precio: "USD 26.000",
+      vigencia: "2026-vigente",
+      motor: "Naftero 1.5 Turbo",
+      transmision: "Automática",
+      potencia: "156 CV",
+      consumo: "7,2 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ISOFIX",
+      autonomia: "700 km",
+    },
+  ]),
   "kaiyi-x7": ft("X7", "desde USD 35.000", "2026-vigente", "Híbrido 1.5 / Naftero 2.0 Turbo", "Automática", "170-238 CV", "6,5-9,0 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "800 km"),
 
   "leapmotors-c10": ft("C10", "USD 35.500", "2026-vigente", "Eléctrico con generador 1.5 (REEV)", "Automática", "215 CV", "15 kWh/100 km + extensión nafta", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.150 km combinados"),
@@ -218,8 +524,30 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "lynk-and-co-08": ft("08", "USD 63.200", "2026-vigente", "Híbrido enchufable EM-P 1.5 Turbo + eléctricos", "Automática DHT", "436 CV", "1,5 L/100 km (ciclo PHEV)", "6 airbags, ABS, ESP, ADAS nivel 2, ISOFIX", "1.200 km combinados"),
 
   "maxus-t60": ft("T60", "desde USD 28.900", "2025-vigente", "Diésel 2.0 Turbo", "Manual o automática", "163 CV", "9,5 L/100 km", "2 airbags, ABS, ESP, EBA, HHC/HDC, ISOFIX", "800 km"),
-  "maxus-t90": ft("T90", "USD 43.000", "2025-vigente", "Diésel 2.0 Turbo", "Automática", "163 CV", "9,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "800 km"),
-  "maxus-t90-ev": ft("T90 EV", "USD 72.000", "2026-vigente", "Eléctrico", "Automática", "240 CV", "25 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "400 km"),
+  "maxus-t90": ftVariantes([
+    {
+      nombre: "T90",
+      precio: "USD 43.000",
+      vigencia: "2025-vigente",
+      motor: "Diésel 2.0 Turbo",
+      transmision: "Automática",
+      potencia: "163 CV",
+      consumo: "9,5 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "800 km",
+    },
+    {
+      nombre: "T90 EV",
+      precio: "USD 72.000",
+      vigencia: "2026-vigente",
+      motor: "Eléctrico",
+      transmision: "Automática",
+      potencia: "240 CV",
+      consumo: "25 kWh/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "400 km",
+    },
+  ]),
   "maxus-d90": ft("D90", "USD 66.000", "2025-vigente", "Naftero 2.0 Turbo", "Automática", "224 CV", "10 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "700 km"),
   "maxus-eterron": ft("eterron", "USD 80.600", "2026-vigente", "Eléctrico 102,2 kWh", "Automática", "430 CV", "24 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "430 km"),
 

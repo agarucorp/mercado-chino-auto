@@ -4,7 +4,7 @@ import {
   createNews,
   deleteNews,
   fetchNews,
-  reorderNews,
+  makeNewsPrimary,
   updateNews,
   type NewsInput,
 } from "@/lib/news-api";
@@ -67,10 +67,10 @@ export function useNewsMutations() {
     onSuccess: invalidate,
   });
 
-  const reorder = useMutation({
-    mutationFn: (orderedIds: string[]) => reorderNews(orderedIds),
+  const makePrimary = useMutation({
+    mutationFn: (id: string) => makeNewsPrimary(id),
     onSuccess: invalidate,
   });
 
-  return { create, update, remove, reorder };
+  return { create, update, remove, makePrimary };
 }

@@ -18,7 +18,7 @@ import {
   rankPatentamientos,
   type DnrpaYearFilter,
 } from "@/lib/dnrpa";
-import { getModeloPath } from "@/lib/marcas";
+import { getModeloPath, resolveModeloId } from "@/lib/marcas";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -155,7 +155,7 @@ export function PatentamientosSection() {
           <ol className="space-y-2">
             {visible.map((row, index) => {
               const marca = MARCAS.find((m) => m.id === row.marcaId);
-              const modelo = marca?.modelos.find((m) => m.id === row.modeloId);
+              const modelo = marca?.modelos.find((m) => m.id === resolveModeloId(row.modeloId));
               const href =
                 marca && modelo ? getModeloPath(marca, modelo) : `/marcas/${row.marcaId}`;
               const width = Math.max(6, (row.cantidad / maxCantidad) * 100);

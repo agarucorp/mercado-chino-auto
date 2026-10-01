@@ -7,6 +7,7 @@ import {
   marcasConPatentamientos,
   rankPatentamientos,
 } from "./dnrpa";
+import { resolveModeloId } from "./marcas";
 
 const FIXTURE: DnrpaPatentamiento[] = [
   {
@@ -74,7 +75,7 @@ describe("snapshot DNRPA", () => {
     );
     expect(DNRPA_PATENTAMIENTOS.length).toBeGreaterThan(0);
     for (const row of DNRPA_PATENTAMIENTOS) {
-      expect(ids.has(row.modeloId)).toBe(true);
+      expect(ids.has(resolveModeloId(row.modeloId))).toBe(true);
     }
   });
 });

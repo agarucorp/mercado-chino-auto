@@ -167,11 +167,26 @@ export async function deleteNews(id: string): Promise<void> {
 }
 
 /**
- * Persiste el orden del drag & drop en una sola llamada atómica: mover una
- * card cambia la posición de todas las que quedan en el medio, y hacerlo con
- * un UPDATE por fila puede dejar el orden a medio aplicar si algo falla.
+ * Pone una nota primera en el radar: mismo truco que usa createNews (position
+ * = mínimo actual - 1). Un solo UPDATE, no hace falta ninguna función en la
+ * base ni tocar la posición de las demás notas.
  */
-export async function reorderNews(orderedIds: string[]): Promise<void> {
-  const { error } = await client().rpc("reorder_news", { ids: orderedIds });
+export async function makeNewsPrimary(id: string): Promise<void> {
+  const db = client();
+
+  const { data: top, error: topError } = await db
+    .from("news")
+    .select("position")
+    .order("position", { ascending: true })
+    .limit(1);
+
+  if (topError) throw new Error(topError.message);
+
+  const currentMin = top?.[0]?.position ?? 0;
+  const { error } = await db
+    .from("news")
+    .update({ position: currentMin - 1 })
+    .eq("id", id);
+
   if (error) throw new Error(error.message);
 }

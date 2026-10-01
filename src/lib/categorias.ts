@@ -1,4 +1,5 @@
 import { MARCAS } from "@/data/marcas";
+import { getFichaTecnica } from "@/data/modelo-media";
 import type { Marca, Modelo } from "@/types/marcas";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -181,8 +182,23 @@ export function getCategoriasDeModelo(nombre: string): CategoriaSlug[] {
   return Array.from(cats);
 }
 
+function categoriasDesdeFicha(modeloId: string): CategoriaSlug[] {
+  const motor =
+    getFichaTecnica(modeloId)
+      .find((row) => row.label === "Tipo de motor")
+      ?.value.toLowerCase() ?? "";
+  const cats: CategoriaSlug[] = [];
+  if (motor.includes("eléctric") || motor.includes("electric")) cats.push("electrico");
+  if (/híbrid|hibrid|phev|hev|mhev|reev|enchufable/.test(motor)) cats.push("hibrido");
+  return cats;
+}
+
 export function modeloEnCategoria(modelo: Modelo, categoria: CategoriaSlug): boolean {
-  return getCategoriasDeModelo(modelo.nombre).includes(categoria);
+  const cats = new Set([
+    ...getCategoriasDeModelo(modelo.nombre),
+    ...categoriasDesdeFicha(modelo.id),
+  ]);
+  return cats.has(categoria);
 }
 
 export function getCategoriasConConteo(): Array<CategoriaInfo & { count: number }> {
@@ -194,7 +210,10 @@ export function getCategoriasConConteo(): Array<CategoriaInfo & { count: number 
 
   for (const marca of MARCAS) {
     for (const modelo of marca.modelos) {
-      for (const cat of getCategoriasDeModelo(modelo.nombre)) {
+      for (const cat of new Set([
+        ...getCategoriasDeModelo(modelo.nombre),
+        ...categoriasDesdeFicha(modelo.id),
+      ])) {
         counts.set(cat, (counts.get(cat) ?? 0) + 1);
       }
     }

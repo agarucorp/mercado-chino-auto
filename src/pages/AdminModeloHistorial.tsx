@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MARCAS } from "@/data/marcas";
 import { useNews, useNewsMutations } from "@/hooks/useNews";
-import { getModeloPath } from "@/lib/marcas";
+import { getModeloPath, resolveModeloId } from "@/lib/marcas";
 import type { NewsInput } from "@/lib/news-api";
 import { newsMatchesModelo } from "@/lib/news-placement";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
@@ -28,7 +28,9 @@ function AdminModeloHistorialInner() {
   const { create, update, remove } = useNewsMutations();
 
   const marca = MARCAS.find((m) => m.id === marcaId);
-  const modelo = marca?.modelos.find((m) => m.id === modeloId);
+  const modelo = marca?.modelos.find(
+    (m) => modeloId && m.id === resolveModeloId(modeloId),
+  );
 
   const historial = useMemo(
     () =>

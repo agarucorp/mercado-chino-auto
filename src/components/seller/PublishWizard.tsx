@@ -35,7 +35,6 @@ import {
   syncCompletedSteps,
   type DraftFieldKey,
   type ListingDraft,
-  type PublishPlanId,
   type PublishStepId,
 } from "@/lib/listing-draft";
 import {
@@ -145,7 +144,7 @@ function StepIssues({ issues }: { issues: string[] }) {
 export function PublishWizard() {
   const [draft, setDraft] = useState<ListingDraft>(() => {
     if (typeof window === "undefined") return { ...EMPTY_DRAFT };
-    return loadListingDraft();
+    return { ...loadListingDraft(), planId: "basico" };
   });
   const [activeStep, setActiveStep] = useState<PublishStepId>("plan");
   const [hydrated, setHydrated] = useState(false);
@@ -180,8 +179,9 @@ export function PublishWizard() {
   // Hidratación: borrador de localStorage + blobs de las fotos desde IndexedDB.
   useEffect(() => {
     let cancelled = false;
-    const stored = syncCompletedSteps(loadListingDraft());
+    const stored = syncCompletedSteps({ ...loadListingDraft(), planId: "basico" });
     setDraft(stored);
+    saveListingDraft(stored);
     setActiveStep(currentStep(stored));
     setHydrated(true);
 
@@ -462,39 +462,37 @@ export function PublishWizard() {
         <section id="publish-step-plan" className="scroll-mt-28 space-y-6">
           <header>
             <p className="type-meta text-muted-foreground">Etapa 1</p>
-            <h2 className="type-h2 text-foreground mt-1">Elegí el plan de publicación</h2>
+            <h2 className="type-h2 text-foreground mt-1">Plan de publicación</h2>
             <p className="type-body text-muted-foreground mt-2 max-w-xl">
-              Empezá por el alcance de tu aviso. Podés cambiar de plan más adelante antes de enviar.
+              Por ahora publicás con el plan Básico. Destacado y Premium van a estar disponibles más adelante.
             </p>
           </header>
 
           <div id="pub-plan" className="grid sm:grid-cols-3 gap-4">
             {PUBLISH_PLANS.map((plan) => {
-              const selected = draft.planId === plan.id;
-              const planMissing = invalid("plan", "planId");
+              const available = plan.id === "basico";
+              const selected = available && draft.planId === plan.id;
               return (
-                <button
+                <div
                   key={plan.id}
-                  type="button"
-                  onClick={() => update({ planId: plan.id as PublishPlanId })}
-                  aria-pressed={selected}
+                  aria-disabled={!available}
                   className={cn(
-                    "text-left rounded-xl border p-5 transition-colors flex flex-col gap-3",
-                    selected
+                    "text-left rounded-xl border p-5 flex flex-col gap-3",
+                    available
                       ? "border-foreground bg-muted/40"
-                      : planMissing
-                        ? "border-destructive hover:border-destructive"
-                        : "border-border hover:border-foreground/40",
+                      : "border-border opacity-60 cursor-not-allowed",
                   )}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="type-h3 text-foreground">{plan.name}</p>
-                      <p className="type-meta text-muted-foreground mt-1">{plan.priceLabel}</p>
+                      <p className="type-meta text-muted-foreground mt-1">
+                        {available ? plan.priceLabel : "Próximamente"}
+                      </p>
                     </div>
-                    {plan.recommended && (
+                    {selected && (
                       <span className="type-meta shrink-0 rounded-full border border-border px-2 py-0.5">
-                        Popular
+                        Incluido
                       </span>
                     )}
                   </div>
@@ -507,7 +505,7 @@ export function PublishWizard() {
                       </li>
                     ))}
                   </ul>
-                </button>
+                </div>
               );
             })}
           </div>

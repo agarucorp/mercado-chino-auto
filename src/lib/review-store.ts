@@ -1,4 +1,5 @@
 import { REVIEWS_DATA, type ModeloReviewStats, type Review, type ReviewReply } from "@/data/reviews";
+import { resolveModeloId } from "@/lib/marcas";
 
 const USER_REVIEWS_KEY = "auchar-user-reviews";
 const REVIEW_OVERLAYS_KEY = "auchar-review-overlays";
@@ -94,7 +95,11 @@ export function getMergedReviewById(reviewId: string): Review | undefined {
 export function getMergedReviewsByModelo(marcaId: string, modeloId: string): Review[] {
   const overlays = readOverlays();
   return getAllReviewsRaw()
-    .filter((r) => r.marcaId === marcaId && r.modeloId === modeloId)
+    .filter(
+      (r) =>
+        r.marcaId === marcaId &&
+        resolveModeloId(r.modeloId ?? "") === resolveModeloId(modeloId),
+    )
     .map((r) => applyOverlay(r, overlays[r.id]))
     .sort((a, b) => b.sortDate.localeCompare(a.sortDate));
 }

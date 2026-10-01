@@ -16,9 +16,8 @@ import { MARCAS } from "@/data/marcas";
 import { useNews, useNewsMutations } from "@/hooks/useNews";
 import type { NewsInput } from "@/lib/news-api";
 import { isBrandWideNews, isGeneralNews } from "@/lib/news-placement";
-import { arrayMove } from "@dnd-kit/sortable";
-import { ArrowDown, ArrowUp, Loader2, Plus } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Loader2, Plus, Star } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -33,39 +32,9 @@ function modeloLabel(article: NewsArticle): string {
 
 function AdminNoticiasInner() {
   const { data: news = [], isLoading, isError, error } = useNews();
-  const { create, update, remove, reorder } = useNewsMutations();
+  const { create, update, remove, makePrimary } = useNewsMutations();
 
-  const publishedIdsKey = useMemo(
-    () =>
-      news
-        .filter((n) => n.published !== false)
-        .map((n) => n.id)
-        .join("|"),
-    [news],
-  );
-
-  /** Orden pendiente en el panel; null = igual que la base. */
-  const [draftOrder, setDraftOrder] = useState<string[] | null>(null);
-
-  // Si el set publicado cambia desde afuera (alta/baja), descartamos el draft.
-  useEffect(() => {
-    setDraftOrder(null);
-  }, [publishedIdsKey]);
-
-  const radar = useMemo(() => {
-    const published = news.filter((n) => n.published !== false);
-    if (!draftOrder) return published;
-
-    const byId = new Map(published.map((n) => [n.id, n]));
-    const ordered = draftOrder
-      .map((id) => byId.get(id))
-      .filter((n): n is NewsArticle => Boolean(n));
-    const seen = new Set(ordered.map((n) => n.id));
-    const missing = published.filter((n) => !seen.has(n.id));
-    return [...ordered, ...missing];
-  }, [news, draftOrder]);
-
-  const orderDirty = draftOrder !== null;
+  const radar = news.filter((n) => n.published !== false);
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<NewsArticle | null>(null);
@@ -91,24 +60,11 @@ function AdminNoticiasInner() {
     }
   };
 
-  const move = (article: NewsArticle, direction: -1 | 1) => {
-    const ids = radar.map((n) => n.id);
-    const index = ids.indexOf(article.id);
-    const target = index + direction;
-    if (index < 0 || target < 0 || target >= ids.length) return;
-    setDraftOrder(arrayMove(ids, index, target));
-  };
-
-  const saveOrder = () => {
-    if (!draftOrder) return;
-    const archived = news.filter((n) => n.published === false).map((n) => n.id);
-    reorder.mutate([...draftOrder, ...archived], {
-      onSuccess: () => {
-        setDraftOrder(null);
-        toast.success("Orden guardado. Ya se ve en el sitio.");
-      },
+  const handleMakePrimary = (article: NewsArticle) => {
+    makePrimary.mutate(article.id, {
+      onSuccess: () => toast.success("Ahora es la principal."),
       onError: (err) =>
-        toast.error(err instanceof Error ? err.message : "No se pudo guardar el orden."),
+        toast.error(err instanceof Error ? err.message : "No se pudo guardar."),
     });
   };
 
@@ -142,44 +98,14 @@ function AdminNoticiasInner() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="type-h1 text-foreground">Noticias</h1>
-          <p className="type-body text-muted-foreground mt-3 max-w-2xl">
-            Esto es lo que ve la gente en el radar. Subí o bajá notas y después guardá el
-            orden. Si la nota tiene marca o modelo, al quitarla no se borra: pasa al
-            historial. Si es No aplica, al quitarla se elimina.
-          </p>
-        </div>
-        {orderDirty && (
-          <div className="flex flex-wrap gap-2 shrink-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDraftOrder(null)}
-              disabled={reorder.isPending}
-            >
-              Descartar orden
-            </Button>
-            <Button type="button" onClick={saveOrder} disabled={reorder.isPending}>
-              {reorder.isPending && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden />
-              )}
-              Guardar cambios
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {orderDirty && (
-        <p
-          role="status"
-          className="mt-4 rounded-lg border border-border bg-muted/40 px-4 py-3 type-body-sm text-foreground"
-        >
-          Hay cambios de orden sin guardar. El sitio público no cambia hasta que pulses
-          Guardar cambios.
+      <div>
+        <h1 className="type-h1 text-foreground">Noticias</h1>
+        <p className="type-body text-muted-foreground mt-3 max-w-2xl">
+          Esto es lo que ve la gente en el radar. Las nuevas entran primero; marcá "Principal"
+          en cualquier nota para pasarla al frente. Si la nota tiene marca o modelo, al
+          quitarla no se borra: pasa al historial. Si es No aplica, al quitarla se elimina.
         </p>
-      )}
+      </div>
 
       <div className="rounded-xl border border-border p-4 md:p-5 mt-8 space-y-3">
         <p className="type-h3 text-foreground">Nueva noticia</p>
@@ -221,8 +147,13 @@ function AdminNoticiasInner() {
             key={article.id}
             className="rounded-xl border border-border p-4 flex gap-4 items-start"
           >
-            <div className="w-24 shrink-0 aspect-[16/10] rounded-lg overflow-hidden bg-muted">
+            <div className="relative w-24 shrink-0 aspect-[16/10] rounded-lg overflow-hidden bg-muted">
               <img src={article.image} alt="" className="h-full w-full object-cover" />
+              {index === 0 && (
+                <span className="absolute left-1 top-1 type-meta rounded-full bg-foreground/85 text-background px-1.5 py-0.5 text-[10px]">
+                  Principal
+                </span>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <p className="type-meta text-muted-foreground">{modeloLabel(article)}</p>
@@ -243,21 +174,15 @@ function AdminNoticiasInner() {
                   type="button"
                   size="sm"
                   variant="outline"
-                  disabled={index === 0 || reorder.isPending}
-                  onClick={() => move(article, -1)}
-                  aria-label="Subir"
+                  disabled={index === 0 || makePrimary.isPending}
+                  onClick={() => handleMakePrimary(article)}
                 >
-                  <ArrowUp className="h-3.5 w-3.5" aria-hidden />
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={index === radar.length - 1 || reorder.isPending}
-                  onClick={() => move(article, 1)}
-                  aria-label="Bajar"
-                >
-                  <ArrowDown className="h-3.5 w-3.5" aria-hidden />
+                  {makePrimary.isPending && makePrimary.variables === article.id ? (
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" aria-hidden />
+                  ) : (
+                    <Star className="h-3.5 w-3.5 mr-1.5" aria-hidden />
+                  )}
+                  Principal
                 </Button>
                 <Button
                   type="button"

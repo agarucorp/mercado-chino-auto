@@ -37,7 +37,7 @@ describe("newsMatchesModelo", () => {
       newsMatchesModelo({ marcaId: "byd", modeloId: "byd-dolphin-mini" }, "byd", "byd-song-pro"),
     ).toBe(false);
     expect(
-      newsMatchesModelo({ marcaId: "chery", modeloId: undefined }, "byd", "byd-song-pro"),
-    ).toBe(false);
+      newsMatchesModelo({ marcaId: "baic", modeloId: "baic-eu5-plus" }, "baic", "baic-eu5"),
+    ).toBe(true);
   });
 });
