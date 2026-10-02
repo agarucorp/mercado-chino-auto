@@ -133,10 +133,15 @@ export function createReview(input: CreateReviewInput): Review {
   return review;
 }
 
+/** Likes y respuestas siguen en este navegador. El texto vive en la base. */
+export function withLocalOverlays(reviews: Review[]): Review[] {
+  const overlays = readOverlays();
+  return reviews.map((review) => applyOverlay(review, overlays[review.id]));
+}
+
 export function toggleReviewLike(reviewId: string): { likes: number; liked: boolean } {
   const overlays = readOverlays();
   const base = getAllReviewsRaw().find((r) => r.id === reviewId);
-  if (!base) return { likes: 0, liked: false };
 
   const current = overlays[reviewId] ?? { extraLikes: 0, likedByUser: false, replies: [] };
   const liked = !current.likedByUser;
@@ -145,7 +150,7 @@ export function toggleReviewLike(reviewId: string): { likes: number; liked: bool
   overlays[reviewId] = { ...current, extraLikes, likedByUser: liked };
   writeOverlays(overlays);
 
-  return { likes: base.likes + extraLikes, liked };
+  return { likes: (base?.likes ?? 0) + extraLikes, liked };
 }
 
 export function addReviewReply(reviewId: string, input: CreateReplyInput): ReviewReply | null {

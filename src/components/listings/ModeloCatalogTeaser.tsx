@@ -2,7 +2,7 @@ import { MarcaLogo } from "@/components/brands/MarcaLogo";
 import { Button } from "@/components/ui/button";
 import type { Listing } from "@/data/listings";
 import { getModeloImage } from "@/data/modelo-media";
-import { getMergedReviewsByModelo } from "@/lib/review-store";
+import { useReviews } from "@/hooks/useReviews";
 import { MARCAS } from "@/data/marcas";
 import { getModeloPath } from "@/lib/marcas";
 import type { Marca, Modelo } from "@/types/marcas";
@@ -26,10 +26,10 @@ function findMarcaModelo(
 
 export function ModeloCatalogTeaser({ listing }: ModeloCatalogTeaserProps) {
   const match = findMarcaModelo(listing);
+  const { reviews: resenas } = useReviews(match?.marca.id ?? "", match?.modelo.id ?? "");
   if (!match) return null;
 
   const { marca, modelo } = match;
-  const resenas = getMergedReviewsByModelo(marca.id, modelo.id);
   const modeloPath = getModeloPath(marca, modelo);
   const avgRating =
     resenas.length > 0

@@ -32,11 +32,20 @@ export function ReviewsSection({
     rating: number;
     content: string;
   }) => {
-    submitReview({ ...data, brand, model });
-    toast({
-      title: "Reseña publicada",
-      description: "Gracias por compartir tu experiencia.",
-    });
+    void submitReview({ ...data, brand, model })
+      .then(() => {
+        toast({
+          title: "Reseña publicada",
+          description: "Gracias por compartir tu experiencia.",
+        });
+      })
+      .catch((err: unknown) => {
+        toast({
+          title: "No se pudo publicar",
+          description: err instanceof Error ? err.message : "Intentá de nuevo en un momento.",
+          variant: "destructive",
+        });
+      });
   };
 
   const handleReply = (

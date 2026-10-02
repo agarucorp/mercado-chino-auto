@@ -77,6 +77,23 @@ export type AdminRow = {
   created_at: string;
 }
 
+export type ReviewRow = {
+  id: string;
+  marca_id: string;
+  modelo_id: string;
+  brand: string;
+  model: string;
+  year: number;
+  first_name: string;
+  last_name: string;
+  author: string;
+  rating: number;
+  content: string;
+  likes: number;
+  created_at: string;
+  updated_at: string;
+}
+
 /**
  * En un INSERT solo son obligatorias las columnas NOT NULL sin default.
  * `Required` lista esas; todo el resto lo completa la base.
@@ -125,6 +142,24 @@ export type Database = {
         Row: AdminRow;
         Insert: InsertOf<AdminRow, "user_id" | "email">;
         Update: Partial<AdminRow>;
+        Relationships: [];
+      };
+      reviews: {
+        Row: ReviewRow;
+        Insert: InsertOf<
+          ReviewRow,
+          | "marca_id"
+          | "modelo_id"
+          | "brand"
+          | "model"
+          | "year"
+          | "first_name"
+          | "last_name"
+          | "author"
+          | "rating"
+          | "content"
+        >;
+        Update: Partial<ReviewRow>;
         Relationships: [];
       };
     };
