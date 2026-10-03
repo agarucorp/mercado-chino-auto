@@ -175,7 +175,7 @@ export const MARCAS: Marca[] = [
     ["T60", "Vigente"],
     ["T90", "Vigente"],
     ["D90", "Vigente"],
-    ["eterron", "Vigente"],
+    ["eTERRON", "Vigente"],
   ]),
   marca("MG", 2026, "GRUPO EXIMAR", [
     ["MG3 HEV", "Vigente"],
