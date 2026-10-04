@@ -39,7 +39,8 @@ export type ListingRow = {
   version: string | null;
   year: number;
   km: number;
-  price: number;
+  price: number | null;
+  price_on_request: boolean;
   currency: "ARS" | "USD";
   fuel: string;
   transmission: string;
@@ -118,7 +119,6 @@ export type Database = {
           | "modelo_id"
           | "year"
           | "km"
-          | "price"
           | "fuel"
           | "transmission"
           | "location"

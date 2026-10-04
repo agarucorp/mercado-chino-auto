@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -73,7 +74,8 @@ function formFromListing(listing: AdminListing): SolicitudForm {
     modeloId: listing.modeloId ?? "",
     year: String(listing.year),
     km: String(listing.km),
-    price: String(listing.price),
+    price: listing.priceOnRequest ? "" : String(listing.price),
+    priceOnRequest: Boolean(listing.priceOnRequest),
     currency: listing.currency ?? "ARS",
     fuel: listing.fuel,
     transmission: normalizeTransmission(listing.transmission),
@@ -483,6 +485,7 @@ function AdminSolicitudDetailInner() {
               <Select
                 value={form.currency}
                 onValueChange={(currency) => update({ currency: currency as "ARS" | "USD" })}
+                disabled={form.priceOnRequest}
               >
                 <SelectTrigger className="w-24" aria-label="Moneda">
                   <SelectValue />
@@ -496,8 +499,25 @@ function AdminSolicitudDetailInner() {
                 id="sol-price"
                 inputMode="numeric"
                 value={form.price}
+                disabled={form.priceOnRequest}
+                placeholder={form.priceOnRequest ? "A consultar" : undefined}
                 onChange={(e) => update({ price: e.target.value.replace(/[^\d.]/g, "") })}
               />
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <Checkbox
+                id="sol-price-consult"
+                checked={form.priceOnRequest}
+                onCheckedChange={(checked) =>
+                  update({
+                    priceOnRequest: checked === true,
+                    price: checked === true ? "" : form.price,
+                  })
+                }
+              />
+              <Label htmlFor="sol-price-consult" className="font-normal">
+                A consultar
+              </Label>
             </div>
           </Field>
           <Field id="sol-plan" label="Plan">

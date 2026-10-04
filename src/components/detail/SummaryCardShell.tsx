@@ -1,6 +1,29 @@
 import { cn } from "@/lib/utils";
 import { Heart, Share2 } from "lucide-react";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
+
+async function copyPageUrl(url: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(url);
+    return true;
+  } catch {
+    try {
+      const input = document.createElement("textarea");
+      input.value = url;
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.left = "-9999px";
+      document.body.appendChild(input);
+      input.select();
+      const ok = document.execCommand("copy");
+      input.remove();
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
 
 interface SummaryCardShellProps {
   title: string;
@@ -17,6 +40,22 @@ export function SummaryCardShell({
   className,
   showActions = true,
 }: SummaryCardShellProps) {
+  const sharePage = async () => {
+    const url = window.location.href;
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+      }
+    }
+
+    const copied = await copyPageUrl(url);
+    if (copied) toast.success("Enlace copiado");
+    else toast.error("No se pudo copiar el enlace", { description: url });
+  };
+
   return (
     <div
       className={cn(
@@ -41,6 +80,7 @@ export function SummaryCardShell({
               type="button"
               className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               aria-label="Compartir"
+              onClick={() => void sharePage()}
             >
               <Share2 className="w-4 h-4" />
             </button>

@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -57,6 +58,7 @@ const EMPTY_FORM: SolicitudForm = {
   year: "",
   km: "",
   price: "",
+  priceOnRequest: false,
   currency: "ARS",
   fuel: "",
   transmission: "",
@@ -331,7 +333,11 @@ export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionD
             </Field>
             <Field id="new-price" label="Precio">
               <div className="flex gap-2">
-                <Select value={form.currency} onValueChange={(currency) => update({ currency: currency as "ARS" | "USD" })}>
+                <Select
+                  value={form.currency}
+                  onValueChange={(currency) => update({ currency: currency as "ARS" | "USD" })}
+                  disabled={form.priceOnRequest}
+                >
                   <SelectTrigger className="w-24" aria-label="Moneda">
                     <SelectValue />
                   </SelectTrigger>
@@ -344,8 +350,25 @@ export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionD
                   id="new-price"
                   inputMode="numeric"
                   value={form.price}
+                  disabled={form.priceOnRequest}
+                  placeholder={form.priceOnRequest ? "A consultar" : undefined}
                   onChange={(e) => update({ price: e.target.value.replace(/[^\d.]/g, "") })}
                 />
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Checkbox
+                  id="new-price-consult"
+                  checked={form.priceOnRequest}
+                  onCheckedChange={(checked) =>
+                    update({
+                      priceOnRequest: checked === true,
+                      price: checked === true ? "" : form.price,
+                    })
+                  }
+                />
+                <Label htmlFor="new-price-consult" className="font-normal">
+                  A consultar
+                </Label>
               </div>
             </Field>
             <Field id="new-plan" label="Plan">

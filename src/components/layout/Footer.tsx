@@ -22,7 +22,13 @@ const footerLinks = {
   ],
 };
 
-const socialLinks = [{ icon: Instagram, href: "#", label: "Instagram" }];
+const socialLinks = [
+  {
+    icon: Instagram,
+    href: "https://www.instagram.com/autosdechinaenargentina/",
+    label: "Instagram",
+  },
+];
 
 export const Footer = () => {
   return (
@@ -39,6 +45,8 @@ export const Footer = () => {
                 <a
                   key={label}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-10 h-10 rounded-full bg-accent-foreground/10 hover:bg-accent-foreground/20 flex items-center justify-center transition-colors"
                 >

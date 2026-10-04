@@ -13,7 +13,7 @@ import {
 import { ListingSidebar } from "@/components/listings/ListingSidebar";
 import { ModeloCatalogTeaser } from "@/components/listings/ModeloCatalogTeaser";
 import { Layout } from "@/components/layout/Layout";
-import { formatKm, formatPrice, getRelatedListings } from "@/data/listings";
+import { formatKm, formatListingPrice, getRelatedListings } from "@/data/listings";
 import { useApprovedListings, useListing } from "@/hooks/useListings";
 import { ArrowLeft } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
@@ -106,7 +106,7 @@ const ClasificadoDetail = () => {
                           {item.year} {item.title}
                         </h3>
                         <p className="type-numeric font-semibold text-primary mt-1">
-                          {formatPrice(item.price, item.currency ?? "ARS")}
+                          {formatListingPrice(item)}
                         </p>
                         <p className="type-meta text-muted-foreground mt-1">
                           {formatKm(item.km)} · {item.location}

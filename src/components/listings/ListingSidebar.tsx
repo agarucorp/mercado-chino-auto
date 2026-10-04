@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Listing } from "@/data/listings";
-import { formatKm, formatPrice } from "@/data/listings";
+import { formatKm, formatListingPrice } from "@/data/listings";
 import { cn } from "@/lib/utils";
 import { Fuel, Gauge, MapPin, MessageCircle, Settings2, TriangleAlert } from "lucide-react";
 
@@ -35,7 +35,7 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
     <SummaryCardShell title={headline} className={className}>
       <div>
         <p className="type-numeric text-2xl sm:text-3xl font-bold text-foreground">
-          {formatPrice(listing.price, listing.currency ?? "ARS")}
+          {formatListingPrice(listing)}
         </p>
         <p className="type-meta text-muted-foreground mt-1 flex items-center gap-1">
           <MapPin className="w-3.5 h-3.5 shrink-0" />

@@ -1,7 +1,7 @@
 import { AdminShell } from "@/components/admin/AdminShell";
 import { NuevaPublicacionDialog } from "@/components/admin/NuevaPublicacionDialog";
 import { Button } from "@/components/ui/button";
-import { formatKm, formatPrice } from "@/data/listings";
+import { formatKm, formatListingPrice } from "@/data/listings";
 import { useUnseenSolicitudIds } from "@/lib/admin-solicitudes";
 import { ADMIN_LISTINGS_KEY, APPROVED_LISTINGS_KEY, useAdminListings } from "@/hooks/useListings";
 import { setHomePick, setWeeklyPick, type AdminListing } from "@/lib/listings-api";
@@ -194,7 +194,7 @@ function AdminPublicacionesInner() {
                     {listing.year} {listing.title}
                   </h2>
                   <p className="type-numeric font-semibold mt-1">
-                    {formatPrice(listing.price, listing.currency ?? "ARS")}
+                    {formatListingPrice(listing)}
                   </p>
                   <p className="type-meta text-muted-foreground mt-1">
                     {formatKm(listing.km)} · {listing.fuel} · {listing.location}

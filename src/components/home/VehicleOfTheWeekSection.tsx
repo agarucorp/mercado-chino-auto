@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { formatKm, formatPrice } from "@/data/listings";
+import { formatKm, formatListingPrice } from "@/data/listings";
 import { useApprovedListings } from "@/hooks/useListings";
 import { Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -35,7 +35,7 @@ export function VehicleOfTheWeekSection() {
             <div>
               <h3 className="type-h3 text-foreground">{headline}</h3>
               <p className="type-numeric text-xl font-semibold text-foreground mt-2">
-                {formatPrice(listing.price, listing.currency ?? "ARS")}
+                {formatListingPrice(listing)}
               </p>
             </div>
 

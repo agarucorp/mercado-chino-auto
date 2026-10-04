@@ -13,6 +13,7 @@ export type SolicitudForm = {
   year: string;
   km: string;
   price: string;
+  priceOnRequest: boolean;
   currency: "ARS" | "USD";
   fuel: string;
   transmission: string;
@@ -76,7 +77,7 @@ export function getSolicitudFormIssues(form: SolicitudForm): string[] {
   if (!form.modeloId) issues.push("Falta el modelo.");
   if (!/^\d{4}$/.test(form.year)) issues.push("El año no es válido.");
   if (!/^\d+$/.test(form.km)) issues.push("El kilometraje no es válido.");
-  if (!/^\d+(\.\d+)?$/.test(form.price) || Number(form.price) <= 0) {
+  if (!form.priceOnRequest && (!/^\d+(\.\d+)?$/.test(form.price) || Number(form.price) <= 0)) {
     issues.push("El precio no es válido.");
   }
   if (!form.fuel) issues.push("Falta el combustible.");
@@ -98,7 +99,8 @@ export function buildListingReviewPatch(form: SolicitudForm): ListingReviewPatch
     modelo_id: form.modeloId,
     year: Number(form.year),
     km: Number(form.km),
-    price: Number(form.price),
+    price: form.priceOnRequest ? null : Number(form.price),
+    price_on_request: form.priceOnRequest,
     currency: form.currency,
     fuel: form.fuel,
     transmission: form.transmission,

@@ -9,6 +9,7 @@ const valid: SolicitudForm = {
   year: "2024",
   km: "12000",
   price: "35000000",
+  priceOnRequest: false,
   currency: "ARS",
   fuel: "Híbrido",
   transmission: "Automática",
@@ -29,6 +30,7 @@ describe("admin solicitudes", () => {
       "El título es demasiado corto.",
     );
     expect(getSolicitudFormIssues({ ...valid, price: "0" })).toContain("El precio no es válido.");
+    expect(getSolicitudFormIssues({ ...valid, price: "", priceOnRequest: true })).toEqual([]);
     expect(getSolicitudFormIssues(valid)).toEqual([]);
   });
 
@@ -41,6 +43,7 @@ describe("admin solicitudes", () => {
       year: 2024,
       km: 12000,
       price: 35000000,
+      price_on_request: false,
       currency: "ARS",
       fuel: "Híbrido",
       transmission: "Automática",

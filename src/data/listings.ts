@@ -36,6 +36,8 @@ export interface Listing {
   equipment: string[];
   seller: ListingSeller;
   currency?: "ARS" | "USD";
+  /** Precio no publicado: en la ficha se muestra "A consultar". */
+  priceOnRequest?: boolean;
   plan?: "basico" | "destacado" | "premium";
   status?: "pendiente" | "aprobada" | "rechazada" | "archivada";
   sellerEmail?: string;
@@ -451,12 +453,21 @@ export function getListingsByModelo(marcaId: string, modeloId: string) {
   );
 }
 
+export const PRICE_ON_REQUEST_LABEL = "A consultar";
+
 export const formatPrice = (price: number, currency: "ARS" | "USD" = "ARS") =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
   }).format(price);
+
+export function formatListingPrice(
+  listing: Pick<Listing, "price" | "currency" | "priceOnRequest">,
+): string {
+  if (listing.priceOnRequest) return PRICE_ON_REQUEST_LABEL;
+  return formatPrice(listing.price, listing.currency ?? "ARS");
+}
 
 export const formatKm = (km: number) =>
   new Intl.NumberFormat("es-AR").format(km) + " km";

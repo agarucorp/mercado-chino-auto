@@ -1,4 +1,4 @@
-import { formatKm, formatPrice } from "@/data/listings";
+import { formatKm, formatListingPrice } from "@/data/listings";
 import { useApprovedListings } from "@/hooks/useListings";
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
@@ -41,7 +41,7 @@ export function LatestListingsPreview() {
                   {listing.year} {listing.title}
                 </h3>
                 <p className="type-numeric font-semibold text-primary mt-1">
-                  {formatPrice(listing.price, listing.currency ?? "ARS")}
+                  {formatListingPrice(listing)}
                 </p>
                 <p className="type-meta text-muted-foreground mt-1">{formatKm(listing.km)}</p>
                 <p className="type-meta text-muted-foreground flex items-center gap-1 mt-0.5">

@@ -25,7 +25,8 @@ export function rowToListing(
     id: row.id,
     title: row.title,
     version: row.version ?? "",
-    price: Number(row.price),
+    price: row.price == null ? 0 : Number(row.price),
+    priceOnRequest: row.price_on_request === true,
     year: row.year,
     km: row.km,
     fuel: row.fuel,
@@ -362,7 +363,8 @@ export type ListingReviewPatch = {
   modelo_id?: string;
   year?: number;
   km?: number;
-  price?: number;
+  price?: number | null;
+  price_on_request?: boolean;
   currency?: "ARS" | "USD";
   fuel?: string;
   transmission?: string;
@@ -413,7 +415,8 @@ export interface NewListingInput {
   modelo_id: string;
   year: number;
   km: number;
-  price: number;
+  price: number | null;
+  price_on_request: boolean;
   currency: "ARS" | "USD";
   fuel: string;
   transmission: string;

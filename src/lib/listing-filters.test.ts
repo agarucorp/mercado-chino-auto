@@ -78,4 +78,17 @@ describe("matchesListingFilters", () => {
       matchesListingFilters(listing({ price: 10_000, currency: "USD" }), filters, RATE),
     ).toBe(true);
   });
+
+  it("deja afuera un aviso a consultar cuando hay rango de precio", () => {
+    const filters = {
+      ...EMPTY_LISTING_FILTERS,
+      priceMin: "1",
+    };
+    expect(
+      matchesListingFilters(listing({ priceOnRequest: true, price: 0 }), filters, RATE),
+    ).toBe(false);
+    expect(
+      matchesListingFilters(listing({ priceOnRequest: true, price: 0 }), EMPTY_LISTING_FILTERS, RATE),
+    ).toBe(true);
+  });
 });

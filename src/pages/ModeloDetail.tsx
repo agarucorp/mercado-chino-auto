@@ -9,7 +9,7 @@ import { ListingSpecTable } from "@/components/listings/ListingDetailSections";
 import { ReviewsSection } from "@/components/reviews/ReviewsSection";
 import { Layout } from "@/components/layout/Layout";
 import { NewsCard } from "@/components/news/NewsCard";
-import { formatKm, formatPrice } from "@/data/listings";
+import { formatKm, formatListingPrice } from "@/data/listings";
 import { useApprovedListings } from "@/hooks/useListings";
 import { useNewsByModelo } from "@/hooks/useNews";
 import { getFichaTecnica, getModeloImages } from "@/data/modelo-media";
@@ -138,7 +138,7 @@ const ModeloDetail = () => {
                               {l.year} {l.title}
                             </h3>
                             <p className="type-numeric font-semibold text-primary mt-2">
-                              {formatPrice(l.price, l.currency ?? "ARS")}
+                              {formatListingPrice(l)}
                             </p>
                             <p className="type-meta text-muted-foreground mt-2 flex items-center gap-3">
                               <span>{formatKm(l.km)}</span>

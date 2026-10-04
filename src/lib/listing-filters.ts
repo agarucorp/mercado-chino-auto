@@ -29,10 +29,11 @@ export const EMPTY_LISTING_FILTERS: ListingFilters = {
 };
 
 export function listingPriceIn(
-  listing: Pick<Listing, "price" | "currency">,
+  listing: Pick<Listing, "price" | "currency" | "priceOnRequest">,
   currency: PriceCurrency,
   usdArs: number,
 ): number {
+  if (listing.priceOnRequest) return Number.NaN;
   const from = listing.currency ?? "ARS";
   if (from === currency) return listing.price;
   if (!Number.isFinite(usdArs) || usdArs <= 0) return listing.price;
@@ -77,8 +78,13 @@ export function matchesListingFilters(
   if (!matchesTransmission(listing.transmission, filters.transmission)) return false;
   if (!inRange(listing.km, filters.kmMin, filters.kmMax)) return false;
 
-  const price = listingPriceIn(listing, filters.priceCurrency, usdArs);
-  if (!inRange(price, filters.priceMin, filters.priceMax)) return false;
+  const filteringPrice = filters.priceMin.trim() !== "" || filters.priceMax.trim() !== "";
+  if (listing.priceOnRequest) {
+    if (filteringPrice) return false;
+  } else {
+    const price = listingPriceIn(listing, filters.priceCurrency, usdArs);
+    if (!inRange(price, filters.priceMin, filters.priceMax)) return false;
+  }
 
   return true;
 }

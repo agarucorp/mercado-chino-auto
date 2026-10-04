@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatKm, formatPrice, type Listing } from "@/data/listings";
+import { formatKm, formatListingPrice, type Listing } from "@/data/listings";
 import { MARCAS } from "@/data/marcas";
 import { useApprovedListings } from "@/hooks/useListings";
 import { FALLBACK_USD_ARS, fetchUsdArsVenta } from "@/lib/fx";
@@ -68,10 +68,17 @@ const Clasificados = () => {
 
   const visible = useMemo(() => {
     const matched = listings.filter((l) => matchesListingFilters(l, filters, usdArs));
-    const byPrice = (l: Listing) => listingPriceIn(l, filters.priceCurrency, usdArs);
+    const byPrice = (l: Listing) =>
+      l.priceOnRequest ? null : listingPriceIn(l, filters.priceCurrency, usdArs);
     return [...matched].sort((a, b) => {
-      if (sort === "price-low") return byPrice(a) - byPrice(b);
-      if (sort === "price-high") return byPrice(b) - byPrice(a);
+      if (sort === "price-low" || sort === "price-high") {
+        const pa = byPrice(a);
+        const pb = byPrice(b);
+        if (pa == null && pb == null) return 0;
+        if (pa == null) return 1;
+        if (pb == null) return -1;
+        return sort === "price-low" ? pa - pb : pb - pa;
+      }
       if (sort === "km-low") return a.km - b.km;
       return b.year - a.year;
     });
@@ -343,7 +350,7 @@ const Clasificados = () => {
                     </h3>
 
                     <p className="type-numeric font-semibold text-xl text-primary mb-4">
-                      {formatPrice(listing.price, listing.currency ?? "ARS")}
+                      {formatListingPrice(listing)}
                     </p>
 
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">

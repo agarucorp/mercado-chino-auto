@@ -51,12 +51,24 @@ interface ListingDescriptionProps {
 }
 
 export function ListingDescription({ description }: ListingDescriptionProps) {
+  const lines = description.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+
   return (
     <section>
       <h2 className="type-h3 text-foreground mb-4 pb-2 border-b border-border">
         Descripción detallada
       </h2>
-      <p className="type-body text-muted-foreground">{description}</p>
+      <div className="type-body text-muted-foreground">
+        {lines.map((line, index) =>
+          line.trim() === "" ? (
+            <div key={index} className="h-4" aria-hidden />
+          ) : (
+            <p key={index} className={index > 0 ? "mt-2 whitespace-pre-wrap" : "whitespace-pre-wrap"}>
+              {line}
+            </p>
+          ),
+        )}
+      </div>
     </section>
   );
 }
