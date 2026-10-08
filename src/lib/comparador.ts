@@ -1,5 +1,6 @@
 import { LISTINGS_DATA } from "@/data/listings";
 import { getFichaTecnica } from "@/data/modelo-media";
+import { valueForVariant } from "@/lib/ficha-variantes";
 import { getAllReviewsRaw } from "@/lib/review-store";
 import { MARCAS } from "@/data/marcas";
 import type { Marca, Modelo } from "@/types/marcas";
@@ -46,12 +47,18 @@ export function getAllModeloOptions(): ModeloOption[] {
   ).sort((a, b) => a.label.localeCompare(b.label, "es"));
 }
 
-function fichaValue(modeloId: string, label: string): string {
-  return getFichaTecnica(modeloId).find((r) => r.label === label)?.value ?? "—";
+function fichaValue(modeloId: string, label: string, variant?: string): string {
+  const raw = getFichaTecnica(modeloId).find((r) => r.label === label)?.value ?? "—";
+  return valueForVariant(raw, variant);
 }
 
-function fichaFind(modeloId: string, matcher: (label: string) => boolean): string {
-  return getFichaTecnica(modeloId).find((r) => matcher(r.label))?.value ?? "—";
+function fichaFind(
+  modeloId: string,
+  matcher: (label: string) => boolean,
+  variant?: string,
+): string {
+  const raw = getFichaTecnica(modeloId).find((r) => matcher(r.label))?.value ?? "—";
+  return valueForVariant(raw, variant);
 }
 
 function parseNumber(raw: string): number {
@@ -71,8 +78,8 @@ function parseMoney(raw: string): number {
   return n;
 }
 
-function getPrecioReferencia(marcaId: string, modeloId: string): number {
-  const fichaPrecio = fichaValue(modeloId, "Precio");
+function getPrecioReferencia(marcaId: string, modeloId: string, variant?: string): number {
+  const fichaPrecio = fichaValue(modeloId, "Precio", variant);
   if (fichaPrecio !== "—") {
     const fromFicha = parseMoney(fichaPrecio);
     if (fromFicha > 0) return fromFicha;
@@ -144,20 +151,24 @@ function formatAdvantageHigher(
   return `+${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 1 }).format(diff)} ${unit}`;
 }
 
-function parsePotencia(modeloId: string): number {
-  return parseNumber(fichaValue(modeloId, "Potencia"));
+function parsePotencia(modeloId: string, variant?: string): number {
+  return parseNumber(fichaValue(modeloId, "Potencia", variant));
 }
 
-function parseAutonomia(modeloId: string): number {
+function parseAutonomia(modeloId: string, variant?: string): number {
   const raw = fichaFind(
     modeloId,
     (l) => l.toLowerCase().includes("autonomía") || l.toLowerCase().includes("autonomia"),
+    variant,
   );
   return parseNumber(raw);
 }
 
-function parseConsumo(modeloId: string): { value: number; display: string; electric: boolean } {
-  const raw = fichaValue(modeloId, "Consumo");
+function parseConsumo(
+  modeloId: string,
+  variant?: string,
+): { value: number; display: string; electric: boolean } {
+  const raw = fichaValue(modeloId, "Consumo", variant);
   if (raw !== "—") {
     const n = parseNumber(raw);
     return {
@@ -166,10 +177,11 @@ function parseConsumo(modeloId: string): { value: number; display: string; elect
       electric: /kwh|kw\//i.test(raw),
     };
   }
-  const fuel = fichaValue(modeloId, "Combustible").toLowerCase();
+  const fuel = fichaValue(modeloId, "Combustible", variant).toLowerCase();
   const motor = fichaFind(
     modeloId,
     (l) => l === "Tipo de motor" || l === "Motor",
+    variant,
   ).toLowerCase();
   const electric = fuel.includes("eléct") || fuel.includes("elect") || motor.includes("eléct");
   if (electric) {
@@ -181,8 +193,12 @@ function parseConsumo(modeloId: string): { value: number; display: string; elect
   return { value: 9.5, display: "Consumo estimado", electric: false };
 }
 
-function scoreSeguridadRaw(modeloId: string, marcaId: string): { score: number; display: string } {
-  const raw = fichaValue(modeloId, "Seguridad");
+function scoreSeguridadRaw(
+  modeloId: string,
+  marcaId: string,
+  variant?: string,
+): { score: number; display: string } {
+  const raw = fichaValue(modeloId, "Seguridad", variant);
   const lower = raw.toLowerCase();
   let score = 5;
   const airbags = raw.match(/(\d+)\s*airbag/i);
@@ -206,16 +222,17 @@ function scoreSeguridadRaw(modeloId: string, marcaId: string): { score: number; 
   };
 }
 
-function scoreTecnologia(modeloId: string): { score: number; display: string } {
+function scoreTecnologia(modeloId: string, variant?: string): { score: number; display: string } {
   const raw = fichaFind(
     modeloId,
     (l) =>
       l.toLowerCase().includes("tecnolog") ||
       l.toLowerCase().includes("pantalla") ||
       l.toLowerCase().includes("equip"),
+    variant,
   );
-  const seguridad = fichaValue(modeloId, "Seguridad");
-  const motor = fichaFind(modeloId, (l) => l === "Tipo de motor" || l === "Motor");
+  const seguridad = fichaValue(modeloId, "Seguridad", variant);
+  const motor = fichaFind(modeloId, (l) => l === "Tipo de motor" || l === "Motor", variant);
   const parts = [raw, seguridad, motor].filter((p) => p && p !== "—");
   let score = 5.5;
   const text = parts.join(" ").toLowerCase();
@@ -230,12 +247,13 @@ function scoreTecnologia(modeloId: string): { score: number; display: string } {
   };
 }
 
-function scoreConfort(modeloId: string): { score: number; display: string } {
+function scoreConfort(modeloId: string, variant?: string): { score: number; display: string } {
   const raw = fichaFind(
     modeloId,
     (l) => l.toLowerCase().includes("confort") || l.toLowerCase().includes("interior"),
+    variant,
   );
-  const precio = getPrecioReferencia("", modeloId);
+  const precio = getPrecioReferencia("", modeloId, variant);
   let score = 6 + Math.min(precio / 80_000, 2.5);
   const text = raw.toLowerCase();
   if (text.includes("cuero") || text.includes("bizone") || text.includes("bizona")) score += 1;
@@ -248,9 +266,9 @@ function scoreConfort(modeloId: string): { score: number; display: string } {
   return { score: clamp(score + 0.5), display: raw };
 }
 
-function scoreOffroad(modeloId: string): { score: number; display: string } {
-  const traccion = fichaValue(modeloId, "Tracción");
-  const segmento = fichaValue(modeloId, "Segmento");
+function scoreOffroad(modeloId: string, variant?: string): { score: number; display: string } {
+  const traccion = fichaValue(modeloId, "Tracción", variant);
+  const segmento = fichaValue(modeloId, "Segmento", variant);
   const nombre = modeloId.toLowerCase();
   const text = `${traccion} ${segmento} ${nombre}`.toLowerCase();
   let score = 3.5;
@@ -274,46 +292,51 @@ function categoryWinner(
   return winnerFor(scoreA, scoreB, lowerIsBetter, 0.04);
 }
 
-export function compareModelos(optionA: ModeloOption, optionB: ModeloOption): CompareResult {
+export function compareModelos(
+  optionA: ModeloOption,
+  optionB: ModeloOption,
+  variantA?: string,
+  variantB?: string,
+): CompareResult {
   const idA = optionA.modelo.id;
   const idB = optionB.modelo.id;
 
-  const precioA = getPrecioReferencia(optionA.marca.id, idA);
-  const precioB = getPrecioReferencia(optionB.marca.id, idB);
+  const precioA = getPrecioReferencia(optionA.marca.id, idA, variantA);
+  const precioB = getPrecioReferencia(optionB.marca.id, idB, variantB);
   const [precioScoreA, precioScoreB] = scoreLower(precioA, precioB);
   const precioWinner = winnerFor(precioA, precioB, true, 0.03);
 
-  const potA = parsePotencia(idA);
-  const potB = parsePotencia(idB);
+  const potA = parsePotencia(idA, variantA);
+  const potB = parsePotencia(idB, variantB);
   const [potScoreA, potScoreB] =
     potA || potB ? scoreHigher(potA || potB * 0.7, potB || potA * 0.7) : ([5, 5] as const);
   const potWinner = potA || potB ? winnerFor(potA || 0, potB || 0, false) : "tie";
 
-  const consA = parseConsumo(idA);
-  const consB = parseConsumo(idB);
+  const consA = parseConsumo(idA, variantA);
+  const consB = parseConsumo(idB, variantB);
   // Normalize electric vs fuel: lower kWh-ish is better; for ICE lower L is better.
   // If mixed, convert ICE approx to efficiency index and EV lower kWh higher score via scoreLower.
   const [consScoreA, consScoreB] = scoreLower(consA.value, consB.value);
   const consWinner = winnerFor(consA.value, consB.value, true, 0.05);
 
-  const segA = scoreSeguridadRaw(idA, optionA.marca.id);
-  const segB = scoreSeguridadRaw(idB, optionB.marca.id);
+  const segA = scoreSeguridadRaw(idA, optionA.marca.id, variantA);
+  const segB = scoreSeguridadRaw(idB, optionB.marca.id, variantB);
   const segWinner = categoryWinner(segA.score, segB.score);
 
-  const techA = scoreTecnologia(idA);
-  const techB = scoreTecnologia(idB);
+  const techA = scoreTecnologia(idA, variantA);
+  const techB = scoreTecnologia(idB, variantB);
   const techWinner = categoryWinner(techA.score, techB.score);
 
-  const confA = scoreConfort(idA);
-  const confB = scoreConfort(idB);
+  const confA = scoreConfort(idA, variantA);
+  const confB = scoreConfort(idB, variantB);
   const confWinner = categoryWinner(confA.score, confB.score);
 
-  const offA = scoreOffroad(idA);
-  const offB = scoreOffroad(idB);
+  const offA = scoreOffroad(idA, variantA);
+  const offB = scoreOffroad(idB, variantB);
   const offWinner = categoryWinner(offA.score, offB.score);
 
-  const autA = parseAutonomia(idA);
-  const autB = parseAutonomia(idB);
+  const autA = parseAutonomia(idA, variantA);
+  const autB = parseAutonomia(idB, variantB);
   const [autScoreA, autScoreB] =
     autA || autB ? scoreHigher(autA || autB * 0.9, autB || autA * 0.9) : ([6, 6] as const);
   const autWinner =

@@ -65,6 +65,7 @@ export function rowToListing(
     submittedAt: row.submitted_at,
     isWeeklyPick: row.is_weekly_pick ?? false,
     homePickOrder: row.home_pick_order ?? null,
+    sold: row.sold === true,
   };
 }
 
@@ -532,6 +533,16 @@ export async function setHomePick(listingId: string, order: number | null): Prom
     .update({ home_pick_order: order })
     .eq("id", listingId);
   if (error) throw new Error(mapHomePicksError(error.message));
+}
+
+export async function setListingSold(listingId: string, sold: boolean): Promise<void> {
+  const { error } = await client().from("listings").update({ sold }).eq("id", listingId);
+  if (error) {
+    if (/sold|schema cache/i.test(error.message)) {
+      throw new Error("Falta correr el SQL de vendidos en Supabase.");
+    }
+    throw new Error(error.message);
+  }
 }
 
 function mapHomePicksError(message: string): string {

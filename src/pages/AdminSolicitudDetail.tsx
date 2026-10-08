@@ -46,6 +46,7 @@ import {
   deleteListingImage,
   reorderListingImages,
   reviewListing,
+  setListingSold,
   type AdminListing,
   type AdminListingImage,
 } from "@/lib/listings-api";
@@ -115,7 +116,7 @@ function AdminSolicitudDetailInner() {
   const queryClient = useQueryClient();
   const { data: listing, isLoading, isError, error } = useAdminListing(id);
   const [form, setForm] = useState<SolicitudForm | null>(null);
-  const [busy, setBusy] = useState<ListingStatus | "guardando" | null>(null);
+  const [busy, setBusy] = useState<ListingStatus | "guardando" | "vendido" | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [removingPhotoId, setRemovingPhotoId] = useState<string | null>(null);
   const [reorderingPhotoId, setReorderingPhotoId] = useState<string | null>(null);
@@ -224,6 +225,21 @@ function AdminSolicitudDetailInner() {
 
   const update = (patch: Partial<SolicitudForm>) => {
     setForm((current) => (current ? { ...current, ...patch } : current));
+  };
+
+  const toggleSold = async () => {
+    if (!listing) return;
+    setBusy("vendido");
+    try {
+      await setListingSold(listing.id, !listing.sold);
+      await queryClient.invalidateQueries({ queryKey: ADMIN_LISTINGS_KEY });
+      await queryClient.invalidateQueries({ queryKey: APPROVED_LISTINGS_KEY });
+      toast.success(listing.sold ? "Publicación otra vez en venta" : "Marcada como vendida. El teléfono ya no se muestra.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo marcar como vendido");
+    } finally {
+      setBusy(null);
+    }
   };
 
   const persist = async (status: ListingStatus, busyKey: ListingStatus | "guardando") => {
@@ -500,7 +516,7 @@ function AdminSolicitudDetailInner() {
                 inputMode="numeric"
                 value={form.price}
                 disabled={form.priceOnRequest}
-                placeholder={form.priceOnRequest ? "A consultar" : undefined}
+                placeholder={form.priceOnRequest ? "A CONSULTAR" : undefined}
                 onChange={(e) => update({ price: e.target.value.replace(/[^\d.]/g, "") })}
               />
             </div>
@@ -516,7 +532,7 @@ function AdminSolicitudDetailInner() {
                 }
               />
               <Label htmlFor="sol-price-consult" className="font-normal">
-                A consultar
+                A CONSULTAR
               </Label>
             </div>
           </Field>
@@ -655,6 +671,17 @@ function AdminSolicitudDetailInner() {
           {listing.status === "aprobada" && (
             <Button asChild variant="outline">
               <Link to={`/clasificados/${listing.id}`}>Ver en clasificados</Link>
+            </Button>
+          )}
+          {listing.status === "aprobada" && (
+            <Button
+              type="button"
+              variant={listing.sold ? "secondary" : "outline"}
+              disabled={busy !== null}
+              onClick={() => void toggleSold()}
+            >
+              {busy === "vendido" && <Loader2 className="animate-spin" aria-hidden />}
+              {listing.sold ? "Quitar vendido" : "Marcar como vendido"}
             </Button>
           )}
 

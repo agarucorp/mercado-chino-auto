@@ -32,6 +32,7 @@ const CATEGORIAS = [
   "Industria",
   "Mercado",
   "Comparativas",
+  "Test",
   "Pickups",
   "Política",
 ];

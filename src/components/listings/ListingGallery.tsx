@@ -90,7 +90,7 @@ export function ListingGallery({ images, title }: ListingGalleryProps) {
       )}
 
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-5xl w-[95vw] p-0 gap-0 overflow-hidden bg-black border-none sm:rounded-xl">
+        <DialogContent className="max-w-5xl w-[95vw] p-0 gap-0 overflow-hidden bg-black border-none sm:rounded-xl [&>button]:z-20 [&>button]:text-white [&>button]:opacity-100 [&>button]:bg-white/20 [&>button]:hover:bg-white/35 [&>button]:rounded-full [&>button]:p-2 [&>button]:right-3 [&>button]:top-3 [&>button_svg]:h-6 [&>button_svg]:w-6">
           <DialogTitle className="sr-only">{title}</DialogTitle>
 
           <div

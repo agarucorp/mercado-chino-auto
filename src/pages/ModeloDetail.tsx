@@ -14,8 +14,10 @@ import { useApprovedListings } from "@/hooks/useListings";
 import { useNewsByModelo } from "@/hooks/useNews";
 import { getFichaTecnica, getModeloImages } from "@/data/modelo-media";
 import { MARCAS } from "@/data/marcas";
+import { fichaForVariant, fichaVariantNames } from "@/lib/ficha-variantes";
 import { getMarcaBySlug, getModeloBySlug, resolveModeloId } from "@/lib/marcas";
 import { ArrowLeft, MapPin, Newspaper } from "lucide-react";
+import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 function fichaToSpecs(ficha: { label: string; value: string }[]) {
@@ -37,6 +39,15 @@ const ModeloDetail = () => {
   const noticias = noticiasModelo.filter((n) => n.published !== false);
   const historial = noticiasModelo.filter((n) => n.published === false);
   const { data: allListings = [] } = useApprovedListings();
+  const fichaCompleta = getFichaTecnica(modelo?.id ?? "");
+  const variantes = fichaVariantNames(fichaCompleta);
+  const [motorizacionElegida, setMotorizacionElegida] = useState<{ id: string; name: string } | null>(
+    null,
+  );
+  const motorizacionActiva =
+    motorizacionElegida?.id === modelo?.id
+      ? (variantes.find((nombre) => nombre === motorizacionElegida.name) ?? variantes[0] ?? "")
+      : (variantes[0] ?? "");
 
   if (!marca || !modelo) {
     return <Navigate to="/marcas" replace />;
@@ -45,7 +56,9 @@ const ModeloDetail = () => {
   const clasificados = allListings.filter(
     (l) => l.marcaId === marca.id && resolveModeloId(l.modeloId ?? "") === modelo.id,
   );
-  const ficha = getFichaTecnica(modelo.id);
+  const ficha = motorizacionActiva
+    ? fichaForVariant(fichaCompleta, motorizacionActiva)
+    : fichaCompleta;
   const imagenes = getModeloImages(modelo.id);
 
   return (
@@ -73,7 +86,27 @@ const ModeloDetail = () => {
                 <ModeloSidebar marca={marca} modelo={modelo} ficha={ficha} />
               </DetailMobileAside>
 
-              <div className="py-2 md:py-4">
+              <div className="py-2 md:py-4 space-y-4">
+                {variantes.length > 1 && (
+                  <div className="flex flex-wrap gap-2">
+                    {variantes.map((nombre) => (
+                      <button
+                        key={nombre}
+                        type="button"
+                        onClick={() =>
+                          modelo && setMotorizacionElegida({ id: modelo.id, name: nombre })
+                        }
+                        className={
+                          nombre === motorizacionActiva
+                            ? "rounded-full bg-primary px-4 py-2 type-meta text-primary-foreground"
+                            : "rounded-full border border-border px-4 py-2 type-meta text-foreground hover:border-primary"
+                        }
+                      >
+                        {nombre}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <ListingSpecTable title="Ficha técnica" rows={fichaToSpecs(ficha)} />
               </div>
 

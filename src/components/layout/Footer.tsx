@@ -7,6 +7,7 @@ const footerLinks = {
     { label: "Vender", href: "/vender" },
     { label: "Noticias", href: "/noticias" },
     { label: "Clasificados", href: "/clasificados" },
+    { label: "Repuestos y talleres", href: "/repuestos" },
   ],
   marcas: [
     { label: "Chery", href: "/marcas/chery" },

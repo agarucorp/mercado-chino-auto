@@ -16,6 +16,7 @@ const Noticias = lazy(() => import("./pages/Noticias"));
 const Vender = lazy(() => import("./pages/Vender"));
 const Contacto = lazy(() => import("./pages/Contacto"));
 const Clasificados = lazy(() => import("./pages/Clasificados"));
+const Repuestos = lazy(() => import("./pages/Repuestos"));
 const ClasificadoDetail = lazy(() => import("./pages/ClasificadoDetail"));
 const CategoriaDetail = lazy(() => import("./pages/CategoriaDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -26,6 +27,7 @@ const AdminModelos = lazy(() => import("./pages/AdminModelos"));
 const AdminModeloHistorial = lazy(() => import("./pages/AdminModeloHistorial"));
 const AdminPublicaciones = lazy(() => import("./pages/AdminPublicaciones"));
 const AdminResenas = lazy(() => import("./pages/AdminResenas"));
+const AdminRepuestos = lazy(() => import("./pages/AdminRepuestos"));
 const AdminSolicitudDetail = lazy(() => import("./pages/AdminSolicitudDetail"));
 
 const queryClient = new QueryClient();
@@ -54,6 +56,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminHome />} />
                 <Route path="/admin/noticias" element={<AdminNoticias />} />
                 <Route path="/admin/resenas" element={<AdminResenas />} />
+                <Route path="/admin/repuestos" element={<AdminRepuestos />} />
                 <Route path="/admin/modelos" element={<AdminModelos />} />
                 <Route path="/admin/modelos/:marcaId/:modeloId" element={<AdminModeloHistorial />} />
                 <Route path="/admin/solicitudes" element={<AdminPublicaciones />} />
@@ -68,6 +71,7 @@ const App = () => (
                 <Route path="/categorias/:slug" element={<CategoriaDetail />} />
                 <Route path="/clasificados" element={<Clasificados />} />
                 <Route path="/clasificados/:id" element={<ClasificadoDetail />} />
+                <Route path="/repuestos" element={<Repuestos />} />
                 <Route path="/resenas" element={<Navigate to="/clasificados" replace />} />
                 <Route path="/login" element={<Navigate to="/admin" replace />} />
                 <Route path="*" element={<NotFound />} />

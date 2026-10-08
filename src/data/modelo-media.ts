@@ -186,6 +186,20 @@ function ftVariantes(variantes: VarianteFicha[]): FichaTecnicaRow[] {
   );
 }
 
+function fichaPendiente(nombre: string): FichaTecnicaRow[] {
+  return ft(
+    nombre,
+    "Sin precio de referencia",
+    "Por confirmar",
+    "Por confirmar",
+    "Por confirmar",
+    "Por confirmar",
+    "Por confirmar",
+    "Por confirmar",
+    "Por confirmar",
+  );
+}
+
 const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "arcfox-t1": ft("T1", "USD 29.500", "2026-vigente", "Eléctrico", "Automática", "95 CV", "14-15 kWh/100 km", "6 airbags, ESP, ADAS, AEB, ISOFIX", "310 km"),
   "arcfox-kaola-s": ft("Kaola S", "USD 27.200", "2026-vigente", "Eléctrico", "Automática", "160 CV", "14-16 kWh/100 km", "6 airbags, ESP, ADAS, ISOFIX", "500 km"),
@@ -338,7 +352,30 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "chery-tiggo-5": ft("Tiggo 5", "Usado desde USD 10.000", "2014-2019", "Naftero 2.0", "Manual o CVT", "138 CV", "8,5 L/100 km", "2 airbags, ABS, EBD, ISOFIX", "650 km"),
   "chery-arrizo-5": ft("Arrizo 5", "Usado desde USD 9.000", "2017-2022", "Naftero 1.5", "Manual o CVT", "116 CV", "6,5 L/100 km", "2 airbags, ABS, ESP (según versión), ISOFIX", "750 km"),
   "chery-tiggo-2-pro-max": ft("Tiggo 2 Pro Max", "desde USD 23.000", "2025-vigente", "Naftero 1.5", "Manual o CVT", "116 CV", "6,5 L/100 km", "2 airbags, ABS, EBD, ESP (CVT), ISOFIX", "780 km"),
-  "chery-tiggo-4-hybrid": ft("Tiggo 4 Hybrid", "USD 33.500", "2025-vigente", "Híbrido 1.5 + eléctrico (CSH)", "Automática DHT", "120 CV", "5,2 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "900 km"),
+  "chery-tiggo-4-hybrid": ftVariantes([
+    {
+      nombre: "Naftero 1.5T",
+      precio: "Por confirmar",
+      vigencia: "2025-vigente",
+      motor: "Naftero 1.5 Turbo",
+      transmision: "Por confirmar",
+      potencia: "Por confirmar",
+      consumo: "Por confirmar",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "Por confirmar",
+    },
+    {
+      nombre: "Híbrido (HEV)",
+      precio: "USD 33.500",
+      vigencia: "2025-vigente",
+      motor: "Híbrido 1.5 + eléctrico (CSH)",
+      transmision: "Automática DHT",
+      potencia: "120 CV",
+      consumo: "5,2 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "900 km",
+    },
+  ]),
   "chery-tiggo-7-pro-hybrid": ft("Tiggo 7 Pro Hybrid", "USD 32.900", "2025-vigente", "Naftero 1.5 Turbo MHEV 48V", "Automática CVT", "147 CV", "6,5 L/100 km", "6 airbags, ABS, ESP, cámara 360°, ISOFIX", "850 km"),
   "chery-tiggo-8-pro": ft("Tiggo 8 Pro", "USD 46.600", "2025-vigente", "Naftero 1.6 Turbo GDI", "Automática DCT 7 vel.", "186 CV", "8,5 L/100 km", "6 airbags, ABS, ESP, ADAS, cámara 360°, ISOFIX", "700 km"),
   "chery-arrizo-8": ft("Arrizo 8", "USD 34.600", "2025-vigente", "Híbrido enchufable 1.5", "Automática DHT", "204 CV", "4,5 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "1.000 km combinados"),
@@ -648,8 +685,54 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "maxus-d90": ft("D90", "USD 66.000", "2025-vigente", "Naftero 2.0 Turbo", "Automática", "224 CV", "10 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "700 km"),
   "maxus-eterron": ft("eTERRON", "USD 80.600", "2026-vigente", "Eléctrico 102,2 kWh", "Automática", "430 CV", "24 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "430 km"),
 
-  "mg-mg3-hev": ft("MG3 HEV", "desde USD 23.500", "2026-vigente", "Híbrido 1.5 + eléctrico", "Automática DHT", "194 CV", "4,4 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "900 km"),
-  "mg-mg-zs-hev": ft("MG ZS HEV", "desde USD 27.500", "2026-vigente", "Híbrido 1.5 + eléctrico", "Automática DHT", "194 CV", "4,7 L/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "900 km"),
+  "mg-mg3-hev": ftVariantes([
+    {
+      nombre: "Naftero",
+      precio: "Por confirmar",
+      vigencia: "2026-vigente",
+      motor: "Naftero",
+      transmision: "Por confirmar",
+      potencia: "Por confirmar",
+      consumo: "Por confirmar",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "Por confirmar",
+    },
+    {
+      nombre: "Híbrido (HEV)",
+      precio: "desde USD 23.500",
+      vigencia: "2026-vigente",
+      motor: "Híbrido 1.5 + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "194 CV",
+      consumo: "4,4 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "900 km",
+    },
+  ]),
+  "mg-mg-zs-hev": ftVariantes([
+    {
+      nombre: "Naftero",
+      precio: "Por confirmar",
+      vigencia: "2026-vigente",
+      motor: "Naftero",
+      transmision: "Por confirmar",
+      potencia: "Por confirmar",
+      consumo: "Por confirmar",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "Por confirmar",
+    },
+    {
+      nombre: "Híbrido (HEV)",
+      precio: "desde USD 27.500",
+      vigencia: "2026-vigente",
+      motor: "Híbrido 1.5 + eléctrico",
+      transmision: "Automática DHT",
+      potencia: "194 CV",
+      consumo: "4,7 L/100 km",
+      seguridad: "6 airbags, ABS, ESP, ADAS, ISOFIX",
+      autonomia: "900 km",
+    },
+  ]),
   "mg-cyberster": ft("Cyberster", "USD 130.000", "2026-vigente", "Eléctrico", "Automática", "375 CV", "18 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "440 km"),
 
   "rely-r8": ft("R8", "desde USD 32.000", "2026-vigente", "Diésel 2.0 Turbo", "Manual o automática", "163 CV", "9,5 L/100 km", "2 a 6 airbags, ABS, ESP, ISOFIX", "800 km"),
@@ -661,6 +744,24 @@ const FICHAS: Record<string, FichaTecnicaRow[]> = {
   "skywell-be11": ft("BE11", "USD 58.000", "2025-vigente", "Eléctrico", "Automática", "204 CV", "17 kWh/100 km", "6 airbags, ABS, ESP, ADAS, ISOFIX", "500 km"),
 
   "xev-yoyo-pro": ft("YOYO PRO", "Sin precio de referencia", "2025-vigente", "Eléctrico", "Automática", "15 CV", "10 kWh/100 km", "ABS, frenos a disco, estructura de acero de alta resistencia", "150 km"),
+
+  "changan-cs55-plus": fichaPendiente("CS55 Plus"),
+  "shineray-g05": fichaPendiente("G05"),
+  "shineray-g03": fichaPendiente("G03"),
+  "shineray-t30": fichaPendiente("T30"),
+  "shineray-t32": fichaPendiente("T32"),
+  "shineray-x30": fichaPendiente("X30"),
+  "shineray-m7": fichaPendiente("M7"),
+  "foton-grandtour-t3": fichaPendiente("Grandtour T3"),
+  "foton-tm": fichaPendiente("TM"),
+  "foton-wonder": fichaPendiente("Wonder"),
+  "foton-ztruck": fichaPendiente("Ztruck"),
+  "kyc-mamut": fichaPendiente("Mamut"),
+  "omoda-5": fichaPendiente("5"),
+  "omoda-e5": fichaPendiente("E5"),
+  "omoda-7": fichaPendiente("7"),
+  "gac-aion-ut": fichaPendiente("Aion UT"),
+  "geely-riddara-r6": fichaPendiente("Riddara R6"),
 };
 
 const FALLBACK_IMAGES = [

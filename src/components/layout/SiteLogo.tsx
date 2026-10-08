@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const LOGO_SRC = "/newLogo.svg";
 
@@ -9,6 +9,7 @@ interface SiteLogoProps {
 }
 
 export function SiteLogo({ className, linkToHome = false }: SiteLogoProps) {
+  const { pathname } = useLocation();
   const logo = (
     <img
       src={LOGO_SRC}
@@ -21,7 +22,16 @@ export function SiteLogo({ className, linkToHome = false }: SiteLogoProps) {
 
   if (linkToHome) {
     return (
-      <Link to="/" className="inline-flex shrink-0" aria-label="AUCHAR — inicio">
+      <Link
+        to="/"
+        className="inline-flex shrink-0"
+        aria-label="AUCHAR — inicio"
+        onClick={() => {
+          if (pathname === "/") {
+            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+          }
+        }}
+      >
         {logo}
       </Link>
     );

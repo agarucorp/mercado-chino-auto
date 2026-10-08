@@ -351,7 +351,7 @@ export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionD
                   inputMode="numeric"
                   value={form.price}
                   disabled={form.priceOnRequest}
-                  placeholder={form.priceOnRequest ? "A consultar" : undefined}
+                  placeholder={form.priceOnRequest ? "A CONSULTAR" : undefined}
                   onChange={(e) => update({ price: e.target.value.replace(/[^\d.]/g, "") })}
                 />
               </div>
@@ -367,7 +367,7 @@ export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionD
                   }
                 />
                 <Label htmlFor="new-price-consult" className="font-normal">
-                  A consultar
+                  A CONSULTAR
                 </Label>
               </div>
             </Field>

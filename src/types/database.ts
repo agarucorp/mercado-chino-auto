@@ -7,6 +7,7 @@
  */
 
 export type ListingStatus = "pendiente" | "aprobada" | "rechazada" | "archivada";
+export type ProviderCategory = "estetico" | "mecanico" | "lubricentro";
 export type PlanId = "basico" | "destacado" | "premium";
 export type SellerType = "particular" | "concesionario";
 
@@ -61,6 +62,7 @@ export type ListingRow = {
   updated_at: string;
   is_weekly_pick?: boolean;
   home_pick_order?: number | null;
+  sold?: boolean;
 }
 
 export type ListingImageRow = {
@@ -70,6 +72,18 @@ export type ListingImageRow = {
   alt: string | null;
   position: number;
   created_at: string;
+}
+
+export type ServiceProviderRow = {
+  id: string;
+  category: ProviderCategory;
+  name: string;
+  city: string;
+  phone: string;
+  description: string;
+  published: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export type AdminRow = {
@@ -160,6 +174,12 @@ export type Database = {
           | "content"
         >;
         Update: Partial<ReviewRow>;
+        Relationships: [];
+      };
+      service_providers: {
+        Row: ServiceProviderRow;
+        Insert: InsertOf<ServiceProviderRow, "category" | "name">;
+        Update: Partial<ServiceProviderRow>;
         Relationships: [];
       };
     };

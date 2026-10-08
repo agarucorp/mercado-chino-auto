@@ -58,6 +58,7 @@ export const MARCAS: Marca[] = [
     ["CS15", "Discontinuado"],
     ["CS75", "Discontinuado"],
     ["CS55", "Vigente"],
+    ["CS55 Plus", "Vigente"],
     ["CS55 Plus PHEV", "Vigente"],
   ]),
   marca("CHERY", 2008, "Grupo Corven", [
@@ -100,12 +101,17 @@ export const MARCAS: Marca[] = [
     ["Tunland V7", "Vigente"],
     ["Tunland V9", "Vigente"],
     ["Tunland G7", "Vigente"],
+    ["Grandtour T3", "Vigente"],
+    ["TM", "Vigente"],
+    ["Wonder", "Vigente"],
+    ["Ztruck", "Vigente"],
   ]),
   marca("GAC", 2026, "AVANTEK", [
     ["GS3 Emzoom", "Vigente"],
     ["Emkoo Hybrid", "Vigente"],
     ["GS8", "Vigente"],
     ["Aion ES", "Vigente"],
+    ["Aion UT", "Vigente"],
     ["Aion Empow", "Vigente"],
     ["S7 PHEV", "Vigente"],
   ]),
@@ -117,6 +123,7 @@ export const MARCAS: Marca[] = [
     ["Emgrand GS", "Discontinuado"],
     ["EX5", "Vigente"],
     ["Icon", "Vigente"],
+    ["Riddara R6", "Vigente"],
   ]),
   marca("GWM", 2018, "GRUPO ANTELO", [
     ["HAVAL H1", "Discontinuado"],
@@ -151,6 +158,7 @@ export const MARCAS: Marca[] = [
     ["Grand Avenue", "Vigente"],
   ]),
   marca("JMEV", 2025, "GRUPO ANTELO", [["Easy 3", "Vigente"]]),
+  marca("KYC", 2026, "Por confirmar", [["Mamut", "Vigente"]]),
   marca("KAIYI", 2026, "GRUPO EMPRESARIO PRIETO", [
     ["X3", "Vigente"],
     ["X7", "Vigente"],
@@ -182,10 +190,21 @@ export const MARCAS: Marca[] = [
     ["MG ZS HEV", "Vigente"],
     ["Cyberster", "Vigente"],
   ]),
+  marca("OMODA", 2026, "Por confirmar", [
+    ["5", "Vigente"],
+    ["E5", "Vigente"],
+    ["7", "Vigente"],
+  ]),
   marca("RELY", 2026, "GRUPO LA EMILIA", [["R8", "Vigente"]]),
   marca("SHINERAY", 2018, "RALITOR", [
     ["SWM X7", "Vigente"],
     ["SWM G01", "Vigente"],
+    ["G05", "Vigente"],
+    ["G03", "Vigente"],
+    ["T30", "Vigente"],
+    ["T32", "Vigente"],
+    ["X30", "Vigente"],
+    ["M7", "Vigente"],
   ]),
   marca("SKYWELL", 2024, "GRUPO BELCASTRO", [
     ["ET5", "Vigente"],

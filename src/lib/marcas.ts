@@ -138,6 +138,7 @@ const MODELO_SLUG_ALIASES: Record<string, string> = {
   "jmc-grand-avenue-dadao-pro": "jmc-grand-avenue",
   "kaiyi-x3-pro": "kaiyi-x3",
   "maxus-t90-ev": "maxus-t90",
+  "chery-tiggo-4-pro": "chery-tiggo-4-hybrid",
 };
 
 export function resolveModeloId(modeloId: string): string {

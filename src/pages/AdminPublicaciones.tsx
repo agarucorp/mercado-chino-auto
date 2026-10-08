@@ -220,7 +220,9 @@ function AdminPublicacionesInner() {
               >
                 <div>
                   <p className="type-body-sm text-foreground">{listing.title}</p>
-                  <p className="type-meta text-muted-foreground capitalize">{listing.status}</p>
+                  <p className="type-meta text-muted-foreground capitalize">
+                    {listing.sold ? "vendido" : listing.status}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <Link

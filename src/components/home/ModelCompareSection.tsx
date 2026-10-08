@@ -15,6 +15,8 @@ import {
 } from "@/lib/comparador";
 import { cn } from "@/lib/utils";
 import { getModeloPath } from "@/lib/marcas";
+import { getFichaTecnica } from "@/data/modelo-media";
+import { fichaVariantNames } from "@/lib/ficha-variantes";
 import {
   ArrowLeftRight,
   Battery,
@@ -329,14 +331,20 @@ export function ModelCompareSection() {
   const options = useMemo(() => getAllModeloOptions(), []);
   const [idA, setIdA] = useState(options[0]?.id ?? "");
   const [idB, setIdB] = useState(options[1]?.id ?? "");
+  const [variantA, setVariantA] = useState("");
+  const [variantB, setVariantB] = useState("");
   const [result, setResult] = useState<CompareResult | null>(null);
 
   const optionA = options.find((o) => o.id === idA);
   const optionB = options.find((o) => o.id === idB);
+  const variantesA = optionA ? fichaVariantNames(getFichaTecnica(optionA.modelo.id)) : [];
+  const variantesB = optionB ? fichaVariantNames(getFichaTecnica(optionB.modelo.id)) : [];
+  const motorA = variantesA.includes(variantA) ? variantA : (variantesA[0] ?? "");
+  const motorB = variantesB.includes(variantB) ? variantB : (variantesB[0] ?? "");
 
   const handleCompare = () => {
     if (!optionA || !optionB || optionA.id === optionB.id) return;
-    setResult(compareModelos(optionA, optionB));
+    setResult(compareModelos(optionA, optionB, motorA || undefined, motorB || undefined));
   };
 
   const canCompare = optionA && optionB && optionA.id !== optionB.id;
@@ -379,6 +387,28 @@ export function ModelCompareSection() {
                   ))}
                 </SelectContent>
               </Select>
+              {variantesA.length > 1 && (
+                <Select
+                  value={motorA}
+                  onValueChange={(v) => {
+                    setVariantA(v);
+                    if (optionA && optionB && optionA.id !== optionB.id && result) {
+                      setResult(compareModelos(optionA, optionB, v, motorB || undefined));
+                    }
+                  }}
+                >
+                  <SelectTrigger aria-label="Motorización del modelo 1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {variantesA.map((nombre) => (
+                      <SelectItem key={nombre} value={nombre}>
+                        {nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="hidden md:flex items-center justify-center pb-2 text-muted-foreground">
@@ -405,6 +435,28 @@ export function ModelCompareSection() {
                   ))}
                 </SelectContent>
               </Select>
+              {variantesB.length > 1 && (
+                <Select
+                  value={motorB}
+                  onValueChange={(v) => {
+                    setVariantB(v);
+                    if (optionA && optionB && optionA.id !== optionB.id && result) {
+                      setResult(compareModelos(optionA, optionB, motorA || undefined, v));
+                    }
+                  }}
+                >
+                  <SelectTrigger aria-label="Motorización del modelo 2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {variantesB.map((nombre) => (
+                      <SelectItem key={nombre} value={nombre}>
+                        {nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 

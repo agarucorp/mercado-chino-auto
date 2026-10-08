@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminListings } from "@/hooks/useListings";
 import { useUnseenSolicitudIds } from "@/lib/admin-solicitudes";
 import { cn } from "@/lib/utils";
-import { ClipboardList, LogOut, Menu, Newspaper, Car, MessageSquare } from "lucide-react";
+import { ClipboardList, LogOut, Menu, Newspaper, Car, MessageSquare, Wrench } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
 
   const items = [
     { to: "/admin/noticias", label: "Noticias", icon: Newspaper, badge: 0, active: false },
+    { to: "/admin/repuestos", label: "Repuestos y talleres", icon: Wrench, badge: 0, active: false },
     { to: "/admin/resenas", label: "Reseñas", icon: MessageSquare, badge: 0, active: false },
     { to: "/admin/modelos", label: "Historial por modelo", icon: Car, badge: 0, active: false },
     {

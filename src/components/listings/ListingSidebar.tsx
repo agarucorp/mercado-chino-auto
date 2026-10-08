@@ -35,7 +35,7 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
     <SummaryCardShell title={headline} className={className}>
       <div>
         <p className="type-numeric text-2xl sm:text-3xl font-bold text-foreground">
-          {formatListingPrice(listing)}
+          {listing.sold ? "VENDIDO" : formatListingPrice(listing)}
         </p>
         <p className="type-meta text-muted-foreground mt-1 flex items-center gap-1">
           <MapPin className="w-3.5 h-3.5 shrink-0" />
@@ -64,10 +64,16 @@ export function ListingSidebar({ listing, className }: ListingSidebarProps) {
       />
 
       <div className={cn("space-y-3")}>
-        <Button className="w-full" size="lg" type="button" onClick={() => setStep("warning")}>
-          <MessageCircle className="w-4 h-4" />
-          Contactar al vendedor
-        </Button>
+        {listing.sold ? (
+          <p className="type-body-sm text-muted-foreground text-center">
+            Esta unidad ya se vendió. El teléfono del vendedor no se muestra.
+          </p>
+        ) : (
+          <Button className="w-full" size="lg" type="button" onClick={() => setStep("warning")}>
+            <MessageCircle className="w-4 h-4" />
+            Contactar al vendedor
+          </Button>
+        )}
       </div>
 
       <Dialog open={step === "warning"} onOpenChange={(open) => { if (!open) setStep("closed"); }}>

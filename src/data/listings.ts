@@ -36,9 +36,10 @@ export interface Listing {
   equipment: string[];
   seller: ListingSeller;
   currency?: "ARS" | "USD";
-  /** Precio no publicado: en la ficha se muestra "A consultar". */
+  /** Precio no publicado: en la ficha se muestra "A CONSULTAR". */
   priceOnRequest?: boolean;
   plan?: "basico" | "destacado" | "premium";
+  sold?: boolean;
   status?: "pendiente" | "aprobada" | "rechazada" | "archivada";
   sellerEmail?: string;
   sellerPhone?: string;
@@ -453,7 +454,7 @@ export function getListingsByModelo(marcaId: string, modeloId: string) {
   );
 }
 
-export const PRICE_ON_REQUEST_LABEL = "A consultar";
+export const PRICE_ON_REQUEST_LABEL = "A CONSULTAR";
 
 export const formatPrice = (price: number, currency: "ARS" | "USD" = "ARS") =>
   new Intl.NumberFormat("es-AR", {

@@ -350,7 +350,7 @@ const Clasificados = () => {
                     </h3>
 
                     <p className="type-numeric font-semibold text-xl text-primary mb-4">
-                      {formatListingPrice(listing)}
+                      {listing.sold ? "VENDIDO" : formatListingPrice(listing)}
                     </p>
 
                     <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">

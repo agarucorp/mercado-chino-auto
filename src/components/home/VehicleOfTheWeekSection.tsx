@@ -1,33 +1,69 @@
 import { Button } from "@/components/ui/button";
-import { formatKm, formatListingPrice } from "@/data/listings";
+import { formatKm, formatListingPrice, type Listing } from "@/data/listings";
 import { useApprovedListings } from "@/hooks/useListings";
 import { Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+
+function premiumPool(listings: Listing[]): Listing[] {
+  const premium = listings.filter((listing) => listing.plan === "premium" && !listing.sold);
+  if (premium.length > 0) return premium;
+  const weekly = listings.find((listing) => listing.isWeeklyPick && !listing.sold);
+  const featured = listings.find((listing) => listing.featured && !listing.sold);
+  const fallback = weekly ?? featured ?? listings.find((listing) => !listing.sold) ?? listings[0];
+  return fallback ? [fallback] : [];
+}
 
 export function VehicleOfTheWeekSection() {
   const { data: listings = [] } = useApprovedListings();
-  const listing =
-    listings.find((l) => l.isWeeklyPick) ?? listings.find((l) => l.featured) ?? listings[0];
+  const pool = useMemo(() => premiumPool(listings), [listings]);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (pool.length < 2) return;
+    const timer = window.setInterval(() => {
+      setIndex((current) => (current + 1) % pool.length);
+    }, 7000);
+    return () => window.clearInterval(timer);
+  }, [pool]);
+
+  const listing = pool[index % Math.max(pool.length, 1)];
   if (!listing) return null;
 
-  const headline = `${listing.year} ${listing.title} ${listing.version}`;
-
-  const highlights = listing.general
-    .filter((spec) => spec.highlight)
-    .slice(0, 2);
+  const headline = `${listing.year} ${listing.title} ${listing.version}`.trim();
+  const highlights = listing.general.filter((spec) => spec.highlight).slice(0, 2);
 
   return (
     <section className="py-8 md:py-10 border-b border-border bg-background">
       <div className="container mx-auto">
-        <h2 className="type-h2 text-foreground mb-6">Vehículo de la semana</h2>
+        <div className="flex items-end justify-between gap-4 mb-6">
+          <h2 className="type-h2 text-foreground">Vehículo de la semana</h2>
+          {pool.length > 1 && (
+            <div className="flex gap-1.5" aria-label="Destacados premium">
+              {pool.map((item, i) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-label={`Ver destacado ${i + 1}`}
+                  onClick={() => setIndex(i)}
+                  className={
+                    i === index % pool.length
+                      ? "h-2 w-6 rounded-full bg-primary"
+                      : "h-2 w-2 rounded-full bg-muted-foreground/30"
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="grid gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-8 items-center">
           <div className="aspect-[16/10] md:aspect-[4/3] rounded-xl overflow-hidden bg-muted">
             <img
+              key={listing.id}
               src={listing.image}
               alt={headline}
-              className="h-full w-full object-cover"
-              loading="lazy"
+              className="h-full w-full object-cover animate-in fade-in duration-500"
             />
           </div>
 
@@ -71,7 +107,9 @@ export function VehicleOfTheWeekSection() {
               </ul>
             )}
 
-            <p className="type-body text-muted-foreground line-clamp-2">{listing.description}</p>
+            <p className="type-body text-muted-foreground line-clamp-3 whitespace-pre-line">
+              {listing.description}
+            </p>
 
             <div className="pt-1">
               <Button asChild>

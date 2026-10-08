@@ -10,6 +10,7 @@ const navItems = [
   { label: "Marcas", href: "/marcas" },
   { label: "Noticias", href: "/noticias" },
   { label: "Clasificados", href: "/clasificados" },
+  { label: "Repuestos", href: "/repuestos" },
   { label: "Comparar", href: "/#comparar" },
   { label: "Vender", href: "/vender" },
 ];
