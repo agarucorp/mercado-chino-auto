@@ -26,7 +26,7 @@ function DestacadosHome({ aprobadas }: { aprobadas: AdminListing[] }) {
   const toggleWeekly = async (listing: AdminListing) => {
     setBusyId(listing.id);
     try {
-      await setWeeklyPick(listing.isWeeklyPick ? null : listing.id);
+      await setWeeklyPick(listing.id, !listing.isWeeklyPick);
       await invalidate();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo guardar.");
@@ -65,7 +65,7 @@ function DestacadosHome({ aprobadas }: { aprobadas: AdminListing[] }) {
     <div className="mt-14">
       <h2 className="type-h2 text-foreground mb-2">Destacados en la home</h2>
       <p className="type-body text-muted-foreground mb-4 max-w-2xl">
-        Elegí el vehículo de la semana y hasta 3 avisos para "Los más vistos".
+        Marcá uno o más avisos como vehículo de la semana. En el inicio rotan entre los que elijas, sin seguir el orden del último publicado. Hasta 3 avisos van a "Los más vistos".
       </p>
       <ul className="space-y-2">
         {aprobadas.map((listing) => (
@@ -87,7 +87,7 @@ function DestacadosHome({ aprobadas }: { aprobadas: AdminListing[] }) {
               onClick={() => void toggleWeekly(listing)}
             >
               <Star className="h-3.5 w-3.5 mr-1.5" aria-hidden />
-              Semana
+              De la semana
             </Button>
             <Button
               type="button"

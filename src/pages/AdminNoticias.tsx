@@ -158,6 +158,9 @@ function AdminNoticiasInner() {
             <div className="min-w-0 flex-1">
               <p className="type-meta text-muted-foreground">{modeloLabel(article)}</p>
               <h2 className="type-h3 text-foreground mt-1">{article.title}</h2>
+              {article.homeLaunch && (
+                <p className="type-meta text-primary mt-1">En últimos lanzamientos</p>
+              )}
               <div className="flex flex-wrap gap-2 mt-3">
                 <Button
                   type="button"

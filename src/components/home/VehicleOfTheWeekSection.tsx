@@ -5,18 +5,13 @@ import { Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-function premiumPool(listings: Listing[]): Listing[] {
-  const premium = listings.filter((listing) => listing.plan === "premium" && !listing.sold);
-  if (premium.length > 0) return premium;
-  const weekly = listings.find((listing) => listing.isWeeklyPick && !listing.sold);
-  const featured = listings.find((listing) => listing.featured && !listing.sold);
-  const fallback = weekly ?? featured ?? listings.find((listing) => !listing.sold) ?? listings[0];
-  return fallback ? [fallback] : [];
+function weeklyPool(listings: Listing[]): Listing[] {
+  return listings.filter((listing) => listing.isWeeklyPick && !listing.sold);
 }
 
 export function VehicleOfTheWeekSection() {
   const { data: listings = [] } = useApprovedListings();
-  const pool = useMemo(() => premiumPool(listings), [listings]);
+  const pool = useMemo(() => weeklyPool(listings), [listings]);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -39,7 +34,7 @@ export function VehicleOfTheWeekSection() {
         <div className="flex items-end justify-between gap-4 mb-6">
           <h2 className="type-h2 text-foreground">Vehículo de la semana</h2>
           {pool.length > 1 && (
-            <div className="flex gap-1.5" aria-label="Destacados premium">
+            <div className="flex gap-1.5" aria-label="Vehículos de la semana">
               {pool.map((item, i) => (
                 <button
                   key={item.id}

@@ -41,9 +41,10 @@ export function NewsPreview() {
       <div className="container mx-auto">
         <div className="flex items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="type-h2 text-foreground">Las principales noticias</h2>
+            <h2 className="type-h2 text-foreground">Últimas noticias del mercado automotor chino</h2>
             <p className="type-body text-muted-foreground mt-1">
-              Las novedades más recientes del mercado automotriz chino en Argentina
+              Actualidad, novedades de las marcas, próximos lanzamientos y test drives de la
+              industria automotriz china en Argentina
             </p>
           </div>
           <Link

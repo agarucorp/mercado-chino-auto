@@ -63,6 +63,7 @@ interface FormState {
   marcaId: string;
   modeloId: string;
   featured: boolean;
+  homeLaunch: boolean;
   published: boolean;
   date: string;
 }
@@ -78,6 +79,7 @@ const EMPTY: FormState = {
   marcaId: NINGUNA,
   modeloId: NINGUNA,
   featured: false,
+  homeLaunch: false,
   published: true,
   date: new Date().toISOString().slice(0, 10),
 };
@@ -116,6 +118,7 @@ export function NewsEditorDialog({
                 ? TODOS_MODELOS
                 : NINGUNA,
             featured: Boolean(article.featured),
+            homeLaunch: Boolean(article.homeLaunch),
             published: article.published !== false,
             date: article.sortDate,
           }
@@ -223,6 +226,7 @@ export function NewsEditorDialog({
         marca_id: marcaId,
         modelo_id: modeloId,
         featured: form.featured,
+        home_launch: form.homeLaunch,
         published,
         published_at: `${form.date}T12:00:00Z`,
       });
@@ -437,6 +441,22 @@ export function NewsEditorDialog({
                 concreto: solo en esa ficha.
               </p>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">
+            <div>
+              <Label htmlFor="news-launch" className="cursor-pointer">
+                Últimos lanzamientos
+              </Label>
+              <p className="type-meta text-muted-foreground mt-0.5">
+                Se muestra en el carrusel del inicio.
+              </p>
+            </div>
+            <Switch
+              id="news-launch"
+              checked={form.homeLaunch}
+              onCheckedChange={(v) => set("homeLaunch", v)}
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-lg border border-border px-4 py-3">

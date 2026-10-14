@@ -25,6 +25,8 @@ export type NewsRow = {
   modelo_id: string | null;
   published: boolean;
   featured: boolean;
+  /** Si entra en el carrusel "Últimos lanzamientos" del inicio. */
+  home_launch?: boolean;
   position: number;
   published_at: string | null;
   created_at: string;

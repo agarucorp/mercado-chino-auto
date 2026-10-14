@@ -500,30 +500,13 @@ export async function reviewListing(input: {
   if (error) throw new Error(error.message);
 }
 
-/**
- * "Vehículo de la semana": solo uno a la vez. Si `listingId` es null, saca
- * el que esté puesto sin marcar ningún otro.
- *
- * Requiere la migración 20260929000000_home_picks.sql (columna
- * is_weekly_pick). Si todavía no corrió, Supabase devuelve un error de
- * columna inexistente y acá lo re-lanzamos con un mensaje entendible.
- */
-export async function setWeeklyPick(listingId: string | null): Promise<void> {
-  const db = client();
-
-  const { error: clearError } = await db
+/** Marca o saca un aviso de "Vehículo de la semana". Puede haber varios: en el inicio rotan. */
+export async function setWeeklyPick(listingId: string, active: boolean): Promise<void> {
+  const { error } = await client()
     .from("listings")
-    .update({ is_weekly_pick: false })
-    .eq("is_weekly_pick", true);
-  if (clearError) throw new Error(mapHomePicksError(clearError.message));
-
-  if (listingId) {
-    const { error } = await db
-      .from("listings")
-      .update({ is_weekly_pick: true })
-      .eq("id", listingId);
-    if (error) throw new Error(mapHomePicksError(error.message));
-  }
+    .update({ is_weekly_pick: active })
+    .eq("id", listingId);
+  if (error) throw new Error(mapHomePicksError(error.message));
 }
 
 /** "Los más vistos": hasta 3 avisos, `order` es la posición (1, 2 o 3). */

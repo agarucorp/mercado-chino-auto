@@ -9,10 +9,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-/** Lanzamientos cargados a mano desde Noticias, categoría Lanzamiento. */
+/** Notas que el admin marcó como últimos lanzamientos. */
 export function LaunchCarousel() {
   const { data: news = [] } = useNews();
-  const items = news.filter((article) => article.published !== false && article.category === "Lanzamiento");
+  const items = news.filter((article) => article.published !== false && article.homeLaunch);
   const [api, setApi] = useState<CarouselApi>();
   const scrollPrev = useCallback(() => api?.scrollPrev(), [api]);
   const scrollNext = useCallback(() => api?.scrollNext(), [api]);
@@ -30,9 +30,9 @@ export function LaunchCarousel() {
       <div className="container mx-auto">
         <div className="flex items-end justify-between gap-4 mb-6">
           <div>
-            <h2 className="type-h2 text-foreground">Últimos presentados</h2>
+            <h2 className="type-h2 text-foreground">Últimos lanzamientos de autos chinos en Argentina</h2>
             <p className="type-body-sm text-muted-foreground mt-1">
-              Novedades de lanzamiento en el mercado.
+              Conocé los nuevos modelos que llegan al país
             </p>
           </div>
           {items.length > 1 && (

@@ -29,6 +29,7 @@ export function rowToArticle(row: NewsRow): NewsArticle {
     year: d.getUTCFullYear(),
     sortDate: iso.slice(0, 10),
     featured: row.featured,
+    homeLaunch: row.home_launch === true,
     marcaId: row.marca_id ?? undefined,
     modeloId: row.modelo_id ?? undefined,
     sourceUrl: row.source_url ?? undefined,
@@ -97,6 +98,7 @@ export interface NewsInput {
   marca_id: string | null;
   modelo_id: string | null;
   featured: boolean;
+  home_launch: boolean;
   published: boolean;
   published_at: string | null;
 }
@@ -123,8 +125,15 @@ export async function createNews(input: NewsInput): Promise<NewsArticle> {
     .select()
     .single();
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapNewsError(error.message));
   return rowToArticle(data);
+}
+
+function mapNewsError(message: string): string {
+  if (/home_launch|schema cache/i.test(message)) {
+    return "Falta correr el SQL de últimos lanzamientos en Supabase.";
+  }
+  return message;
 }
 
 export const NEWS_IMAGE_BUCKET = "news-images";
@@ -157,7 +166,7 @@ export async function updateNews(id: string, patch: Partial<NewsInput>): Promise
     .select()
     .single();
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error(mapNewsError(error.message));
   return rowToArticle(data);
 }
 

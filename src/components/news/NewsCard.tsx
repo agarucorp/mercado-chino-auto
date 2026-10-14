@@ -13,6 +13,8 @@ export interface NewsArticle {
   year: number;
   sortDate: string;
   featured?: boolean;
+  /** Entra en el carrusel de últimos lanzamientos del inicio. */
+  homeLaunch?: boolean;
   marcaId?: string;
   modeloId?: string;
   /** URL de la nota original, cuando la noticia se importó de otro medio. */
