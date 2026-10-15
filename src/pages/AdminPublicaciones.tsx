@@ -65,7 +65,7 @@ function DestacadosHome({ aprobadas }: { aprobadas: AdminListing[] }) {
     <div className="mt-14">
       <h2 className="type-h2 text-foreground mb-2">Destacados en la home</h2>
       <p className="type-body text-muted-foreground mb-4 max-w-2xl">
-        Marcá uno o más avisos como vehículo de la semana. En el inicio rotan entre los que elijas, sin seguir el orden del último publicado. Hasta 3 avisos van a "Los más vistos".
+        El carrusel de Vehículo de la semana muestra los avisos con plan Premium y los que marques acá. Si pasás uno a Básico y no está marcado, sale del carrusel. Hasta 3 avisos van a "Los más vistos".
       </p>
       <ul className="space-y-2">
         {aprobadas.map((listing) => (
@@ -78,6 +78,7 @@ function DestacadosHome({ aprobadas }: { aprobadas: AdminListing[] }) {
             </div>
             <p className="type-body-sm text-foreground flex-1 min-w-[10rem] truncate">
               {listing.year} {listing.title}
+              <span className="type-meta text-muted-foreground ml-2 capitalize">{listing.plan}</span>
             </p>
             <Button
               type="button"

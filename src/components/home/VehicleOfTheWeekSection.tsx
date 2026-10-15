@@ -6,7 +6,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 function weeklyPool(listings: Listing[]): Listing[] {
-  return listings.filter((listing) => listing.isWeeklyPick && !listing.sold);
+  return listings.filter(
+    (listing) => !listing.sold && (listing.plan === "premium" || listing.isWeeklyPick),
+  );
 }
 
 export function VehicleOfTheWeekSection() {
