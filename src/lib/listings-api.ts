@@ -295,6 +295,13 @@ async function notifyListing(
   return { mailSent: true };
 }
 
+function mapSubmitError(message: string): string {
+  if (/row-level security|listing_is_pending/i.test(message)) {
+    return "No se pudieron guardar las fotos. Falta correr el SQL de publicación en Supabase.";
+  }
+  return message;
+}
+
 export async function submitListing(
   draft: ListingDraft,
   blobs: Map<string, Blob>,
@@ -302,34 +309,33 @@ export async function submitListing(
   const db = client();
   if (!draft.planId) throw new Error("Elegí un plan de publicación.");
 
-  const { data, error } = await db
-    .from("listings")
-    .insert({
-      status: "pendiente",
-      plan: draft.planId,
-      marca_id: draft.marcaId,
-      modelo_id: draft.modeloId,
-      version: draft.version.trim() || null,
-      year: Number(draft.year),
-      km: Number(draft.km),
-      price: Number(draft.price),
-      currency: draft.currency,
-      fuel: draft.fuel,
-      transmission: draft.transmission,
-      location: draft.location.trim(),
-      province: draft.province,
-      title: draft.title.trim(),
-      description: draft.description.trim(),
-      seller_name: draft.sellerName.trim(),
-      seller_email: draft.sellerEmail.trim(),
-      seller_phone: draft.sellerPhone.trim(),
-      seller_type: draft.sellerType,
-    })
-    .select("id")
-    .single();
+  // El id lo genera el navegador. No pedimos la fila de vuelta: un visitante
+  // no puede leer avisos pendientes, y ese select cortaba la publicación.
+  const listingId = crypto.randomUUID();
+  const { error } = await db.from("listings").insert({
+    id: listingId,
+    status: "pendiente",
+    plan: draft.planId,
+    marca_id: draft.marcaId,
+    modelo_id: draft.modeloId,
+    version: draft.version.trim() || null,
+    year: Number(draft.year),
+    km: Number(draft.km),
+    price: Number(draft.price),
+    currency: draft.currency,
+    fuel: draft.fuel,
+    transmission: draft.transmission,
+    location: draft.location.trim(),
+    province: draft.province,
+    title: draft.title.trim(),
+    description: draft.description.trim(),
+    seller_name: draft.sellerName.trim(),
+    seller_email: draft.sellerEmail.trim(),
+    seller_phone: draft.sellerPhone.trim(),
+    seller_type: draft.sellerType,
+  });
 
   if (error) throw new Error(error.message);
-  const listingId = data.id;
 
   let position = 0;
   for (const image of draft.images) {
@@ -349,7 +355,7 @@ export async function submitListing(
       alt: image.name,
       position,
     });
-    if (rowError) throw new Error(rowError.message);
+    if (rowError) throw new Error(mapSubmitError(rowError.message));
     position += 1;
   }
 
