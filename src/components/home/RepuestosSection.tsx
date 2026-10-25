@@ -9,8 +9,8 @@ export function RepuestosSection() {
         <p className="type-body-sm text-muted-foreground mt-1 mb-6">
           Elegí una categoría para ver los proveedores.
         </p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {PROVIDER_CATEGORIES.map((item) => (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[{ id: "repuestos", label: "Repuestos" }, ...PROVIDER_CATEGORIES].map((item) => (
             <Link
               key={item.id}
               to={`/repuestos?categoria=${item.id}`}

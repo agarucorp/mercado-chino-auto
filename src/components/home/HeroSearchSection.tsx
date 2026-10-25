@@ -6,14 +6,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { getModeloPath } from "@/lib/marcas";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) =>
-  a.nombre.localeCompare(b.nombre, "es"),
-);
 
 const darkSelectTrigger =
   "h-12 rounded-lg border-white/35 bg-transparent text-white type-body-sm focus:ring-white/20 focus:ring-offset-0 focus:ring-offset-transparent data-[placeholder]:text-white/50 [&_svg]:text-white/70";
@@ -28,12 +24,17 @@ const selectContentProps = {
 
 export function HeroSearchSection() {
   const navigate = useNavigate();
+  const catalog = useCatalogSnapshot();
   const [marcaId, setMarcaId] = useState("");
   const [modeloId, setModeloId] = useState("");
+  const marcasOrdenadas = useMemo(
+    () => [...catalog.marcas].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    [catalog.marcas],
+  );
 
   const marca = useMemo(
-    () => MARCAS_ORDENADAS.find((item) => item.id === marcaId),
-    [marcaId],
+    () => marcasOrdenadas.find((item) => item.id === marcaId),
+    [marcaId, marcasOrdenadas],
   );
 
   const modelos = useMemo(() => {
@@ -71,7 +72,7 @@ export function HeroSearchSection() {
                   <SelectValue placeholder="Seleccioná la marca" />
                 </SelectTrigger>
                 <SelectContent {...selectContentProps}>
-                  {MARCAS_ORDENADAS.map((item) => (
+                  {marcasOrdenadas.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.nombre}
                     </SelectItem>

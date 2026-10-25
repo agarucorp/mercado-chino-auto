@@ -33,11 +33,11 @@ describe("categorias", () => {
       [
         "electrico:41",
         "hibrido:29",
-        "suv:74",
+        "suv:89",
         "hatchback:10",
         "sedan:5",
         "pickup:13",
-        "utilitario:5",
+        "utilitario:7",
         "offroad:3",
       ]
     `);

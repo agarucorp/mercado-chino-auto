@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { Loader2 } from "lucide-react";
 import { Suspense, lazy } from "react";
+import { ModelCatalogProvider } from "@/components/catalog/ModelCatalogProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -24,6 +25,7 @@ const NoticiaDetail = lazy(() => import("./pages/NoticiaDetail"));
 const AdminHome = lazy(() => import("./pages/AdminHome"));
 const AdminNoticias = lazy(() => import("./pages/AdminNoticias"));
 const AdminModelos = lazy(() => import("./pages/AdminModelos"));
+const AdminModeloEditor = lazy(() => import("./pages/AdminModeloEditor"));
 const AdminModeloHistorial = lazy(() => import("./pages/AdminModeloHistorial"));
 const AdminPublicaciones = lazy(() => import("./pages/AdminPublicaciones"));
 const AdminResenas = lazy(() => import("./pages/AdminResenas"));
@@ -43,6 +45,7 @@ function RouteFallback() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <ModelCatalogProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -58,6 +61,8 @@ const App = () => (
                 <Route path="/admin/resenas" element={<AdminResenas />} />
                 <Route path="/admin/repuestos" element={<AdminRepuestos />} />
                 <Route path="/admin/modelos" element={<AdminModelos />} />
+                <Route path="/admin/modelos/nuevo" element={<AdminModeloEditor />} />
+                <Route path="/admin/modelos/:marcaId/:modeloId/editar" element={<AdminModeloEditor />} />
                 <Route path="/admin/modelos/:marcaId/:modeloId" element={<AdminModeloHistorial />} />
                 <Route path="/admin/solicitudes" element={<AdminPublicaciones />} />
                 <Route path="/admin/solicitudes/:id" element={<AdminSolicitudDetail />} />
@@ -79,6 +84,7 @@ const App = () => (
             </Suspense>
           </BrowserRouter>
         </TooltipProvider>
+      </ModelCatalogProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

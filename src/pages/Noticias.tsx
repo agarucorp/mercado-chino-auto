@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Layout } from "@/components/layout/Layout";
 import { MARCAS } from "@/data/marcas";
 import { useNews } from "@/hooks/useNews";
+import { visitorError } from "@/lib/visitor-error";
 import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -116,10 +117,7 @@ const Noticias = () => {
 
           {isError && (
             <p role="alert" className="type-body text-muted-foreground text-center py-16">
-              No se pudieron cargar las noticias.
-              {error instanceof Error && (
-                <span className="block type-meta mt-2">{error.message}</span>
-              )}
+              {visitorError(error, "noticias")}
             </p>
           )}
 

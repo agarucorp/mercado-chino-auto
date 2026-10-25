@@ -12,9 +12,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { useNews, useNewsMutations } from "@/hooks/useNews";
-import { getModeloPath, resolveModeloId } from "@/lib/marcas";
+import { findAdminModelo } from "@/lib/model-catalog";
+import { getModeloPath } from "@/lib/marcas";
 import type { NewsInput } from "@/lib/news-api";
 import { newsMatchesModelo } from "@/lib/news-placement";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
@@ -24,13 +25,13 @@ import { toast } from "sonner";
 
 function AdminModeloHistorialInner() {
   const { marcaId, modeloId } = useParams<{ marcaId: string; modeloId: string }>();
+  const catalog = useCatalogSnapshot();
   const { data: news = [], isLoading } = useNews();
   const { create, update, remove } = useNewsMutations();
 
-  const marca = MARCAS.find((m) => m.id === marcaId);
-  const modelo = marca?.modelos.find(
-    (m) => modeloId && m.id === resolveModeloId(modeloId),
-  );
+  const found = marcaId && modeloId ? findAdminModelo(marcaId, modeloId) : null;
+  const marca = found?.marca;
+  const modelo = found?.modelo;
 
   const historial = useMemo(
     () =>
@@ -44,6 +45,15 @@ function AdminModeloHistorialInner() {
   const [editing, setEditing] = useState<NewsArticle | null>(null);
   const [pasteUrl, setPasteUrl] = useState("");
   const [pendingDelete, setPendingDelete] = useState<NewsArticle | null>(null);
+
+  if (!catalog.ready) {
+    return (
+      <div className="flex items-center gap-3 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+        <span className="type-body">Cargando modelo…</span>
+      </div>
+    );
+  }
 
   if (!marcaId || !modeloId) return <Navigate to="/admin/modelos" replace />;
   if (!marca || !modelo) return <Navigate to="/admin/modelos" replace />;
@@ -80,7 +90,13 @@ function AdminModeloHistorialInner() {
         Historial de esta ficha. Quitar del radar deja la nota acá. Borrar la saca de la
         ficha pública también.
       </p>
-      <p className="mt-2">
+      <p className="mt-2 flex flex-wrap gap-4">
+        <Link
+          to={`/admin/modelos/${marca.id}/${modelo.id}/editar`}
+          className="type-meta underline underline-offset-4"
+        >
+          Editar ficha
+        </Link>
         <Link
           to={getModeloPath(marca, modelo)}
           className="type-meta underline underline-offset-4"

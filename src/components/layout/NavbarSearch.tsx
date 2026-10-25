@@ -1,4 +1,5 @@
 import { MarcaLogo } from "@/components/brands/MarcaLogo";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { getMarcaForResult, searchCatalog, type SearchResult } from "@/lib/search";
 import { cn } from "@/lib/utils";
 import { Search, X } from "lucide-react";
@@ -57,8 +58,9 @@ export function NavbarSearch({ className, onNavigate }: NavbarSearchProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const catalog = useCatalogSnapshot();
 
-  const results = useMemo(() => searchCatalog(query), [query]);
+  const results = useMemo(() => searchCatalog(query), [query, catalog.marcas]);
   const hasQuery = query.trim().length > 0;
   const showDropdown = open && hasQuery;
 

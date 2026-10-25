@@ -295,13 +295,6 @@ async function notifyListing(
   return { mailSent: true };
 }
 
-function mapSubmitError(message: string): string {
-  if (/row-level security|listing_is_pending/i.test(message)) {
-    return "No se pudieron guardar las fotos. Falta correr el SQL de publicación en Supabase.";
-  }
-  return message;
-}
-
 export async function submitListing(
   draft: ListingDraft,
   blobs: Map<string, Blob>,
@@ -355,7 +348,7 @@ export async function submitListing(
       alt: image.name,
       position,
     });
-    if (rowError) throw new Error(mapSubmitError(rowError.message));
+    if (rowError) throw new Error(rowError.message);
     position += 1;
   }
 

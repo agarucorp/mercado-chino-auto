@@ -1,8 +1,7 @@
 import { LISTINGS_DATA } from "@/data/listings";
-import { getFichaTecnica } from "@/data/modelo-media";
 import { valueForVariant } from "@/lib/ficha-variantes";
+import { getLiveMarcas, resolveFicha } from "@/lib/model-catalog";
 import { getAllReviewsRaw } from "@/lib/review-store";
-import { MARCAS } from "@/data/marcas";
 import type { Marca, Modelo } from "@/types/marcas";
 
 export interface ModeloOption {
@@ -37,7 +36,7 @@ export interface CompareResult {
 }
 
 export function getAllModeloOptions(): ModeloOption[] {
-  return MARCAS.flatMap((marca) =>
+  return getLiveMarcas().flatMap((marca) =>
     marca.modelos.map((modelo) => ({
       id: modelo.id,
       label: `${marca.nombre} ${modelo.nombre}`,
@@ -48,7 +47,7 @@ export function getAllModeloOptions(): ModeloOption[] {
 }
 
 function fichaValue(modeloId: string, label: string, variant?: string): string {
-  const raw = getFichaTecnica(modeloId).find((r) => r.label === label)?.value ?? "—";
+  const raw = resolveFicha(modeloId).find((r) => r.label === label)?.value ?? "—";
   return valueForVariant(raw, variant);
 }
 
@@ -57,7 +56,7 @@ function fichaFind(
   matcher: (label: string) => boolean,
   variant?: string,
 ): string {
-  const raw = getFichaTecnica(modeloId).find((r) => matcher(r.label))?.value ?? "—";
+  const raw = resolveFicha(modeloId).find((r) => matcher(r.label))?.value ?? "—";
   return valueForVariant(raw, variant);
 }
 

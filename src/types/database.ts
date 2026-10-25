@@ -88,6 +88,19 @@ export type ServiceProviderRow = {
   updated_at: string;
 }
 
+export type ModelProfileRow = {
+  modelo_id: string;
+  marca_id: string;
+  nombre: string;
+  estado: string;
+  summary: string;
+  ficha: { label: string; value: string }[] | null;
+  images: string[] | null;
+  removed: boolean;
+  custom: boolean;
+  updated_at: string;
+}
+
 export type AdminRow = {
   user_id: string;
   email: string;
@@ -182,6 +195,12 @@ export type Database = {
         Row: ServiceProviderRow;
         Insert: InsertOf<ServiceProviderRow, "category" | "name">;
         Update: Partial<ServiceProviderRow>;
+        Relationships: [];
+      };
+      model_profiles: {
+        Row: ModelProfileRow;
+        Insert: InsertOf<ModelProfileRow, "modelo_id" | "marca_id" | "nombre">;
+        Update: Partial<ModelProfileRow>;
         Relationships: [];
       };
     };

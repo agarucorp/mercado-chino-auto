@@ -3,21 +3,31 @@ import { MarcaHeader, MarcaModelosList } from "@/components/brands/MarcaModelosL
 import { Badge } from "@/components/ui/badge";
 import { Layout } from "@/components/layout/Layout";
 import { useNewsByMarca } from "@/hooks/useNews";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { getMarcaBySlug } from "@/lib/marcas";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, Loader2 } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 const MarcaDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const marca = slug ? getMarcaBySlug(MARCAS, slug) : undefined;
+  const catalog = useCatalogSnapshot();
+  const marca = slug ? getMarcaBySlug(catalog.marcas, slug) : undefined;
 
   // Antes del early return: los hooks tienen que correr en el mismo orden
   // en todos los renders, incluido el que redirige.
   const noticiasMarca = useNewsByMarca(marca?.id ?? "");
 
   if (!marca) {
+    if (!catalog.ready) {
+      return (
+        <Layout>
+          <div className="flex items-center justify-center gap-3 py-24 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+          </div>
+        </Layout>
+      );
+    }
     return <Navigate to="/marcas" replace />;
   }
 

@@ -1,9 +1,9 @@
 import { MarcaLogo } from "@/components/brands/MarcaLogo";
 import { Button } from "@/components/ui/button";
 import type { Listing } from "@/data/listings";
-import { getModeloImage } from "@/data/modelo-media";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { useReviews } from "@/hooks/useReviews";
-import { MARCAS } from "@/data/marcas";
+import { resolveImages } from "@/lib/model-catalog";
 import { getModeloPath } from "@/lib/marcas";
 import type { Marca, Modelo } from "@/types/marcas";
 import { ArrowRight, MessageSquare, Star } from "lucide-react";
@@ -15,9 +15,10 @@ interface ModeloCatalogTeaserProps {
 
 function findMarcaModelo(
   listing: Listing,
+  marcas: Marca[],
 ): { marca: Marca; modelo: Modelo } | null {
   if (!listing.modeloId) return null;
-  const marca = MARCAS.find((m) => m.id === listing.marcaId);
+  const marca = marcas.find((m) => m.id === listing.marcaId);
   if (!marca) return null;
   const modelo = marca.modelos.find((m) => m.id === listing.modeloId);
   if (!modelo) return null;
@@ -25,7 +26,8 @@ function findMarcaModelo(
 }
 
 export function ModeloCatalogTeaser({ listing }: ModeloCatalogTeaserProps) {
-  const match = findMarcaModelo(listing);
+  const catalog = useCatalogSnapshot();
+  const match = findMarcaModelo(listing, catalog.marcas);
   const { reviews: resenas } = useReviews(match?.marca.id ?? "", match?.modelo.id ?? "");
   if (!match) return null;
 
@@ -48,7 +50,7 @@ export function ModeloCatalogTeaser({ listing }: ModeloCatalogTeaserProps) {
       <div className="p-5 md:p-6 flex flex-col sm:flex-row gap-5">
         <div className="relative w-full sm:w-44 shrink-0 aspect-[4/3] rounded-lg overflow-hidden bg-muted">
           <img
-            src={getModeloImage(modelo.id)}
+            src={resolveImages(modelo.id)[0]}
             alt={modelo.nombre}
             className="w-full h-full object-cover"
           />

@@ -15,7 +15,8 @@ import {
 } from "@/lib/comparador";
 import { cn } from "@/lib/utils";
 import { getModeloPath } from "@/lib/marcas";
-import { getFichaTecnica } from "@/data/modelo-media";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
+import { resolveFicha } from "@/lib/model-catalog";
 import { fichaVariantNames } from "@/lib/ficha-variantes";
 import {
   ArrowLeftRight,
@@ -328,7 +329,8 @@ function VerdictDashboard({
 }
 
 export function ModelCompareSection() {
-  const options = useMemo(() => getAllModeloOptions(), []);
+  const catalog = useCatalogSnapshot();
+  const options = useMemo(() => getAllModeloOptions(), [catalog.marcas]);
   const [idA, setIdA] = useState(options[0]?.id ?? "");
   const [idB, setIdB] = useState(options[1]?.id ?? "");
   const [variantA, setVariantA] = useState("");
@@ -337,8 +339,8 @@ export function ModelCompareSection() {
 
   const optionA = options.find((o) => o.id === idA);
   const optionB = options.find((o) => o.id === idB);
-  const variantesA = optionA ? fichaVariantNames(getFichaTecnica(optionA.modelo.id)) : [];
-  const variantesB = optionB ? fichaVariantNames(getFichaTecnica(optionB.modelo.id)) : [];
+  const variantesA = optionA ? fichaVariantNames(resolveFicha(optionA.modelo.id)) : [];
+  const variantesB = optionB ? fichaVariantNames(resolveFicha(optionB.modelo.id)) : [];
   const motorA = variantesA.includes(variantA) ? variantA : (variantesA[0] ?? "");
   const motorB = variantesB.includes(variantB) ? variantB : (variantesB[0] ?? "");
 

@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { ContactSection } from "./ContactSection";
-import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import { Navbar } from "./Navbar";
+import { WhatsAppButton } from "./WhatsAppButton";
 
 interface LayoutProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ export const Layout = ({ children }: LayoutProps) => {
       <main className="flex-1">{children}</main>
       <ContactSection />
       <Footer />
+      <WhatsAppButton />
     </div>
   );
 };

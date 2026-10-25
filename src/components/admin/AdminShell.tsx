@@ -21,7 +21,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
     { to: "/admin/noticias", label: "Noticias", icon: Newspaper, badge: 0, active: false },
     { to: "/admin/repuestos", label: "Repuestos y talleres", icon: Wrench, badge: 0, active: false },
     { to: "/admin/resenas", label: "Reseñas", icon: MessageSquare, badge: 0, active: false },
-    { to: "/admin/modelos", label: "Historial por modelo", icon: Car, badge: 0, active: false },
+    { to: "/admin/modelos", label: "Modelos", icon: Car, badge: 0, active: false },
     {
       to: "/admin/solicitudes",
       label: "Solicitudes",

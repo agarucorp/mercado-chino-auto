@@ -6,8 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getModeloImage } from "@/data/modelo-media";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
+import { resolveImages } from "@/lib/model-catalog";
 import { DNRPA_FUENTE_URL, DNRPA_YEARS } from "@/data/dnrpa-patentamientos";
 import {
   formatEnteroAr,
@@ -25,6 +25,7 @@ import { Link } from "react-router-dom";
 const INITIAL_VISIBLE = 12;
 
 export function PatentamientosSection() {
+  const catalog = useCatalogSnapshot();
   const [year, setYear] = useState<DnrpaYearFilter>(2026);
   const [marcaId, setMarcaId] = useState("todas");
   const [expanded, setExpanded] = useState(false);
@@ -154,7 +155,7 @@ export function PatentamientosSection() {
         ) : (
           <ol className="space-y-2">
             {visible.map((row, index) => {
-              const marca = MARCAS.find((m) => m.id === row.marcaId);
+              const marca = catalog.marcas.find((m) => m.id === row.marcaId);
               const modelo = marca?.modelos.find((m) => m.id === resolveModeloId(row.modeloId));
               const href =
                 marca && modelo ? getModeloPath(marca, modelo) : `/marcas/${row.marcaId}`;
@@ -172,7 +173,7 @@ export function PatentamientosSection() {
                     <div className="min-w-0 flex items-center gap-3">
                       <div className="hidden sm:block w-16 shrink-0 aspect-[16/10] overflow-hidden rounded-md bg-muted">
                         <img
-                          src={getModeloImage(row.modeloId)}
+                          src={resolveImages(row.modeloId)[0]}
                           alt=""
                           className="h-full w-full object-cover"
                           loading="lazy"

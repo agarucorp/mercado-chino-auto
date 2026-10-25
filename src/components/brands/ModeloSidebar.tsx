@@ -2,6 +2,7 @@ import { MarcaCtas } from "@/components/brands/MarcaCtas";
 import { SpecHighlightGrid, SummaryCardShell } from "@/components/detail/SummaryCardShell";
 import type { FichaTecnicaRow } from "@/data/modelo-media";
 import type { Marca, Modelo } from "@/types/marcas";
+import { EstadoModeloBadge } from "@/components/brands/EstadoModeloBadge";
 import { Building2, CarFront, Fuel, Settings2 } from "lucide-react";
 
 function fichaVal(ficha: FichaTecnicaRow[], label: string): string {
@@ -12,9 +13,10 @@ interface ModeloSidebarProps {
   marca: Marca;
   modelo: Modelo;
   ficha: FichaTecnicaRow[];
+  summary?: string;
 }
 
-export function ModeloSidebar({ marca, modelo, ficha }: ModeloSidebarProps) {
+export function ModeloSidebar({ marca, modelo, ficha, summary }: ModeloSidebarProps) {
   const title = `${marca.nombre} ${modelo.nombre}`;
 
   const motor =
@@ -49,10 +51,12 @@ export function ModeloSidebar({ marca, modelo, ficha }: ModeloSidebarProps) {
       footer={`Representado por ${marca.representante}`}
     >
       <div className="space-y-3">
+        <EstadoModeloBadge estado={modelo.estado} />
         <p className="type-meta text-muted-foreground flex items-center gap-1.5">
           <Building2 className="w-3.5 h-3.5 shrink-0" />
           {marca.representante} · Argentina desde {marca.anioLanzamiento}
         </p>
+        {summary && <p className="type-body-sm text-foreground whitespace-pre-line">{summary}</p>}
       </div>
 
       <SpecHighlightGrid items={specs} />

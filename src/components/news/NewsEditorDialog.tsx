@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { extractNewsFromUrl, uploadNewsImage, type NewsInput } from "@/lib/news-api";
 import { ImagePlus, Loader2, Link2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const CATEGORIAS = [
@@ -37,7 +37,6 @@ const CATEGORIAS = [
   "Política",
 ];
 
-const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 const NINGUNA = "__ninguna__";
 /** Marca elegida sin modelo concreto → aplica a todos los modelos de esa marca. */
 const TODOS_MODELOS = "__todos__";
@@ -93,6 +92,11 @@ export function NewsEditorDialog({
   initialMarcaId,
   initialModeloId,
 }: NewsEditorDialogProps) {
+  const catalog = useCatalogSnapshot();
+  const marcasOrdenadas = useMemo(
+    () => [...catalog.marcas].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    [catalog.marcas],
+  );
   const [form, setForm] = useState<FormState>(EMPTY);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -141,7 +145,7 @@ export function NewsEditorDialog({
   const modelos =
     form.marcaId === NINGUNA
       ? []
-      : (MARCAS_ORDENADAS.find((m) => m.id === form.marcaId)?.modelos ?? []);
+      : (marcasOrdenadas.find((m) => m.id === form.marcaId)?.modelos ?? []);
 
   const handleExtract = async (url = form.sourceUrl.trim()) => {
     if (!url) {
@@ -401,7 +405,7 @@ export function NewsEditorDialog({
                 </SelectTrigger>
                 <SelectContent side="bottom" className="max-h-64">
                   <SelectItem value={NINGUNA}>No aplica</SelectItem>
-                  {MARCAS_ORDENADAS.map((m) => (
+                  {marcasOrdenadas.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
                       {m.nombre}
                     </SelectItem>

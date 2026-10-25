@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CONTACT_INBOX, getContactIssues, submitContact } from "@/lib/contact-api";
+import { visitorError } from "@/lib/visitor-error";
 import { Loader2, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -33,13 +34,11 @@ export function ContactSection() {
         setMessage("");
         return;
       }
-      toast.error(
-        result.mailError
-          ? `No se pudo enviar el mensaje (${result.mailError}).`
-          : "No se pudo enviar el mensaje.",
-      );
+      if (result.mailError) console.warn("contacto", result.mailError);
+      toast.error("No se pudo enviar el mensaje.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo enviar el mensaje.");
+      console.error(err);
+      toast.error(visitorError(err, "contacto"));
     } finally {
       setSubmitting(false);
     }

@@ -12,11 +12,11 @@ import { NewsCard } from "@/components/news/NewsCard";
 import { formatKm, formatListingPrice } from "@/data/listings";
 import { useApprovedListings } from "@/hooks/useListings";
 import { useNewsByModelo } from "@/hooks/useNews";
-import { getFichaTecnica, getModeloImages } from "@/data/modelo-media";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { fichaForVariant, fichaVariantNames } from "@/lib/ficha-variantes";
 import { getMarcaBySlug, getModeloBySlug, resolveModeloId } from "@/lib/marcas";
-import { ArrowLeft, MapPin, Newspaper } from "lucide-react";
+import { resolveFicha, resolveImages, resolveSummary } from "@/lib/model-catalog";
+import { ArrowLeft, Loader2, MapPin, Newspaper } from "lucide-react";
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
@@ -30,7 +30,8 @@ const ModeloDetail = () => {
     modeloSlug: string;
   }>();
 
-  const marca = marcaSlug ? getMarcaBySlug(MARCAS, marcaSlug) : undefined;
+  const catalog = useCatalogSnapshot();
+  const marca = marcaSlug ? getMarcaBySlug(catalog.marcas, marcaSlug) : undefined;
   const modelo = marca && modeloSlug ? getModeloBySlug(marca, modeloSlug) : undefined;
 
   // Antes del early return: los hooks tienen que correr en el mismo orden
@@ -39,7 +40,7 @@ const ModeloDetail = () => {
   const noticias = noticiasModelo.filter((n) => n.published !== false);
   const historial = noticiasModelo.filter((n) => n.published === false);
   const { data: allListings = [] } = useApprovedListings();
-  const fichaCompleta = getFichaTecnica(modelo?.id ?? "");
+  const fichaCompleta = resolveFicha(modelo?.id ?? "");
   const variantes = fichaVariantNames(fichaCompleta);
   const [motorizacionElegida, setMotorizacionElegida] = useState<{ id: string; name: string } | null>(
     null,
@@ -50,6 +51,16 @@ const ModeloDetail = () => {
       : (variantes[0] ?? "");
 
   if (!marca || !modelo) {
+    if (!catalog.ready) {
+      return (
+        <Layout>
+          <div className="flex items-center justify-center gap-3 py-24 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+            <span className="type-body">Cargando modelo…</span>
+          </div>
+        </Layout>
+      );
+    }
     return <Navigate to="/marcas" replace />;
   }
 
@@ -59,7 +70,8 @@ const ModeloDetail = () => {
   const ficha = motorizacionActiva
     ? fichaForVariant(fichaCompleta, motorizacionActiva)
     : fichaCompleta;
-  const imagenes = getModeloImages(modelo.id);
+  const imagenes = resolveImages(modelo.id);
+  const summary = resolveSummary(modelo.id);
 
   return (
     <Layout>
@@ -76,14 +88,14 @@ const ModeloDetail = () => {
           <DetailPageGrid
               sidebar={
                 <DetailStickyAside>
-                  <ModeloSidebar marca={marca} modelo={modelo} ficha={ficha} />
+                  <ModeloSidebar marca={marca} modelo={modelo} ficha={ficha} summary={summary} />
                 </DetailStickyAside>
               }
             >
               <ListingGallery images={imagenes} title={modelo.nombre} />
 
               <DetailMobileAside>
-                <ModeloSidebar marca={marca} modelo={modelo} ficha={ficha} />
+                <ModeloSidebar marca={marca} modelo={modelo} ficha={ficha} summary={summary} />
               </DetailMobileAside>
 
               <div className="py-2 md:py-4 space-y-4">

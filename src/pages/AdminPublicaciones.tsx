@@ -210,11 +210,45 @@ function AdminPublicacionesInner() {
         })}
       </ul>
 
-      {otros.length > 0 && (
+      {aprobadas.length > 0 && (
+        <div className="mt-14">
+          <h2 className="type-h2 text-foreground mb-2">Clasificados publicados</h2>
+          <p className="type-body text-muted-foreground mb-4 max-w-2xl">
+            Desde acá cambiás el teléfono, el precio, las fotos o cualquier dato del aviso. También
+            podés quitarlo del sitio o eliminarlo.
+          </p>
+          <ul className="space-y-3">
+            {aprobadas.map((listing) => (
+              <li
+                key={listing.id}
+                className="rounded-lg border border-border px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p className="type-body-sm text-foreground">
+                    {listing.year} {listing.title}
+                    {listing.sold ? " · Vendido" : ""}
+                  </p>
+                  <p className="type-meta text-muted-foreground">
+                    {listing.sellerPhone || "Sin teléfono"} · {formatListingPrice(listing)}
+                  </p>
+                </div>
+                <Link
+                  to={`/admin/solicitudes/${listing.id}`}
+                  className="type-meta underline underline-offset-4 shrink-0"
+                >
+                  Editar
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {otros.filter((listing) => listing.status !== "aprobada").length > 0 && (
         <div className="mt-14">
           <h2 className="type-h2 text-foreground mb-4">Ya revisadas</h2>
           <ul className="space-y-3">
-            {otros.map((listing) => (
+            {otros.filter((listing) => listing.status !== "aprobada").map((listing) => (
               <li
                 key={listing.id}
                 className="rounded-lg border border-border px-4 py-3 flex items-baseline justify-between gap-3"
@@ -225,22 +259,12 @@ function AdminPublicacionesInner() {
                     {listing.sold ? "vendido" : listing.status}
                   </p>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <Link
-                    to={`/admin/solicitudes/${listing.id}`}
-                    className="type-meta underline underline-offset-4"
-                  >
-                    Ver
-                  </Link>
-                  {listing.status === "aprobada" && (
-                    <Link
-                      to={`/clasificados/${listing.id}`}
-                      className="type-meta underline underline-offset-4"
-                    >
-                      Clasificados
-                    </Link>
-                  )}
-                </div>
+                <Link
+                  to={`/admin/solicitudes/${listing.id}`}
+                  className="type-meta underline underline-offset-4 shrink-0"
+                >
+                  Ver
+                </Link>
               </li>
             ))}
           </ul>

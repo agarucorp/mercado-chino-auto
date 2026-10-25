@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { useAuth } from "@/hooks/useAuth";
 import {
   ADMIN_LISTINGS_KEY,
@@ -58,9 +58,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const YEARS = Array.from({ length: 2026 - 1995 + 1 }, (_, i) => String(2026 - i));
-const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) =>
-  a.nombre.localeCompare(b.nombre, "es"),
-);
 
 function normalizeTransmission(value: string): string {
   if (value === "CVT" || value === "DCT" || value === "Automático") return "Automática";
@@ -110,6 +107,11 @@ function Field({
 }
 
 function AdminSolicitudDetailInner() {
+  const catalog = useCatalogSnapshot();
+  const marcasOrdenadas = useMemo(
+    () => [...catalog.marcas].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    [catalog.marcas],
+  );
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -205,9 +207,9 @@ function AdminSolicitudDetailInner() {
   }, [listing]);
 
   const modelos = useMemo(() => {
-    const marca = MARCAS.find((m) => m.id === form?.marcaId);
+    const marca = marcasOrdenadas.find((m) => m.id === form?.marcaId);
     return marca?.modelos ?? [];
-  }, [form?.marcaId]);
+  }, [form?.marcaId, marcasOrdenadas]);
 
   const fuelOptions = useMemo(() => {
     if (form?.fuel && !FUEL_OPTIONS.includes(form.fuel)) {
@@ -340,6 +342,12 @@ function AdminSolicitudDetailInner() {
           Revisá o completá los datos y aprobá para crear el aviso en clasificados.
         </p>
       )}
+      {listing.status === "aprobada" && (
+        <p className="mt-6 rounded-xl border border-border bg-muted/40 px-4 py-3 type-body-sm text-foreground">
+          Este aviso está en clasificados. Guardar cambios actualiza el teléfono, el precio, el
+          texto y el resto de los datos. Eliminar publicación lo borra del sitio.
+        </p>
+      )}
       {listing.status === "archivada" && (
         <p className="mt-6 rounded-xl border border-border bg-muted/40 px-4 py-3 type-body-sm text-foreground">
           Este aviso está quitado de clasificados. No se ve en el sitio hasta que lo vuelvas a
@@ -448,7 +456,7 @@ function AdminSolicitudDetailInner() {
                 <SelectValue placeholder="Marca" />
               </SelectTrigger>
               <SelectContent className="max-h-72">
-                {MARCAS_ORDENADAS.map((marca) => (
+                {marcasOrdenadas.map((marca) => (
                   <SelectItem key={marca.id} value={marca.id}>
                     {marca.nombre}
                   </SelectItem>

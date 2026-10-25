@@ -1,6 +1,7 @@
 import { ReviewCard } from "@/components/reviews/ReviewCard";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { useReviews } from "@/hooks/useReviews";
+import { visitorError } from "@/lib/visitor-error";
 import { useToast } from "@/hooks/use-toast";
 import { MessageSquare } from "lucide-react";
 
@@ -40,9 +41,10 @@ export function ReviewsSection({
         });
       })
       .catch((err: unknown) => {
+        console.error(err);
         toast({
           title: "No se pudo publicar",
-          description: err instanceof Error ? err.message : "Intentá de nuevo en un momento.",
+          description: visitorError(err, "resena"),
           variant: "destructive",
         });
       });

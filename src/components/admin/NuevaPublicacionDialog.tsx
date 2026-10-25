@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { CONTACT_INBOX } from "@/lib/contact-api";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { useAuth } from "@/hooks/useAuth";
 import { ADMIN_LISTINGS_KEY, APPROVED_LISTINGS_KEY } from "@/hooks/useListings";
 import { buildListingReviewPatch, getSolicitudFormIssues, type SolicitudForm } from "@/lib/admin-solicitudes";
@@ -43,7 +43,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const YEARS = Array.from({ length: 2026 - 1995 + 1 }, (_, i) => String(2026 - i));
-const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
 /**
  * El admin carga el vehículo él mismo (sin datos del vendedor real, viene de
@@ -93,6 +92,11 @@ interface NuevaPublicacionDialogProps {
 }
 
 export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionDialogProps) {
+  const catalog = useCatalogSnapshot();
+  const marcasOrdenadas = useMemo(
+    () => [...catalog.marcas].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    [catalog.marcas],
+  );
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -115,9 +119,9 @@ export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionD
   const update = (patch: Partial<SolicitudForm>) => setForm((f) => ({ ...f, ...patch }));
 
   const modelos = useMemo(() => {
-    const marca = MARCAS.find((m) => m.id === form.marcaId);
+    const marca = marcasOrdenadas.find((m) => m.id === form.marcaId);
     return marca?.modelos ?? [];
-  }, [form.marcaId]);
+  }, [form.marcaId, marcasOrdenadas]);
 
   const addFiles = async (files: File[]) => {
     if (!files.length) return;
@@ -287,7 +291,7 @@ export function NuevaPublicacionDialog({ open, onOpenChange }: NuevaPublicacionD
                   <SelectValue placeholder="Marca" />
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
-                  {MARCAS_ORDENADAS.map((marca) => (
+                  {marcasOrdenadas.map((marca) => (
                     <SelectItem key={marca.id} value={marca.id}>
                       {marca.nombre}
                     </SelectItem>

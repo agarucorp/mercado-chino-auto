@@ -1,6 +1,5 @@
-import { MARCAS } from "@/data/marcas";
-import { getModeloImage } from "@/data/modelo-media";
 import { getModeloPath } from "@/lib/marcas";
+import { getLiveMarcas, resolveImages } from "@/lib/model-catalog";
 import type { Marca, Modelo } from "@/types/marcas";
 
 export type SearchResultType = "marca" | "modelo";
@@ -39,7 +38,7 @@ export function searchCatalog(
   const marcas: SearchResult[] = [];
   const modelos: SearchResult[] = [];
 
-  for (const marca of MARCAS) {
+  for (const marca of getLiveMarcas()) {
     if (matchesQuery(marca.nombre, q)) {
       marcas.push({
         type: "marca",
@@ -60,7 +59,7 @@ export function searchCatalog(
           title: modelo.nombre,
           subtitle: marca.nombre,
           href: getModeloPath(marca, modelo),
-          image: getModeloImage(modelo.id),
+          image: resolveImages(modelo.id)[0],
           marcaId: marca.id,
           estado: modelo.estado,
         });
@@ -78,5 +77,5 @@ export function searchCatalog(
 }
 
 export function getMarcaForResult(result: SearchResult): Marca | undefined {
-  return MARCAS.find((m) => m.id === result.marcaId);
+  return getLiveMarcas().find((m) => m.id === result.marcaId);
 }

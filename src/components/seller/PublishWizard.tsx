@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import {
   EMPTY_DRAFT,
   FUEL_OPTIONS,
@@ -45,6 +45,7 @@ import {
   screenFiles,
 } from "@/lib/listing-images";
 import { submitListing } from "@/lib/listings-api";
+import { visitorError } from "@/lib/visitor-error";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import {
@@ -59,10 +60,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-
-const MARCAS_ORDENADAS = [...MARCAS].sort((a, b) =>
-  a.nombre.localeCompare(b.nombre, "es"),
-);
 
 const YEARS = Array.from({ length: 2026 - 1995 + 1 }, (_, i) => String(2026 - i));
 
@@ -142,6 +139,11 @@ function StepIssues({ issues }: { issues: string[] }) {
 }
 
 export function PublishWizard() {
+  const catalog = useCatalogSnapshot();
+  const marcasOrdenadas = useMemo(
+    () => [...catalog.marcas].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+    [catalog.marcas],
+  );
   const [draft, setDraft] = useState<ListingDraft>(() => {
     if (typeof window === "undefined") return { ...EMPTY_DRAFT };
     return { ...loadListingDraft(), planId: "basico" };
@@ -198,7 +200,7 @@ export function PublishWizard() {
       const alive = stored.images.filter((img) => blobs.has(img.id));
       if (alive.length !== stored.images.length) {
         updateWith(() => ({ images: alive }));
-        toast.warning("Algunas fotos del borrador ya no estaban guardadas. Volvé a subirlas.");
+        toast.warning("Algunas fotos del borrador ya no estaban guardadas.");
       }
     });
 
@@ -216,8 +218,8 @@ export function PublishWizard() {
   );
 
   const selectedMarca = useMemo(
-    () => MARCAS_ORDENADAS.find((m) => m.id === draft.marcaId),
-    [draft.marcaId],
+    () => marcasOrdenadas.find((m) => m.id === draft.marcaId),
+    [draft.marcaId, marcasOrdenadas],
   );
 
   const modelos = useMemo(() => {
@@ -345,7 +347,7 @@ export function PublishWizard() {
 
     if (!isDraftSubmittable(draft)) {
       const firstBroken = PUBLISH_STEPS.find((s) => !isStepValid(draft, s.id));
-      toast.error("Revisá las etapas incompletas antes de enviar.");
+      toast.error("Hay etapas incompletas.");
       if (firstBroken) scrollToStep(firstBroken.id);
       return;
     }
@@ -369,7 +371,7 @@ export function PublishWizard() {
     try {
       const blobs = await loadImageBlobs(draft.images.map((img) => img.id));
       if (blobs.size < MIN_PHOTOS) {
-        throw new Error("No se encontraron las fotos en este navegador. Volvé a subirlas.");
+        throw new Error("No se encontraron las fotos.");
       }
       const result = await submitListing(next, blobs);
       setDraft(next);
@@ -379,15 +381,13 @@ export function PublishWizard() {
         toast.success("Solicitud enviada. Tu publicación quedó pendiente de revisión.");
       } else {
         toast.success("Solicitud guardada, pendiente de revisión.");
-        toast.warning(
-          result.mailError
-            ? `No se envió el mail de aviso (${result.mailError}).`
-            : "No se envió el mail de aviso.",
-        );
+        if (result.mailError) console.warn("aviso por mail", result.mailError);
+        toast.warning("Tu solicitud quedó cargada. El aviso por mail no salió.");
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "No se pudo enviar la solicitud.");
+      console.error(err);
+      toast.error(visitorError(err, "publicar"));
     } finally {
       setSubmitting(false);
     }
@@ -552,7 +552,7 @@ export function PublishWizard() {
                       <SelectValue placeholder="Seleccioná marca" />
                     </SelectTrigger>
                     <SelectContent side="bottom" className="max-h-72">
-                      {MARCAS_ORDENADAS.map((m) => (
+                      {marcasOrdenadas.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.nombre}
                         </SelectItem>

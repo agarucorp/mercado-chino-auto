@@ -1,4 +1,4 @@
-import { getModeloImage } from "@/data/modelo-media";
+import { resolveImages } from "@/lib/model-catalog";
 import { getModeloPath } from "@/lib/marcas";
 import type { Marca, Modelo } from "@/types/marcas";
 import { Link } from "react-router-dom";
@@ -13,7 +13,7 @@ export function ModeloCard({ marca, modelo }: ModeloCardProps) {
     <Link to={getModeloPath(marca, modelo)} className="group block overflow-hidden">
       <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-muted">
         <img
-          src={getModeloImage(modelo.id)}
+          src={resolveImages(modelo.id)[0]}
           alt={modelo.nombre}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -24,6 +24,9 @@ export function ModeloCard({ marca, modelo }: ModeloCardProps) {
           {modelo.nombre}
         </h3>
         <p className="type-meta text-muted-foreground mt-1">{marca.nombre}</p>
+        {modelo.estado === "Discontinuado" && (
+          <p className="type-meta text-muted-foreground mt-1">Discontinuado</p>
+        )}
       </div>
     </Link>
   );

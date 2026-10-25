@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { MARCAS } from "@/data/marcas";
+import { useCatalogSnapshot } from "@/hooks/useModelCatalog";
 import { NEWS_DATA } from "@/data/news";
 import { useNews } from "@/hooks/useNews";
 import { fetchNewsById } from "@/lib/news-api";
@@ -18,6 +18,7 @@ function paragraphs(text: string): string[] {
 
 const NoticiaDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const catalog = useCatalogSnapshot();
   const { data: list = [] } = useNews();
 
   const cached = list.find((n) => n.id === id);
@@ -43,7 +44,7 @@ const NoticiaDetail = () => {
   if (!article) return <Navigate to="/noticias" replace />;
 
   const marca = article.marcaId
-    ? MARCAS.find((m) => m.id === article.marcaId)
+    ? catalog.marcas.find((m) => m.id === article.marcaId)
     : undefined;
   const modelo = marca?.modelos.find((m) => m.id === article.modeloId);
   const body = article.body?.trim() || article.excerpt;

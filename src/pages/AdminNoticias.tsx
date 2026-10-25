@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MARCAS } from "@/data/marcas";
+import { getLiveMarcas } from "@/lib/model-catalog";
 import { useNews, useNewsMutations } from "@/hooks/useNews";
 import type { NewsInput } from "@/lib/news-api";
 import { isBrandWideNews, isGeneralNews } from "@/lib/news-placement";
@@ -23,7 +23,7 @@ import { toast } from "sonner";
 
 function modeloLabel(article: NewsArticle): string {
   if (isGeneralNews(article)) return "No aplica";
-  const marca = MARCAS.find((m) => m.id === article.marcaId);
+  const marca = getLiveMarcas().find((m) => m.id === article.marcaId);
   if (!marca) return "Marca";
   if (isBrandWideNews(article)) return `${marca.nombre} · Todos los modelos`;
   const modelo = marca.modelos.find((m) => m.id === article.modeloId);

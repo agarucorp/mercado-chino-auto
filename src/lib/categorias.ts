@@ -1,5 +1,4 @@
-import { MARCAS } from "@/data/marcas";
-import { getFichaTecnica } from "@/data/modelo-media";
+import { getLiveMarcas, resolveFicha } from "@/lib/model-catalog";
 import type { Marca, Modelo } from "@/types/marcas";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -184,7 +183,7 @@ export function getCategoriasDeModelo(nombre: string): CategoriaSlug[] {
 
 function categoriasDesdeFicha(modeloId: string): CategoriaSlug[] {
   const motor =
-    getFichaTecnica(modeloId)
+    resolveFicha(modeloId)
       .find((row) => row.label === "Tipo de motor")
       ?.value.toLowerCase() ?? "";
   const cats: CategoriaSlug[] = [];
@@ -208,7 +207,7 @@ export function getCategoriasConConteo(): Array<CategoriaInfo & { count: number 
     counts.set(cat.slug, 0);
   }
 
-  for (const marca of MARCAS) {
+  for (const marca of getLiveMarcas()) {
     for (const modelo of marca.modelos) {
       for (const cat of new Set([
         ...getCategoriasDeModelo(modelo.nombre),
@@ -261,7 +260,7 @@ export interface ModeloConMarca {
 export function getModelosPorCategoria(categoria: CategoriaSlug): ModeloConMarca[] {
   const result: ModeloConMarca[] = [];
 
-  for (const marca of MARCAS) {
+  for (const marca of getLiveMarcas()) {
     for (const modelo of marca.modelos) {
       if (modeloEnCategoria(modelo, categoria)) {
         result.push({ marca, modelo });
